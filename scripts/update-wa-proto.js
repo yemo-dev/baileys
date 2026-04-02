@@ -6,7 +6,6 @@ const PROTO_SOURCE_URL = 'https://raw.githubusercontent.com/WhiskeySockets/Baile
 const WA_PROTO_DIR = join(__dirname, '..', 'WAProto');
 const SOURCE_PROTO_PATH = join(WA_PROTO_DIR, 'WAProto.proto');
 const BUNDLE_PATH = join(WA_PROTO_DIR, 'index.js');
-const DTS_PATH = join(WA_PROTO_DIR, 'index.d.ts');
 
 async function loadProtoSource() {
     if (existsSync(SOURCE_PROTO_PATH)) {
@@ -108,19 +107,12 @@ function runPbjs(protoPath, outputPath) {
     });
 }
 
-function runPbts(jsPath, outputPath) {
-    execFileSync('npx', ['--yes', '-p', 'protobufjs-cli', 'pbts', '-o', outputPath, jsPath], {
-        stdio: 'inherit'
-    });
-}
-
 async function main() {
     const source = await loadProtoSource();
     const { definitions } = splitProtoSource(source);
 
     writeFileSync(SOURCE_PROTO_PATH, source);
     runPbjs(SOURCE_PROTO_PATH, BUNDLE_PATH);
-    runPbts(BUNDLE_PATH, DTS_PATH);
     writeSplitProtoFiles(source, definitions);
     writeModuleWrappers(definitions);
 
