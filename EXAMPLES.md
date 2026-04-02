@@ -21,6 +21,9 @@ This document contains a comprehensive set of examples and detailed explanations
 - [Implementing a Data Store](#implementing-a-data-store)
 - [Whatsapp IDs Explain](#whatsapp-ids-explain)
 - [Utility Functions](#utility-functions)
+- [Batch Contact Lookup](#batch-contact-lookup)
+- [Account Restriction Check](#account-restriction-check)
+- [Audio Transcoding](#audio-transcoding)
 - [Sending Messages](#sending-messages)
     - [Non-Media Messages](#non-media-messages)
     - [Sending with Link Preview](#sending-with-link-preview)
@@ -290,6 +293,50 @@ sock.ev.on('chats.upsert', () => {
 - `getContentType(msg)`: Quickly find out if a message is text, image, etc.
 - `downloadMediaMessage(msg, 'buffer')`: Download media content.
 - `generateMessageID()`: Generate a unique ID for a new message.
+
+## Batch Contact Lookup
+
+You can verify many IDs at once.
+
+```javascript
+const result = await sock.onWhatsApp([
+    '6281111111111@s.whatsapp.net',
+    '6282222222222@s.whatsapp.net'
+])
+
+console.log(result)
+```
+
+## Account Restriction Check
+
+Use this before sending if you want to inspect timelock or message cap status.
+
+```javascript
+const restriction = await sock.checkAccountRestriction()
+
+console.log(restriction.isRestricted)
+console.log(restriction.reachoutTimelock)
+console.log(restriction.messageCap)
+```
+
+## Audio Transcoding
+
+Enable optional audio conversion before sending.
+
+```javascript
+const { transcodeAudio } = require('@yemo-dev/yebail')
+
+const audio = await transcodeAudio('./voice.mp3', { bitrate: '64k' })
+
+await sock.sendMessage(jid, {
+    audio,
+    mimetype: 'audio/ogg; codecs=opus',
+    ptt: true
+}, {
+    transcodeAudio: true,
+    audioBitrate: '64k'
+})
+```
 
 ---
 

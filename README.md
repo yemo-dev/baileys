@@ -33,7 +33,7 @@ npm install github:yemo-dev/baileys
 
 ## Import
 
-After installing from npm, the module name is `@yemo-dev/yebails`:
+After installing from npm, the module name is `@yemo-dev/yebail`:
 
 ```js
 const { 
@@ -117,11 +117,13 @@ connectToWhatsApp()
 - **Interactive Messages**: Full support for Buttons, Lists, and Native Flows.
 - **Polls**: Create and track polls, with built-in vote aggregation.
 - **32-Char Hex IDs**: Modern ID generation for better database indexing.
+- **Batch Contact Lookup**: Check multiple WhatsApp IDs in one call.
+- **Account Restriction Check**: Inspect reachout timelock and message cap state.
 
 ### 📁 Media & Utilities
 - **Media Handling**: Efficient streaming for image, video, audio, and documents.
+- **Audio Transcoding**: Optional helper to convert audio before sending.
 - **Link Previews**: Automatic metadata generation for shared links.
-- **Node Filtering**: Anti-spam filtering for business and bot nodes.
 
 ## Detailed Examples
 
@@ -158,4 +160,17 @@ async function connectToWhatsApp() {
 }
 
 connectToWhatsApp()
+```
+
+### Extra APIs
+
+```javascript
+const { transcodeAudio } = require('@yemo-dev/yebail')
+
+const restriction = await sock.checkAccountRestriction()
+const lookup = await sock.onWhatsApp([
+    '6281111111111@s.whatsapp.net',
+    '6282222222222@s.whatsapp.net'
+])
+const audio = await transcodeAudio('./voice.mp3', { bitrate: '64k' })
 ```
