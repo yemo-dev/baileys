@@ -15,8 +15,20 @@ async function fetchLatestWaWebVersion() {
         }
 
         const data = await response.text();
-        const regex = /\"?client_revision\"?:\s*(\d+)/;
-        const match = data.match(regex);
+        const patterns = [
+            /client_revision\\":(\d+)/,
+            /client_revision":(\d+)/,
+            /client_revision:(\d+)/
+        ];
+
+        let match = null;
+        for (const pattern of patterns) {
+            match = data.match(pattern);
+            if (match && match[1]) {
+                break;
+            }
+        }
+
         if (!match || !match[1]) {
             throw new Error('Could not find client revision in sw.js');
         }
