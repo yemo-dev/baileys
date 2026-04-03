@@ -88,7 +88,7 @@ const MENU_SECTIONS = [
             { title: '.album', description: 'Kirim album foto', rowId: '.album' },
             { title: '.download', description: 'Unduh media terakhir di chat', rowId: '.download' },
             { title: '.grayscale', description: 'Ubah gambar terakhir ke hitam putih', rowId: '.grayscale' },
-            { title: '.resize', description: 'Resize gambar terakhir ke 512x512', rowId: '.resize' },
+            { title: '.resize', description: 'Resize gambar terakhir ke lebar 512px', rowId: '.resize' },
             { title: '.thumbnail', description: 'Buat thumbnail 200x200 dari gambar terakhir', rowId: '.thumbnail' },
         ],
     },
@@ -539,20 +539,25 @@ const startSock = async () => {
                     if (!imgMsg) {
                         await sock.sendMessage(jid, { text: '❌ Tidak ada gambar di chat ini untuk diproses.' })
                     } else {
-                        const buffer = await downloadMediaMessage(imgMsg, 'buffer', {})
-                        const image = await Jimp.read(buffer)
-                        if (text === '.grayscale') {
-                            image.grayscale()
-                            const out = await image.getBufferAsync(Jimp.MIME_JPEG)
-                            await sock.sendMessage(jid, { image: out, caption: '🖤 Gambar hitam putih' })
-                        } else if (text === '.resize') {
-                            image.resize(512, Jimp.AUTO)
-                            const out = await image.getBufferAsync(Jimp.MIME_JPEG)
-                            await sock.sendMessage(jid, { image: out, caption: '📐 Gambar di-resize ke lebar 512px' })
-                        } else if (text === '.thumbnail') {
-                            image.cover(200, 200)
-                            const out = await image.getBufferAsync(Jimp.MIME_JPEG)
-                            await sock.sendMessage(jid, { image: out, caption: '🖼️ Thumbnail 200×200' })
+                        try {
+                            const buffer = await downloadMediaMessage(imgMsg, 'buffer', {})
+                            const image = await Jimp.read(buffer)
+                            if (text === '.grayscale') {
+                                image.grayscale()
+                                const out = await image.getBufferAsync(Jimp.MIME_JPEG)
+                                await sock.sendMessage(jid, { image: out, caption: '🖤 Gambar hitam putih' })
+                            } else if (text === '.resize') {
+                                image.resize(512, Jimp.AUTO)
+                                const out = await image.getBufferAsync(Jimp.MIME_JPEG)
+                                await sock.sendMessage(jid, { image: out, caption: '📐 Gambar di-resize ke lebar 512px' })
+                            } else if (text === '.thumbnail') {
+                                image.cover(200, 200)
+                                const out = await image.getBufferAsync(Jimp.MIME_JPEG)
+                                await sock.sendMessage(jid, { image: out, caption: '🖼️ Thumbnail 200×200' })
+                            }
+                        } catch (err) {
+                            console.error('[Yebail] Jimp error:', err)
+                            await sock.sendMessage(jid, { text: '❌ Gagal memproses gambar. Pastikan format gambar valid.' })
                         }
                     }
                 } else if (text === '.mystatus') {
