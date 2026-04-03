@@ -30,7 +30,8 @@ const {
 
 const P = require('pino')
 const { Boom } = require('@hapi/boom')
-const NodeCache = require('@cacheable/node-cache')
+const { NodeCache } = require('@cacheable/node-cache')
+const Jimp = require('jimp')
 const readline = require('readline')
 
 const logger = P({ level: 'silent' })
@@ -86,6 +87,9 @@ const MENU_SECTIONS = [
             { title: '.viewonce', description: 'Kirim gambar sekali lihat', rowId: '.viewonce' },
             { title: '.album', description: 'Kirim album foto', rowId: '.album' },
             { title: '.download', description: 'Unduh media terakhir di chat', rowId: '.download' },
+            { title: '.grayscale', description: 'Ubah gambar terakhir ke hitam putih', rowId: '.grayscale' },
+            { title: '.resize', description: 'Resize gambar terakhir ke lebar 512px', rowId: '.resize' },
+            { title: '.thumbnail', description: 'Buat thumbnail 200x200 dari gambar terakhir', rowId: '.thumbnail' },
         ],
     },
     {
@@ -524,6 +528,37 @@ const startSock = async () => {
                         await sock.sendMessage(jid, { text: `✅ Unduhan berhasil: ${buffer.length} bytes` })
                     } else {
                         await sock.sendMessage(jid, { text: '❌ Tidak ada media yang bisa diunduh di chat ini.' })
+                    }
+                } else if (text === '.grayscale' || text === '.resize' || text === '.thumbnail') {
+                    const chatMsgs = store.messages[jid]?.array || []
+                    const imgMsg = [...chatMsgs].reverse().find(m => {
+                        const c = m.message
+                        if (!c) return false
+                        return getContentType(c) === 'imageMessage'
+                    })
+                    if (!imgMsg) {
+                        await sock.sendMessage(jid, { text: '❌ Tidak ada gambar di chat ini untuk diproses.' })
+                    } else {
+                        try {
+                            const buffer = await downloadMediaMessage(imgMsg, 'buffer', {})
+                            const image = await Jimp.read(buffer)
+                            if (text === '.grayscale') {
+                                image.grayscale()
+                                const out = await image.getBufferAsync(Jimp.MIME_JPEG)
+                                await sock.sendMessage(jid, { image: out, caption: '🖤 Gambar hitam putih' })
+                            } else if (text === '.resize') {
+                                image.resize(512, Jimp.AUTO)
+                                const out = await image.getBufferAsync(Jimp.MIME_JPEG)
+                                await sock.sendMessage(jid, { image: out, caption: '📐 Gambar di-resize ke lebar 512px' })
+                            } else if (text === '.thumbnail') {
+                                image.cover(200, 200)
+                                const out = await image.getBufferAsync(Jimp.MIME_JPEG)
+                                await sock.sendMessage(jid, { image: out, caption: '🖼️ Thumbnail 200×200' })
+                            }
+                        } catch (err) {
+                            console.error('[Yebail] Jimp error:', err)
+                            await sock.sendMessage(jid, { text: '❌ Gagal memproses gambar. Pastikan format gambar valid.' })
+                        }
                     }
                 } else if (text === '.mystatus') {
                     await sock.sendStatusMentions(
