@@ -586,3 +586,804 @@
 ---
 
 *This feature list represents the comprehensive capabilities of the Baileys/yebail library as of version 3.0.1, suitable for detailed comparison with other WhatsApp API solutions.*
+
+---
+
+## CODE EXAMPLES BY FEATURE CATEGORY
+
+The following examples demonstrate how to use every major feature category.
+
+### 1. Text & Extended Messages
+
+```javascript
+// Plain text
+await sock.sendMessage(jid, { text: 'Hello World! 👋' })
+
+// Text with bold/italic/strikethrough/code formatting
+await sock.sendMessage(jid, {
+    text: '*bold* _italic_ ~strikethrough~ ```monospace```'
+})
+
+// Text with URL (auto link preview)
+await sock.sendMessage(jid, {
+    text: 'Check https://github.com/yemo-dev/baileys for details'
+})
+
+// Mention users
+await sock.sendMessage(jid, {
+    text: 'Hello @628111111111 and @628222222222!',
+    mentions: ['628111111111@s.whatsapp.net', '628222222222@s.whatsapp.net']
+})
+```
+
+### 2. Media Messages
+
+```javascript
+// Image from URL
+await sock.sendMessage(jid, {
+    image: { url: 'https://example.com/photo.jpg' },
+    caption: 'Caption for image 📸'
+})
+
+// Image from file
+const fs = require('fs')
+await sock.sendMessage(jid, {
+    image: fs.readFileSync('./photo.jpg'),
+    caption: 'From local file'
+})
+
+// Video
+await sock.sendMessage(jid, {
+    video: { url: 'https://example.com/video.mp4' },
+    caption: 'Watch this! 🎬'
+})
+
+// GIF (looping video)
+await sock.sendMessage(jid, {
+    video: { url: 'https://example.com/anim.mp4' },
+    gifPlayback: true
+})
+
+// Audio
+await sock.sendMessage(jid, {
+    audio: { url: 'https://example.com/audio.mp3' },
+    mimetype: 'audio/mp4'
+})
+
+// Voice note (PTT)
+await sock.sendMessage(jid, {
+    audio: { url: 'https://example.com/voice.ogg' },
+    mimetype: 'audio/ogg; codecs=opus',
+    ptt: true
+})
+
+// Push-to-Video (round video)
+await sock.sendMessage(jid, {
+    video: { url: 'https://example.com/clip.mp4' },
+    ptv: true
+})
+
+// Document
+await sock.sendMessage(jid, {
+    document: { url: 'https://example.com/file.pdf' },
+    mimetype: 'application/pdf',
+    fileName: 'report.pdf',
+    caption: 'Monthly report 📄'
+})
+
+// Sticker (regular)
+await sock.sendMessage(jid, {
+    sticker: { url: 'https://example.com/sticker.webp' }
+})
+
+// View-once image
+await sock.sendMessage(jid, {
+    image: { url: 'https://example.com/secret.jpg' },
+    viewOnce: true
+})
+```
+
+### 3. Sticker Support
+
+```javascript
+// Regular WebP sticker
+await sock.sendMessage(jid, {
+    sticker: fs.readFileSync('./sticker.webp')
+})
+
+// Animated (Lottie) sticker
+await sock.sendMessage(jid, {
+    sticker: fs.readFileSync('./sticker.tgs'),
+    isLottie: true
+})
+```
+
+### 4. Group Features
+
+```javascript
+// Create group
+const group = await sock.groupCreate('My Group', ['628xxx@s.whatsapp.net'])
+console.log('Group ID:', group.id)
+
+// Leave group
+await sock.groupLeave(groupJid)
+
+// Update name
+await sock.groupUpdateSubject(groupJid, 'New Group Name 🔥')
+
+// Update description
+await sock.groupUpdateDescription(groupJid, 'This is the updated group description.')
+
+// Add members
+await sock.groupParticipantsUpdate(groupJid, ['628xxx@s.whatsapp.net'], 'add')
+
+// Remove members
+await sock.groupParticipantsUpdate(groupJid, ['628xxx@s.whatsapp.net'], 'remove')
+
+// Promote to admin
+await sock.groupParticipantsUpdate(groupJid, ['628xxx@s.whatsapp.net'], 'promote')
+
+// Demote from admin
+await sock.groupParticipantsUpdate(groupJid, ['628xxx@s.whatsapp.net'], 'demote')
+
+// Get pending join requests
+const requests = await sock.groupRequestParticipantsList(groupJid)
+
+// Approve / reject requests
+await sock.groupRequestParticipantsUpdate(groupJid, ['628xxx@s.whatsapp.net'], 'approve')
+await sock.groupRequestParticipantsUpdate(groupJid, ['628xxx@s.whatsapp.net'], 'reject')
+
+// Get metadata
+const meta = await sock.groupMetadata(groupJid)
+
+// Get invite code
+const code = await sock.groupInviteCode(groupJid)
+console.log('Invite: https://chat.whatsapp.com/' + code)
+
+// Revoke invite
+await sock.groupRevokeInvite(groupJid)
+
+// Accept invite by code
+const joinedJid = await sock.groupAcceptInvite('INVITE_CODE')
+
+// Get invite info before joining
+const info = await sock.groupGetInviteInfo('INVITE_CODE')
+
+// Member add mode
+await sock.groupMemberAddMode(groupJid, 'all_member_add')
+
+// Join approval mode
+await sock.groupJoinApprovalMode(groupJid, 'on')
+
+// Toggle ephemeral
+await sock.groupToggleEphemeral(groupJid, 604800) // 7 days
+
+// Update group settings
+await sock.groupSettingUpdate(groupJid, 'announcement') // only admins can send
+
+// Fetch all groups
+const groups = await sock.groupFetchAllParticipating()
+```
+
+### 5. Business Features
+
+```javascript
+// Get business profile
+const profile = await sock.getBusinessProfile('628xxx@s.whatsapp.net')
+console.log('Business:', profile)
+
+// Update business profile (WhatsApp Business accounts only)
+await sock.updateBussinesProfile({
+    address: '123 Main Street, Jakarta',
+    email: 'contact@mybusiness.com',
+    description: 'Official WhatsApp Business account.',
+    websites: ['https://mybusiness.com'],
+    hours: {
+        timezone: 'Asia/Jakarta',
+        days: [
+            { day: 'MON', mode: 'specific_hours', openTimeInMinutes: 540, closeTimeInMinutes: 1080 },
+            { day: 'SAT', mode: 'open_24h' },
+            { day: 'SUN', mode: 'closed' }
+        ]
+    }
+})
+
+// Update cover photo
+await sock.updateCoverPhoto(fs.readFileSync('./cover.jpg'))
+
+// Remove cover photo
+await sock.removeCoverPhoto()
+```
+
+### 6. Newsletter / Channel Features
+
+```javascript
+// Create newsletter
+const nl = await sock.newsletterCreate('My Channel', 'Official updates')
+console.log('Newsletter ID:', nl.id)
+
+// Delete newsletter
+await sock.newsletterDelete(nl.id)
+
+// Update name
+await sock.newsletterUpdateName(nl.id, 'New Channel Name')
+
+// Update description
+await sock.newsletterUpdateDescription(nl.id, 'Updated description')
+
+// Update picture
+await sock.newsletterUpdatePicture(nl.id, fs.readFileSync('./logo.jpg'))
+
+// Remove picture
+await sock.newsletterRemovePicture(nl.id)
+
+// Follow / unfollow
+await sock.newsletterFollow(nl.id)
+await sock.newsletterUnfollow(nl.id)
+
+// Mute / unmute
+await sock.newsletterMute(nl.id)
+await sock.newsletterUnmute(nl.id)
+
+// Subscribe to live updates
+await sock.subscribeNewsletterUpdates(nl.id)
+
+// Change owner
+await sock.newsletterChangeOwner(nl.id, '628xxx@s.whatsapp.net')
+
+// Demote admin
+await sock.newsletterDemote(nl.id, '628xxx@s.whatsapp.net')
+
+// Get admin count
+const count = await sock.newsletterAdminCount(nl.id)
+
+// Get metadata
+const meta = await sock.newsletterMetadata('JID', nl.id)
+console.log('Subscribers:', meta.subscribers)
+
+// Fetch messages
+const messages = await sock.newsletterFetchMessages('jid', nl.id, 10)
+
+// Fetch updates
+const updates = await sock.newsletterFetchUpdates(nl.id, 10)
+
+// React to a post
+await sock.newsletterReactMessage(nl.id, 'SERVER_ID', '❤️')
+
+// Set reaction mode
+await sock.newsletterReactionMode(nl.id, 'all')  // 'all' | 'basic' | 'none'
+```
+
+### 7. Community Features
+
+```javascript
+// Create community
+const community = await sock.communityCreate('My Community', 'Welcome!')
+
+// Get metadata
+const meta = await sock.communityMetadata(communityJid)
+
+// Update name / description
+await sock.communityUpdateSubject(communityJid, 'New Name')
+await sock.communityUpdateDescription(communityJid, 'New description')
+
+// Create subgroup
+await sock.communityCreateGroup('Study Room', ['628xxx@s.whatsapp.net'], communityJid)
+
+// Link / unlink groups
+await sock.communityLinkGroup(groupJid, communityJid)
+await sock.communityUnlinkGroup(groupJid, communityJid)
+
+// Fetch linked groups
+const { linkedGroups } = await sock.communityFetchLinkedGroups(communityJid)
+
+// Add / remove participants
+await sock.communityParticipantsUpdate(communityJid, ['628xxx@s.whatsapp.net'], 'add')
+await sock.communityParticipantsUpdate(communityJid, ['628xxx@s.whatsapp.net'], 'remove')
+
+// Get invite code
+const code = await sock.communityInviteCode(communityJid)
+
+// Revoke invite
+await sock.communityRevokeInvite(communityJid)
+
+// Pending requests
+const reqs = await sock.communityRequestParticipantsList(communityJid)
+await sock.communityRequestParticipantsUpdate(communityJid, ['628xxx@s.whatsapp.net'], 'approve')
+
+// Leave community
+await sock.communityLeave(communityJid)
+```
+
+### 8. Contact Management
+
+```javascript
+// Check WhatsApp availability (single)
+const [result] = await sock.onWhatsApp('628xxx@s.whatsapp.net')
+console.log(result?.exists, result?.lid)
+
+// Batch check
+const results = await sock.onWhatsApp('628xxx@s.whatsapp.net', '628yyy@s.whatsapp.net')
+
+// Fetch status text
+const statuses = await sock.fetchStatus(jid)
+console.log(statuses?.[0]?.status)
+
+// Fetch disappearing duration
+const durations = await sock.fetchDisappearingDuration(jid)
+
+// Profile picture URL
+const url = await sock.profilePictureUrl(jid, 'image')
+
+// Add / edit contact
+await sock.addOrEditContact(jid, { notify: 'John Doe' })
+
+// Remove contact
+await sock.removeContact(jid)
+```
+
+### 9. Profile Features
+
+```javascript
+// Update display name
+await sock.updateProfileName('My Bot 🤖')
+
+// Update status/bio
+await sock.updateProfileStatus('Built with yebail 🚀')
+
+// Update profile picture (own)
+await sock.updateProfilePicture(sock.authState.creds.me.id, fs.readFileSync('./avatar.jpg'))
+
+// Update group profile picture (admin required)
+await sock.updateProfilePicture(groupJid, fs.readFileSync('./group-icon.jpg'))
+
+// Remove profile picture
+await sock.removeProfilePicture(sock.authState.creds.me.id)
+```
+
+### 10. Connectivity & Authentication
+
+```javascript
+// QR code connection
+const sock = makeWASocket({
+    auth: state,
+    browser: Browsers.ubuntu('MyBot'),
+    printQRInTerminal: true
+})
+
+// Pairing code connection
+const sock2 = makeWASocket({ printQRInTerminal: false, auth: state })
+const code = await sock2.requestPairingCode('628xxxxxxxxx')
+console.log('Pairing code:', code)
+
+// Full history sync
+const sock3 = makeWASocket({
+    auth: state,
+    browser: Browsers.macOS('Desktop'),
+    syncFullHistory: true
+})
+
+// Auto-reconnect
+sock.ev.on('connection.update', ({ connection, lastDisconnect }) => {
+    if (connection === 'close') {
+        const shouldReconnect =
+            (lastDisconnect?.error instanceof Boom)
+                ? lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
+                : true
+        if (shouldReconnect) startSock()
+    }
+})
+```
+
+### 11. Advanced Messaging Features
+
+```javascript
+// Reply / quote
+await sock.sendMessage(jid, { text: 'Replying!' }, { quoted: msg })
+
+// Edit message
+const sent = await sock.sendMessage(jid, { text: 'Original' })
+await sock.sendMessage(jid, { text: 'Edited ✅', edit: sent.key })
+
+// Delete message (for everyone)
+await sock.sendMessage(jid, { delete: sent.key })
+
+// Forward message
+await sock.sendMessage(jid, { forward: msg, force: true })
+
+// Pin message
+await sock.sendMessage(jid, { pin: sent.key, type: 1 })
+
+// Mark as read
+await sock.readMessages([msg.key])
+
+// Download received media
+const { downloadMediaMessage } = require('@yemo-dev/yebail')
+const buffer = await downloadMediaMessage(msg, 'buffer', {})
+```
+
+### 12. Chat Management
+
+```javascript
+// Archive chat
+await sock.chatModify(
+    { archive: true, lastMessages: [{ key: msg.key, messageTimestamp: msg.messageTimestamp }] },
+    jid
+)
+
+// Pin chat
+await sock.chatModify({ pin: true }, jid)
+
+// Mute chat (8 hours)
+await sock.chatModify({ mute: Date.now() + 8 * 60 * 60 * 1000 }, jid)
+
+// Mark as unread
+await sock.chatModify(
+    { markRead: false, lastMessages: [{ key: msg.key, messageTimestamp: msg.messageTimestamp }] },
+    jid
+)
+
+// Delete chat
+await sock.chatModify(
+    { delete: true, lastMessages: [{ key: msg.key, messageTimestamp: msg.messageTimestamp }] },
+    jid
+)
+
+// Star a message
+await sock.star(jid, [{ id: msg.key.id, fromMe: !!msg.key.fromMe }], true)
+
+// Add label to chat
+await sock.addChatLabel(jid, 'LABEL_ID')
+await sock.removeChatLabel(jid, 'LABEL_ID')
+
+// Add label to message
+await sock.addMessageLabel(jid, msg.key.id, 'LABEL_ID')
+await sock.removeMessageLabel(jid, msg.key.id, 'LABEL_ID')
+```
+
+### 13. Polling & Voting
+
+```javascript
+// Create poll
+await sock.sendMessage(jid, {
+    poll: {
+        name: 'Favorite color?',
+        values: ['🔴 Red', '🟢 Green', '🔵 Blue'],
+        selectableCount: 1
+    }
+})
+
+// Decrypt poll votes
+const { getAggregateVotesInPollMessage } = require('@yemo-dev/yebail')
+sock.ev.on('messages.update', async (updates) => {
+    for (const { key, update } of updates) {
+        if (update.pollUpdates) {
+            const pollMsg = await store.loadMessage(key.remoteJid, key.id)
+            if (pollMsg) {
+                const votes = getAggregateVotesInPollMessage({
+                    message: pollMsg.message,
+                    pollUpdates: update.pollUpdates
+                })
+                console.log('Poll results:', votes)
+            }
+        }
+    }
+})
+```
+
+### 14. Special & Unique Features
+
+```javascript
+// Status/Story with mention (triggers notification)
+await sock.sendStatusMentions(
+    { text: '🚀 Testing yebail!' },
+    ['628xxx@s.whatsapp.net']
+)
+
+// Album message
+await sock.sendAlbumMessage(jid, [
+    { image: { url: 'https://picsum.photos/800/600?1' }, caption: 'Photo 1' },
+    { image: { url: 'https://picsum.photos/800/600?2' }, caption: 'Photo 2' }
+])
+
+// Bot list
+const bots = await sock.getBotListV2()
+console.log('Bots:', bots)
+
+// Send to bot / AI
+await sock.sendMessage(jid, {
+    text: 'What is the weather today?',
+    ai: true
+})
+
+// Websocket event callback
+sock.ws.on('CB:edge_routing', (node) => {
+    console.log('Edge routing:', node)
+})
+
+// Payment request
+await sock.sendMessage(jid, {
+    requestPaymentMessage: {
+        currencyCodeIso4217: 'IDR',
+        amount1000: 100000 * 1000,
+        requestFrom: sock.authState.creds.me.id,
+        noteMessage: {
+            extendedTextMessage: { text: 'Payment for services' }
+        }
+    }
+})
+
+// Create call link
+const token = await sock.createCallLink('video')
+console.log('Call link token:', token)
+```
+
+### 15. Data & Storage
+
+```javascript
+const { makeInMemoryStore } = require('@yemo-dev/yebail')
+
+// In-memory store
+const store = makeInMemoryStore({})
+store.readFromFile('./baileys_store.json')
+setInterval(() => store.writeToFile('./baileys_store.json'), 10_000)
+store.bind(sock.ev)
+
+// Load message
+const msg = await store.loadMessage(jid, messageId)
+
+// List all chats
+const chats = store.chats.all()
+console.log('Chats:', chats.length)
+
+// Group metadata cache
+const NodeCache = require('@cacheable/node-cache')
+const groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false })
+const sock = makeWASocket({
+    cachedGroupMetadata: async (jid) => groupCache.get(jid)
+})
+```
+
+### 16. Event System
+
+```javascript
+// Connection events
+sock.ev.on('connection.update', ({ connection, lastDisconnect, qr, isOnline }) => {
+    console.log('Connection:', connection, '| Online:', isOnline)
+})
+
+// Credential updates (always save)
+sock.ev.on('creds.update', saveCreds)
+
+// Incoming messages
+sock.ev.on('messages.upsert', ({ messages, type }) => {
+    if (type === 'notify') {
+        for (const msg of messages) {
+            console.log('New message from', msg.key.remoteJid)
+        }
+    }
+})
+
+// Message status updates
+sock.ev.on('messages.update', (updates) => {
+    for (const { key, update } of updates) {
+        if (update.status) console.log('Message status:', update.status)
+    }
+})
+
+// Message deletions
+sock.ev.on('messages.delete', (item) => {
+    console.log('Messages deleted:', item)
+})
+
+// Reactions
+sock.ev.on('message.reaction', ({ key, reaction }) => {
+    console.log(`Reaction ${reaction.text} on`, key.id)
+})
+
+// Chat events
+sock.ev.on('chats.upsert', (chats) => {
+    console.log('Chat upsert:', chats.length, 'chats')
+})
+sock.ev.on('chats.update', (updates) => {
+    console.log('Chat updates:', updates)
+})
+sock.ev.on('chats.delete', (ids) => {
+    console.log('Chats deleted:', ids)
+})
+
+// Group events
+sock.ev.on('groups.update', (updates) => {
+    for (const update of updates) {
+        console.log('Group updated:', update.id, update.subject)
+    }
+})
+sock.ev.on('group-participants.update', ({ id, participants, action }) => {
+    console.log(`${action} in ${id}:`, participants)
+})
+
+// Contact events
+sock.ev.on('contacts.upsert', (contacts) => {
+    for (const c of contacts) {
+        console.log('Contact:', c.id, c.notify)
+    }
+})
+
+// Presence events
+sock.ev.on('presence.update', ({ id, presences }) => {
+    for (const [participant, presence] of Object.entries(presences)) {
+        console.log(participant, 'is', presence.lastKnownPresence)
+    }
+})
+
+// Calls
+sock.ev.on('call', (calls) => {
+    for (const call of calls) {
+        console.log('Call from', call.from, 'status:', call.status)
+    }
+})
+```
+
+### 17. Configuration Options
+
+```javascript
+const sock = makeWASocket({
+    // Required
+    auth: state,
+
+    // QR vs Pairing
+    printQRInTerminal: true,
+
+    // Browser fingerprint
+    browser: Browsers.ubuntu('MyBot'),      // or Browsers.macOS('Desktop')
+
+    // History sync
+    syncFullHistory: false,
+
+    // Presence
+    markOnlineOnConnect: true,
+
+    // Custom message ID generator
+    generateMessageID: () => require('crypto').randomBytes(16).toString('hex').toUpperCase(),
+
+    // Group metadata cache (recommended)
+    cachedGroupMetadata: async (jid) => groupCache.get(jid),
+
+    // Message lookup (for retries and poll decryption)
+    getMessage: async (key) => {
+        const msg = await store.loadMessage(key.remoteJid, key.id)
+        return msg?.message
+    },
+
+    // Link preview settings
+    linkPreviewImageThumbnailWidth: 192,
+    generateHighQualityLinkPreview: true,
+
+    // Performance
+    enableRecentMessageCache: true,
+    maxMsgRetryCount: 5,
+
+    // Custom logger
+    logger: require('pino')({ level: 'silent' })
+})
+```
+
+### 18. Utilities & Helpers
+
+```javascript
+const {
+    getContentType,
+    downloadMediaMessage,
+    generateMessageID,
+    normalizeMessageContent,
+    extractMessageContent,
+    jidDecode,
+    jidNormalizedUser,
+    jidEncode,
+    isJidGroup,
+    isJidNewsletter,
+    isJidUser,
+    areJidsSameUser,
+    getAggregateVotesInPollMessage
+} = require('@yemo-dev/yebail')
+
+// Identify message type
+const type = getContentType(msg.message)  // 'conversation' | 'imageMessage' | etc.
+
+// Download media
+const buffer = await downloadMediaMessage(msg, 'buffer', {})
+const stream = await downloadMediaMessage(msg, 'stream', {})
+
+// Generate unique ID
+const id = generateMessageID()
+
+// Normalize (unwrap deviceSentMessage etc.)
+const content = normalizeMessageContent(msg.message)
+
+// JID utilities
+const { user, server, device } = jidDecode('628xxx@s.whatsapp.net')
+const normalized = jidNormalizedUser('628xxx:10@s.whatsapp.net') // '628xxx@s.whatsapp.net'
+const jid = jidEncode('628xxx', 's.whatsapp.net')
+console.log(isJidGroup('xxx@g.us'))       // true
+console.log(isJidNewsletter('xxx@newsletter')) // true
+console.log(areJidsSameUser('628xxx@s.whatsapp.net', '628xxx:5@s.whatsapp.net')) // true
+
+// Aggregate poll votes
+const votes = getAggregateVotesInPollMessage({
+    message: pollMsg.message,
+    pollUpdates: update.pollUpdates
+})
+```
+
+### 19. Message Options Reference
+
+```javascript
+// Send with expiry (ephemeral)
+await sock.sendMessage(jid, { text: 'Disappears in 7 days' }, { ephemeralExpiration: 604800 })
+
+// Send to broadcast (status/story)
+await sock.sendMessage('status@broadcast', {
+    text: '🌟 My story update',
+    backgroundColor: '#FF5733',
+    font: 3
+}, {
+    statusJidList: ['628xxx@s.whatsapp.net', '628yyy@s.whatsapp.net']
+})
+
+// Quoted reply
+await sock.sendMessage(jid, { text: 'Reply text' }, { quoted: originalMsg })
+
+// Mentions in group
+await sock.sendMessage(groupJid, {
+    text: '@628xxx you are mentioned!',
+    mentions: ['628xxx@s.whatsapp.net']
+})
+
+// View-once media
+await sock.sendMessage(jid, {
+    image: fs.readFileSync('./secret.jpg'),
+    viewOnce: true
+})
+
+// Forward with forwarded tag
+await sock.sendMessage(jid, { forward: msg, force: true })
+```
+
+### 20. Privacy Settings Full Reference
+
+```javascript
+// Last seen: 'all' | 'contacts' | 'contact_blacklist' | 'none'
+await sock.updateLastSeenPrivacy('contacts')
+
+// Online: 'all' | 'match_last_seen'
+await sock.updateOnlinePrivacy('match_last_seen')
+
+// Profile picture: 'all' | 'contacts' | 'contact_blacklist' | 'none'
+await sock.updateProfilePicturePrivacy('contacts')
+
+// Status/Story: 'all' | 'contacts' | 'contact_blacklist' | 'none'
+await sock.updateStatusPrivacy('contacts')
+
+// Read receipts: 'all' | 'none'
+await sock.updateReadReceiptsPrivacy('all')
+
+// Group add: 'all' | 'contacts' | 'contact_blacklist' | 'none'
+await sock.updateGroupsAddPrivacy('contacts')
+
+// Messages: 'all' | 'contacts'
+await sock.updateMessagesPrivacy('all')
+
+// Calls: 'all' | 'contacts' | 'contact_blacklist' | 'none'
+await sock.updateCallPrivacy('contacts')
+
+// Default disappearing mode (seconds): 0=off, 86400=1d, 604800=7d, 7776000=90d
+await sock.updateDefaultDisappearingMode(604800)
+
+// Disable link previews in chats
+await sock.updateDisableLinkPreviewsPrivacy(true)
+
+// Block management
+const list = await sock.fetchBlocklist()
+await sock.updateBlockStatus('628xxx@s.whatsapp.net', 'block')
+await sock.updateBlockStatus('628xxx@s.whatsapp.net', 'unblock')
+```
