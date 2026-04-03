@@ -20,5 +20,5 @@ export const logIncoming = ({ jid, text }) => {
 }
 
 export const logConnection = ({ connection }) => {
-  logger.info(`${Color.yellow('[CONN]')} ${Color.bold(connection || 'unknown')}`)
+  logger.info(`${Color.yellow('[CONNECTION]')} ${Color.bold(connection || 'unknown')}`)
 }

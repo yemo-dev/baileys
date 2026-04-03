@@ -10,11 +10,11 @@ import yebail, {
   fetchLatestWaWebVersion,
   makeInMemoryStore,
   getContentType,
-  getAggregateVotesInPollMessage,
 } from '@yemo-dev/yebail'
 import logger, { internalLogger } from './utils/logger.js'
 import { ask } from './utils/helpers.js'
 import { logBotEvent, logConnection, logIncoming } from './utils/logBotEvent.js'
+import config, { isOwnerJid } from './config.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -22,16 +22,24 @@ const ROOT = path.resolve(__dirname, '..')
 const PLUGINS_DIR = path.resolve(ROOT, 'plugins')
 const makeWASocket = yebail.makeWASocket || yebail.default || yebail
 
-const loadPlugins = async (pluginsDir) => {
-  const entries = await fs.readdir(pluginsDir, { withFileTypes: true })
-  const files = entries
-    .filter((e) => e.isFile() && e.name.endsWith('.js'))
-    .map((e) => e.name)
-    .sort()
+const listPluginFiles = async (dir) => {
+  const entries = await fs.readdir(dir, { withFileTypes: true })
+  const files = []
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      files.push(...(await listPluginFiles(fullPath)))
+    } else if (entry.isFile() && entry.name.endsWith('.js')) {
+      files.push(fullPath)
+    }
+  }
+  return files.sort()
+}
 
+const loadPlugins = async (pluginsDir) => {
+  const files = await listPluginFiles(pluginsDir)
   const plugins = []
-  for (const file of files) {
-    const fullPath = path.join(pluginsDir, file)
+  for (const fullPath of files) {
     const mod = await import(pathToFileURL(fullPath).href)
     const plugin = mod.default
     if (!plugin?.name || !Array.isArray(plugin?.commands) || typeof plugin?.execute !== 'function') continue
@@ -58,12 +66,13 @@ const getMessageText = (msg) => {
 export const startBot = async () => {
   const { state, saveCreds } = await useMultiFileAuthState(path.resolve(ROOT, 'sessions'))
   const { version, isLatest } = await fetchLatestWaWebVersion()
-  logger.info(`[Yebail] WA v${version.join('.')} latest=${isLatest}`)
+  logger.info(`WhatsApp Web version: ${version.join('.')} (latest: ${isLatest ? 'yes' : 'no'})`)
+  logger.info(`Command prefix: ${config.prefix}`)
 
   const plugins = await loadPlugins(PLUGINS_DIR)
   const commandMap = new Map()
   for (const plugin of plugins) {
-    for (const command of plugin.commands) commandMap.set(command, plugin)
+    for (const command of plugin.commands) commandMap.set(command.toLowerCase(), plugin)
   }
 
   const sock = makeWASocket({
@@ -84,9 +93,9 @@ export const startBot = async () => {
   store.bind(sock.ev)
 
   if (!sock.authState.creds.registered) {
-    const nomor = await ask('[Yebail] Masukkan nomor HP (tanpa +, contoh 628123456789): ')
-    const code = await sock.requestPairingCode(nomor)
-    logger.info(`[Yebail] Pairing code: ${code}`)
+    const phoneNumber = await ask('Enter phone number (country code, digits only): ')
+    const code = await sock.requestPairingCode(phoneNumber)
+    logger.info(`Pairing code: ${code}`)
   }
 
   sock.ev.process(async (events) => {
@@ -116,18 +125,6 @@ export const startBot = async () => {
       groupCache.set(id, meta)
     }
 
-    if (events['messages.update']) {
-      for (const { key, update } of events['messages.update']) {
-        if (update.pollUpdates) {
-          const pollCreation = await store.loadMessage(key.remoteJid, key.id)
-          if (pollCreation) {
-            const votes = getAggregateVotesInPollMessage({ message: pollCreation.message, pollUpdates: update.pollUpdates })
-            logger.info(`[Yebail] poll votes: ${JSON.stringify(votes)}`)
-          }
-        }
-      }
-    }
-
     if (events['messages.upsert']) {
       const { messages, type } = events['messages.upsert']
       if (type !== 'notify') return
@@ -137,19 +134,41 @@ export const startBot = async () => {
 
         const jid = msg.key.remoteJid
         const rawText = getMessageText(msg)
-        const text = rawText.trim().toLowerCase()
-        if (!text) continue
+        const text = rawText.trim()
+        if (!text || !text.startsWith(config.prefix)) continue
 
         logIncoming({ jid, text: rawText })
 
         await sock.readMessages([msg.key])
         await sock.sendPresenceUpdate('composing', jid)
 
-        const command = text.split(' ')[0]
+        const body = text.slice(config.prefix.length).trim()
+        if (!body) continue
+
+        const [head = '', ...args] = body.split(/\s+/)
+        const command = head.toLowerCase()
+        const argText = body.slice(head.length).trim()
+        const senderJid = msg.key.participant || msg.key.remoteJid
+        const isOwner = isOwnerJid(senderJid)
         const plugin = commandMap.get(command)
 
         if (plugin) {
-          await logBotEvent(`cmd:${command}`, () => plugin.execute({ sock, msg, text, rawText, jid, store }))
+          await logBotEvent(`cmd:${command}`, () => plugin.execute({
+            sock,
+            msg,
+            text,
+            rawText,
+            jid,
+            store,
+            config,
+            command,
+            args,
+            argText,
+            senderJid,
+            isOwner,
+          }))
+        } else {
+          await sock.sendMessage(jid, { text: `Unknown command: ${config.prefix}${command}` })
         }
 
         await sock.sendPresenceUpdate('paused', jid)
