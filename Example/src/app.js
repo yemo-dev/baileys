@@ -12,7 +12,7 @@ import yebail, {
   getContentType,
   getAggregateVotesInPollMessage,
 } from '@yemo-dev/yebail'
-import logger from './utils/logger.js'
+import logger, { internalLogger } from './utils/logger.js'
 import { ask } from './utils/helpers.js'
 import { logBotEvent, logConnection, logIncoming } from './utils/logBotEvent.js'
 
@@ -40,7 +40,7 @@ const loadPlugins = async (pluginsDir) => {
   return plugins
 }
 
-const store = makeInMemoryStore({ logger })
+const store = makeInMemoryStore({ logger: internalLogger })
 const storePath = path.resolve(ROOT, 'yebail_store.json')
 store.readFromFile(storePath)
 setInterval(() => store.writeToFile(storePath), 10_000)
@@ -68,7 +68,7 @@ export const startBot = async () => {
 
   const sock = makeWASocket({
     version,
-    logger,
+    logger: internalLogger,
     auth: state,
     browser: ['Windows', 'Chrome', '10.0'],
     printQRInTerminal: false,
