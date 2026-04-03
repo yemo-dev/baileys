@@ -10,10 +10,7 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "checkJs": false,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "outDir": "lib",
-    "rootDir": "lib"
+    "noEmit": true
   },
   "include": [
     "lib/**/*.js"

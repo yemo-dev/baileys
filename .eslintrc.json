@@ -1,10 +1,14 @@
 {
-  "extends": [
-    "@adiwajshing/eslint-config"
-  ],
+  "root": true,
   "env": {
     "node": true,
     "es2021": true
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": "latest"
   },
   "ignorePatterns": [
     "node_modules/",

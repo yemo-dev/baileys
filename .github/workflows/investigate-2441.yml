@@ -1,0 +1,26 @@
+name: Investigate Issue 2441
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify-runtime-paths:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Verify send/recv paths for reachout/rate signals
+        run: |
+          node -e "const fs=require('fs');const p='lib/WABinary/constants.js';const v=fs.readFileSync(p,'utf8').includes('rate-overlimit');if(!v){throw new Error('rate-overlimit not found in constants')}console.log('rate-overlimit present in constants')"
+          node -e "const fs=require('fs');const p='lib/Socket/messages-send.js';const v=fs.readFileSync(p,'utf8').includes('senderKeyJids');if(!v){throw new Error('senderKeyJids path not found in messages-send')}console.log('senderKeyJids path present in messages-send')"
