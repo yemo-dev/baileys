@@ -1031,7 +1031,7 @@ await sock.sendStatusMentions(
 
 ```javascript
 // Edit a message you sent
-const sent = await sock.sendMessage(jid, { text: 'Orignal text' })
+const sent = await sock.sendMessage(jid, { text: 'Original text' })
 
 // Later, edit it
 await sock.sendMessage(jid, {
