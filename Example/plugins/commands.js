@@ -1,17 +1,17 @@
 import Jimp from 'jimp'
 import { getContentType, downloadMediaMessage } from '@yemo-dev/yebail'
-import { MENU_SECTIONS } from '../src/core/menu.js'
 import { sleep } from '../src/utils/helpers.js'
+import menuPlugin from './menu.js'
 
 const isGroup = (jid = '') => jid.endsWith('@g.us')
 
 const sendMenu = async ({ sock, jid }) => {
   await sock.sendMessage(jid, {
     text: 'Pilih kategori perintah yang ingin kamu gunakan:',
-    title: '🤖 *Yebail Bot*',
+    title: 'Yebail Bot',
     footer: 'Powered by @yemo-dev/yebail',
-    buttonText: '📋 Buka Menu',
-    sections: MENU_SECTIONS,
+    buttonText: 'Buka Menu',
+    sections: menuPlugin.sections,
   })
 }
 

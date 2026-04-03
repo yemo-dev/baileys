@@ -1,5 +1,7 @@
 import path from 'node:path'
+import fs from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
+import { pathToFileURL } from 'node:url'
 import { Boom } from '@hapi/boom'
 import { NodeCache } from '@cacheable/node-cache'
 import yebail, {
@@ -12,7 +14,6 @@ import yebail, {
 } from '@yemo-dev/yebail'
 import logger from './utils/logger.js'
 import { ask } from './utils/helpers.js'
-import { loadPlugins } from './core/plugins.js'
 import { logBotEvent, logConnection, logIncoming } from './utils/logBotEvent.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -20,6 +21,24 @@ const __dirname = path.dirname(__filename)
 const ROOT = path.resolve(__dirname, '..')
 const PLUGINS_DIR = path.resolve(ROOT, 'plugins')
 const makeWASocket = yebail.makeWASocket || yebail.default || yebail
+
+const loadPlugins = async (pluginsDir) => {
+  const entries = await fs.readdir(pluginsDir, { withFileTypes: true })
+  const files = entries
+    .filter((e) => e.isFile() && e.name.endsWith('.js'))
+    .map((e) => e.name)
+    .sort()
+
+  const plugins = []
+  for (const file of files) {
+    const fullPath = path.join(pluginsDir, file)
+    const mod = await import(pathToFileURL(fullPath).href)
+    const plugin = mod.default
+    if (!plugin?.name || !Array.isArray(plugin?.commands) || typeof plugin?.execute !== 'function') continue
+    plugins.push(plugin)
+  }
+  return plugins
+}
 
 const store = makeInMemoryStore({ logger })
 const storePath = path.resolve(ROOT, 'yebail_store.json')
