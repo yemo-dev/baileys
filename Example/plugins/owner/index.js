@@ -11,9 +11,14 @@ const safeSerialize = (value) => {
 export default {
   name: 'owner',
   commands: ['eval', 'exec'],
-  async execute({ sock, jid, command, argText, isOwner }) {
+  async execute({ sock, jid, command, argText, isOwner, config }) {
     if (!isOwner) {
       return sock.sendMessage(jid, { text: 'This command is owner-only.' })
+    }
+    if (!config.allowOwnerTools) {
+      return sock.sendMessage(jid, {
+        text: 'Owner tools are disabled. Set ALLOW_OWNER_TOOLS=true to enable.',
+      })
     }
 
     if (!argText) {

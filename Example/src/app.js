@@ -79,7 +79,7 @@ export const startBot = async () => {
     version,
     logger: internalLogger,
     auth: state,
-    browser: ['Windows', 'Chrome', '10.0'],
+    browser: [config.browser.platform, config.browser.name, config.browser.version],
     printQRInTerminal: false,
     markOnlineOnConnect: true,
     syncFullHistory: false,

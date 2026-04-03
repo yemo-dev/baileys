@@ -8,7 +8,12 @@ const ensureGroup = async ({ sock, jid }) => {
 
 const ensureBotAdmin = async ({ sock, jid }) => {
   const meta = await sock.groupMetadata(jid)
-  const me = sock.authState.creds.me.id.split(':')[0] + '@s.whatsapp.net'
+  const meId = sock.authState?.creds?.me?.id
+  if (!meId) {
+    await sock.sendMessage(jid, { text: 'Unable to verify bot identity yet. Please try again.' })
+    return { ok: false, meta }
+  }
+  const me = meId.split(':')[0] + '@s.whatsapp.net'
   const meData = meta.participants.find((p) => p.id === me)
   if (meData?.admin) return { ok: true, meta }
   await sock.sendMessage(jid, { text: 'Bot must be group admin for this action.' })

@@ -12,6 +12,12 @@ const config = {
   botName: process.env.BOT_NAME || 'botz',
   prefix: process.env.BOT_PREFIX || '.',
   owners: ownersFromEnv,
+  allowOwnerTools: process.env.ALLOW_OWNER_TOOLS === 'true',
+  browser: {
+    platform: process.env.WA_BROWSER_PLATFORM || 'Windows',
+    name: process.env.WA_BROWSER_NAME || 'Chrome',
+    version: process.env.WA_BROWSER_VERSION || '10.0',
+  },
 }
 
 export const isOwnerJid = (jid = '') => config.owners.includes(jid)
