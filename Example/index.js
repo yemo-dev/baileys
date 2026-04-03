@@ -540,7 +540,7 @@ const startSock = async () => {
                             const buffer = await downloadMediaMessage(imgMsg, 'buffer', {})
                             const image = await Jimp.read(buffer)
                             const MIME_JPEG = Jimp.MIME_JPEG || 'image/jpeg'
-                            const jimpAuto = Jimp.AUTO != null ? Jimp.AUTO : -1
+                            const jimpAuto = Jimp.AUTO !== null && Jimp.AUTO !== undefined ? Jimp.AUTO : -1
                             const getBuffer = (img) => typeof img.getBufferAsync === 'function'
                                 ? img.getBufferAsync(MIME_JPEG)
                                 : img.getBuffer(MIME_JPEG)
