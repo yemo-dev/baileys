@@ -51,7 +51,7 @@
     "libsignal": "github:yemo-dev/libsignal-node",
     "lodash": "^4.17.21",
     "lru-cache": "^10.4.3",
-    "music-metadata": "^7.12.3",
+    "music-metadata": "^11.12.3",
     "pino": "^9.6",
     "protobufjs": "^6.11.3",
     "uuid": "^10.0.0",
