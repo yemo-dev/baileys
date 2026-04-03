@@ -186,6 +186,12 @@ const startSock = async () => {
                         image: { url: 'https://picsum.photos/800/600' },
                         caption: 'Gambar acak 🌄',
                     })
+                } else if (text === '!imagefile') {
+                    /*
+                     * Untuk mengirim gambar dari file lokal, ganti baris di bawah:
+                     * image: fs.readFileSync('./assets/photo.jpg'),
+                     */
+                    await sock.sendMessage(jid, { text: 'Aktifkan komentar imagefile di example.js untuk mengirim dari file lokal.' })
                 } else if (text === '!video') {
                     await sock.sendMessage(jid, {
                         video: { url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
@@ -304,6 +310,19 @@ const startSock = async () => {
                             ],
                         },
                     })
+                } else if (text === '!buttons') {
+                    await sock.sendMessage(jid, {
+                        buttonsMessage: {
+                            text: 'Pilih salah satu:',
+                            footerText: 'Yebail Bot',
+                            headerType: 1,
+                            buttons: [
+                                { buttonId: 'btn1', buttonText: { displayText: 'Opsi 1' }, type: 1 },
+                                { buttonId: 'btn2', buttonText: { displayText: 'Opsi 2' }, type: 1 },
+                                { buttonId: 'btn3', buttonText: { displayText: 'Opsi 3' }, type: 1 },
+                            ],
+                        },
+                    })
                 } else if (text === '!interactive') {
                     await sock.sendMessage(jid, {
                         interactiveMessage: {
@@ -340,6 +359,19 @@ const startSock = async () => {
                                     { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: '😔 Kurang baik', id: 'bad' }) },
                                 ],
                                 messageParamsJson: '',
+                            },
+                        },
+                    })
+                } else if (text === '!pay') {
+                    await sock.sendMessage(jid, {
+                        requestPaymentMessage: {
+                            currencyCodeIso4217: 'IDR',
+                            amount1000: 50000 * 1000,
+                            requestFrom: sock.authState.creds.me.id,
+                            noteMessage: {
+                                extendedTextMessage: {
+                                    text: 'Pembayaran untuk layanan bot',
+                                },
                             },
                         },
                     })
@@ -567,11 +599,11 @@ const startSock = async () => {
                             '',
                             '*Pesan*',
                             '!ping, !link, !mention, !reply',
-                            '!image, !video, !gif, !audio, !voice, !ptv',
+                            '!image, !imagefile, !video, !gif, !audio, !voice, !ptv',
                             '!doc, !sticker, !contact, !contacts',
                             '!location, !livelocation, !poll',
-                            '!react, !unreact, !list, !interactive, !quickreply',
-                            '!viewonce, !album, !forward, !edit, !delete, !pin',
+                            '!react, !unreact, !list, !buttons, !interactive, !quickreply',
+                            '!pay, !viewonce, !album, !forward, !edit, !delete, !pin',
                             '',
                             '*Chat*',
                             '!markunread, !archive, !mute, !deletechat, !star',
