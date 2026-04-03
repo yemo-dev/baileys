@@ -12,6 +12,39 @@
  *
  * Kirim salah satu perintah berikut ke bot untuk menguji fitur:
  *   !help — daftar semua perintah
+ * @yemo-dev/yebail — Comprehensive Example Bot
+ *
+ * Covers:
+ *  - Connection (QR + Pairing Code)
+ *  - Auth state persistence
+ *  - In-memory store
+ *  - Group metadata caching
+ *  - All major sendMessage content types (text, image, video, audio, document,
+ *    sticker, contact, location, live-location, link-preview, poll, reaction,
+ *    list, buttons, native-flow/interactive, carousel, album, forward, edit,
+ *    delete, pin, view-once, PTT, PTV, payment-request)
+ *  - Status / Story sending with mentions
+ *  - Album messages
+ *  - Read receipts
+ *  - Presence updates (typing, recording, online/offline)
+ *  - Profile management (name, status text, picture, remove picture)
+ *  - Privacy settings (last-seen, online, profile-pic, status, read-receipts,
+ *    group-add, messages, calls, disappearing mode, link-previews)
+ *  - Block / unblock
+ *  - Blocklist fetch
+ *  - Chat modification (archive, pin, mute, delete, mark-unread, star, labels)
+ *  - Contact management (add/edit, remove)
+ *  - Group management (create, leave, update name/description, participants,
+ *    invite code, revoke, accept, approval mode, ephemeral, settings)
+ *  - Newsletter management (create, follow, mute, react, fetch, update)
+ *  - Community management (create, create group, link/unlink, participants)
+ *  - Business profile update & cover photo
+ *  - Poll vote decryption
+ *  - Download received media
+ *  - User lookup / fetchStatus
+ *  - Bot list
+ *  - Account restriction check
+ *  - Custom websocket event handling
  */
 
 'use strict'
@@ -48,12 +81,43 @@ function getMessageText(msg) {
     if (!type) return ''
     return content[type]?.text || content[type]?.caption || content?.conversation || ''
 }
+const path = require('path')
 
+// ─── Logger ──────────────────────────────────────────────────────────────────
+const logger = P({ level: 'silent' }) // change to 'debug' for verbose output
+
+// ─── In-Memory Store ─────────────────────────────────────────────────────────
+const store = makeInMemoryStore({ logger })
+store.readFromFile('./baileys_store.json')
+setInterval(() => store.writeToFile('./baileys_store.json'), 10_000)
+
+// ─── Group Metadata Cache ────────────────────────────────────────────────────
+const groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false })
+
+// ─── Helper: get plain text from a received message ──────────────────────────
+function getMessageText(msg) {
+    const content = msg?.message
+    if (!content) return ''
+    const type = getContentType(content)
+    if (!type) return ''
+    return (
+        content[type]?.text ||
+        content[type]?.caption ||
+        content?.conversation ||
+        ''
+    )
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 const startSock = async () => {
+    // 1. Auth state (filesystem)
     const { state, saveCreds } = await useMultiFileAuthState('baileys_auth_info')
+
+    // 2. Fetch latest WA Web version (keeps compatibility up to date)
     const { version, isLatest } = await fetchLatestWaWebVersion()
     console.log(`Using WA v${version.join('.')}, isLatest: ${isLatest}`)
 
+    // 3. Create socket
     const sock = makeWASocket({
         version,
         logger,
@@ -62,6 +126,11 @@ const startSock = async () => {
         printQRInTerminal: true,
         markOnlineOnConnect: true,
         syncFullHistory: false,
+        browser: Browsers.ubuntu('MyBot'),
+        printQRInTerminal: true,       // set false when using pairing code
+        markOnlineOnConnect: true,     // set false to keep phone notifications
+        syncFullHistory: false,
+        generateMessageID: undefined,  // leave undefined to use default 32-char hex
         cachedGroupMetadata: async (jid) => groupCache.get(jid),
         getMessage: async (key) => {
             if (store) {
@@ -85,7 +154,23 @@ const startSock = async () => {
      * }
      */
 
+    // 4. Bind store to socket events
+    store.bind(sock.ev)
+
+    // ── PAIRING CODE (alternative to QR scan) ────────────────────────────────
+    // Uncomment the block below and set printQRInTerminal: false to use pairing code instead.
+    /*
+    if (!sock.authState.creds.registered) {
+        const phoneNumber = '628xxxxxxxxx' // Your number with country code, no '+' or spaces
+        const code = await sock.requestPairingCode(phoneNumber)
+        console.log('Pairing code:', code)
+    }
+    */
+
+    // ─── Event Processing ────────────────────────────────────────────────────
     sock.ev.process(async (events) => {
+
+        // ── Connection update ──────────────────────────────────────────────
         if (events['connection.update']) {
             const { connection, lastDisconnect, qr } = events['connection.update']
             if (qr) console.log('Scan QR code untuk login.')
@@ -99,8 +184,24 @@ const startSock = async () => {
             } else if (connection === 'open') {
                 console.log('Koneksi berhasil!')
             }
+
+            if (qr) {
+                console.log('Scan QR code to login.')
+            }
+
+            if (connection === 'close') {
+                const shouldReconnect =
+                    (lastDisconnect?.error instanceof Boom)
+                        ? lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
+                        : true
+                console.log('Connection closed. Reconnecting:', shouldReconnect)
+                if (shouldReconnect) startSock()
+            } else if (connection === 'open') {
+                console.log('Connection opened!')
+            }
         }
 
+        // ── Save credentials whenever they change ──────────────────────────
         if (events['creds.update']) {
             await saveCreds()
         }
@@ -198,6 +299,71 @@ const startSock = async () => {
                         caption: 'Contoh video 🎬',
                     })
                 } else if (text === '!gif') {
+                // ── Mark as read ─────────────────────────────────────────
+                await sock.readMessages([msg.key])
+
+                // ── Typing indicator ─────────────────────────────────────
+                await sock.sendPresenceUpdate('composing', jid)
+
+                // ─────────────────────────────────────────────────────────
+                // COMMAND ROUTER
+                // Send any of these commands to the bot to demonstrate each
+                // feature. All phone numbers below use a placeholder
+                // (628xxx@s.whatsapp.net); replace with real JIDs when testing.
+                // ─────────────────────────────────────────────────────────
+
+                // ── 1. Plain text ────────────────────────────────────────
+                if (text === '!ping') {
+                    await sock.sendMessage(jid, { text: 'Pong! 🏓' })
+                }
+
+                // ── 2. Text with link preview ────────────────────────────
+                else if (text === '!link') {
+                    await sock.sendMessage(jid, {
+                        text: 'Check out https://github.com/yemo-dev/baileys',
+                    })
+                }
+
+                // ── 3. Mention users ─────────────────────────────────────
+                else if (text === '!mention') {
+                    await sock.sendMessage(jid, {
+                        text: `Hello @${jid.split('@')[0]}!`,
+                        mentions: [jid],
+                    })
+                }
+
+                // ── 4. Reply / quote ─────────────────────────────────────
+                else if (text === '!reply') {
+                    await sock.sendMessage(jid, { text: 'This is a reply!' }, { quoted: msg })
+                }
+
+                // ── 5. Image (from URL) ──────────────────────────────────
+                else if (text === '!image') {
+                    await sock.sendMessage(jid, {
+                        image: { url: 'https://picsum.photos/800/600' },
+                        caption: 'A beautiful random image 🌄',
+                    })
+                }
+
+                // ── 6. Image (from file) ─────────────────────────────────
+                else if (text === '!imagefile') {
+                    // await sock.sendMessage(jid, {
+                    //     image: fs.readFileSync('./assets/photo.jpg'),
+                    //     caption: 'Image from file',
+                    // })
+                    await sock.sendMessage(jid, { text: 'Uncomment the imagefile example in example.js' })
+                }
+
+                // ── 7. Video ─────────────────────────────────────────────
+                else if (text === '!video') {
+                    await sock.sendMessage(jid, {
+                        video: { url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
+                        caption: 'Sample video 🎬',
+                    })
+                }
+
+                // ── 8. GIF (gifPlayback) ──────────────────────────────────
+                else if (text === '!gif') {
                     await sock.sendMessage(jid, {
                         video: { url: 'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.mp4' },
                         gifPlayback: true,
@@ -220,6 +386,10 @@ const startSock = async () => {
                         ptv: true,
                     })
                 } else if (text === '!doc') {
+                }
+
+                // ── 11. Document ─────────────────────────────────────────
+                else if (text === '!doc') {
                     await sock.sendMessage(jid, {
                         document: { url: 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/sample.pdf' },
                         mimetype: 'application/pdf',
@@ -243,6 +413,36 @@ const startSock = async () => {
                     await sock.sendMessage(jid, {
                         contacts: {
                             displayName: 'Dua Kontak',
+                        caption: 'Here is a PDF document 📄',
+                    })
+                }
+
+                // ── 12. Sticker (from URL) ───────────────────────────────
+                else if (text === '!sticker') {
+                    await sock.sendMessage(jid, {
+                        sticker: { url: 'https://www.gstatic.com/webp/gallery/1.webp' },
+                    })
+                }
+
+                // ── 13. Contact card ─────────────────────────────────────
+                else if (text === '!contact') {
+                    await sock.sendMessage(jid, {
+                        contacts: {
+                            displayName: 'Yebail Bot',
+                            contacts: [
+                                {
+                                    vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:Yebail Bot\nTEL;type=CELL;type=VOICE;waid=628000000000:+62 800-0000-0000\nEND:VCARD`,
+                                },
+                            ],
+                        },
+                    })
+                }
+
+                // ── 14. Multiple contacts ────────────────────────────────
+                else if (text === '!contacts') {
+                    await sock.sendMessage(jid, {
+                        contacts: {
+                            displayName: 'Two Contacts',
                             contacts: [
                                 { vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:Alice\nTEL;waid=628111111111:+62 811-1111-1111\nEND:VCARD` },
                                 { vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:Bob\nTEL;waid=628222222222:+62 822-2222-2222\nEND:VCARD` },
@@ -259,6 +459,10 @@ const startSock = async () => {
                         },
                     })
                 } else if (text === '!livelocation') {
+                }
+
+                // ── 16. Live location (30 minutes) ───────────────────────
+                else if (text === '!livelocation') {
                     await sock.sendMessage(jid, {
                         liveLocation: {
                             degreesLatitude: -6.2088,
@@ -429,6 +633,109 @@ const startSock = async () => {
                     const s = statuses?.[0]?.status || 'Belum ada status'
                     await sock.sendMessage(jid, { text: `Status: ${s}` })
                 } else if (text === '!download') {
+                                    text: 'Payment for bot services',
+                                },
+                            },
+                        },
+                    })
+                }
+
+                // ── 25. View-once image ──────────────────────────────────
+                else if (text === '!viewonce') {
+                    await sock.sendMessage(jid, {
+                        image: { url: 'https://picsum.photos/400/400' },
+                        caption: 'This can only be viewed once!',
+                        viewOnce: true,
+                    })
+                }
+
+                // ── 26. Album (multi-media) ──────────────────────────────
+                else if (text === '!album') {
+                    await sock.sendAlbumMessage(jid, [
+                        { image: { url: 'https://picsum.photos/800/600?random=1' }, caption: 'Photo 1' },
+                        { image: { url: 'https://picsum.photos/800/600?random=2' }, caption: 'Photo 2' },
+                        { image: { url: 'https://picsum.photos/800/600?random=3' } },
+                    ])
+                }
+
+                // ── 27. Forward a message ────────────────────────────────
+                else if (text === '!forward') {
+                    await sock.sendMessage(jid, { forward: msg, force: true })
+                }
+
+                // ── 28. Edit a sent message ──────────────────────────────
+                else if (text === '!edit') {
+                    const sent = await sock.sendMessage(jid, { text: 'Original message...' })
+                    await new Promise(r => setTimeout(r, 2000))
+                    await sock.sendMessage(jid, { text: 'Edited message ✅', edit: sent.key })
+                }
+
+                // ── 29. Delete a message for everyone ────────────────────
+                else if (text === '!delete') {
+                    const sent = await sock.sendMessage(jid, { text: 'This will be deleted in 3 seconds...' })
+                    await new Promise(r => setTimeout(r, 3000))
+                    await sock.sendMessage(jid, { delete: sent.key })
+                }
+
+                // ── 30. Pin a message ────────────────────────────────────
+                else if (text === '!pin') {
+                    const sent = await sock.sendMessage(jid, { text: 'Pinned message 📌' })
+                    await sock.sendMessage(jid, { pin: sent.key, type: 1 })
+                }
+
+                // ── 31. Mark a message as unread ─────────────────────────
+                else if (text === '!markunread') {
+                    await sock.chatModify({ markRead: false, lastMessages: [{ key: msg.key, messageTimestamp: msg.messageTimestamp }] }, jid)
+                }
+
+                // ── 32. Archive / unarchive chat ─────────────────────────
+                else if (text === '!archive') {
+                    await sock.chatModify({ archive: true, lastMessages: [{ key: msg.key, messageTimestamp: msg.messageTimestamp }] }, jid)
+                    await sock.sendMessage(jid, { text: 'Chat archived 📦' })
+                }
+
+                // ── 33. Mute chat (8 hours) ──────────────────────────────
+                else if (text === '!mute') {
+                    const muteUntil = Date.now() + 8 * 60 * 60 * 1000
+                    await sock.chatModify({ mute: muteUntil }, jid)
+                    await sock.sendMessage(jid, { text: 'Chat muted for 8 hours 🔇' })
+                }
+
+                // ── 34. Delete chat ──────────────────────────────────────
+                else if (text === '!deletechat') {
+                    await sock.chatModify({ delete: true, lastMessages: [{ key: msg.key, messageTimestamp: msg.messageTimestamp }] }, jid)
+                }
+
+                // ── 35. Star a message ───────────────────────────────────
+                else if (text === '!star') {
+                    await sock.star(jid, [{ id: msg.key.id, fromMe: !!msg.key.fromMe }], true)
+                    await sock.sendMessage(jid, { text: 'Message starred ⭐' })
+                }
+
+                // ── 36. Fetch profile picture ─────────────────────────────
+                else if (text === '!pfp') {
+                    const url = await sock.profilePictureUrl(jid, 'image')
+                    await sock.sendMessage(jid, { text: url ? `Profile picture: ${url}` : 'No profile picture found.' })
+                }
+
+                // ── 37. Check if number is on WhatsApp ────────────────────
+                else if (text === '!exists') {
+                    const [result] = await sock.onWhatsApp(jid) || []
+                    await sock.sendMessage(jid, {
+                        text: result?.exists ? `✅ ${jid} is on WhatsApp (LID: ${result.lid || 'n/a'})` : `❌ Number not found on WhatsApp`,
+                    })
+                }
+
+                // ── 38. Fetch user status text ───────────────────────────
+                else if (text === '!status') {
+                    const statuses = await sock.fetchStatus(jid)
+                    const s = statuses?.[0]?.status || 'No status set'
+                    await sock.sendMessage(jid, { text: `Status: ${s}` })
+                }
+
+                // ── 39. Download received media ───────────────────────────
+                else if (text === '!download') {
+                    // Re-send the last message in this chat that contained media
                     const chatMsgs = store.messages[jid]?.array || []
                     const mediaMsg = [...chatMsgs].reverse().find(m => {
                         const c = m.message
@@ -572,6 +879,38 @@ const startSock = async () => {
                         await sock.sendMessage(jid, { text: `Komunitas dibuat: ${community.value.id}` })
                     } else {
                         await sock.sendMessage(jid, { text: 'Komunitas berhasil dibuat (cek WhatsApp kamu).' })
+                            `📰 *Newsletter Info*`,
+                            `Name: ${meta.name}`,
+                            `ID: ${meta.id}`,
+                            `Subscribers: ${meta.subscribers}`,
+                            `Description: ${meta.description}`,
+                            `Verification: ${meta.verification}`,
+                        ].join('\n'),
+                    })
+                }
+
+                // ── 65. React to newsletter message ───────────────────────
+                else if (text.startsWith('!nlreact ')) {
+                    // Usage: !nlreact <newsletter_jid> <server_id> <emoji>
+                    const parts = text.replace('!nlreact ', '').split(' ')
+                    const [nlJid, serverId, emoji] = parts
+                    await sock.newsletterReactMessage(nlJid, serverId, emoji)
+                    await sock.sendMessage(jid, { text: `Reacted with ${emoji}` })
+                }
+
+                // ── 66. Get bot list ──────────────────────────────────────
+                else if (text === '!bots') {
+                    const bots = await sock.getBotListV2()
+                    await sock.sendMessage(jid, { text: `Available bots: ${JSON.stringify(bots)}` })
+                }
+
+                // ── 67. Create community ──────────────────────────────────
+                else if (text === '!community') {
+                    const community = await sock.communityCreate('Yebail Community', 'Welcome to the Yebail community!')
+                    if (community?.value) {
+                        await sock.sendMessage(jid, { text: `Community created: ${community.value.id}` })
+                    } else {
+                        await sock.sendMessage(jid, { text: 'Community created (check your WhatsApp for details).' })
                     }
                 } else if (text === '!calllink') {
                     const token = await sock.createCallLink('video')
