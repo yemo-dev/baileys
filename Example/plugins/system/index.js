@@ -12,8 +12,8 @@ const uptime = (seconds = 0) => {
 
 export default {
   name: 'system',
-  commands: ['ping', 'runtime', 'owner'],
-  async execute({ sock, jid, command, config }) {
+  commands: ['ping', 'runtime', 'owner', 'self', 'public'],
+  async execute({ sock, jid, command, config, isOwner }) {
     if (command === 'ping') {
       const start = performance.now()
       const msg = await sock.sendMessage(jid, { text: 'Pinging...' })
@@ -37,9 +37,17 @@ export default {
       })
     }
 
+    if (command === 'self' || command === 'public') {
+      if (!isOwner) {
+        return sock.sendMessage(jid, { text: 'This command is owner-only.' })
+      }
+      config.mode = command
+      return sock.sendMessage(jid, { text: `Bot mode changed to ${config.mode}.` })
+    }
+
     return sock.sendMessage(jid, {
       text: config.owners.length
-        ? `Owner JIDs:\n${config.owners.join('\n')}`
+        ? `Owner JIDs:\n${config.owners.join('\n')}\nMode: ${config.mode}`
         : 'Owner is not configured yet.',
     })
   },

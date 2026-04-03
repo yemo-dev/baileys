@@ -22,7 +22,7 @@ export default {
     }
 
     if (!argText) {
-      return sock.sendMessage(jid, { text: `Usage: .${command} <code|shell>` })
+      return sock.sendMessage(jid, { text: command === 'eval' ? 'Usage: > <javascript>' : 'Usage: => <shell command>' })
     }
 
     if (command === 'eval') {

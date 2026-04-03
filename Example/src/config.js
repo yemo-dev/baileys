@@ -11,6 +11,7 @@ const ownersFromEnv = (process.env.BOT_OWNER || '')
 const config = {
   botName: process.env.BOT_NAME || 'botz',
   prefix: process.env.BOT_PREFIX || '.',
+  mode: process.env.BOT_MODE === 'self' ? 'self' : 'public',
   owners: ownersFromEnv,
   allowOwnerTools: process.env.ALLOW_OWNER_TOOLS === 'true',
   browser: {

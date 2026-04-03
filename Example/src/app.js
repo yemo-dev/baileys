@@ -68,6 +68,7 @@ export const startBot = async () => {
   const { version, isLatest } = await fetchLatestWaWebVersion()
   logger.info(`WhatsApp Web version: ${version.join('.')} (latest: ${isLatest ? 'yes' : 'no'})`)
   logger.info(`Command prefix: ${config.prefix}`)
+  logger.info(`Bot mode: ${config.mode}`)
 
   const plugins = await loadPlugins(PLUGINS_DIR)
   const commandMap = new Map()
@@ -135,22 +136,43 @@ export const startBot = async () => {
         const jid = msg.key.remoteJid
         const rawText = getMessageText(msg)
         const text = rawText.trim()
-        if (!text || !text.startsWith(config.prefix)) continue
+        if (!text) continue
+
+        const senderJid = msg.key.participant || msg.key.remoteJid
+        const isOwner = isOwnerJid(senderJid)
+        if (config.mode === 'self' && !isOwner) continue
 
         logIncoming({ jid, text: rawText })
 
         await sock.readMessages([msg.key])
         await sock.sendPresenceUpdate('composing', jid)
 
-        const body = text.slice(config.prefix.length).trim()
-        if (!body) continue
+        let command = ''
+        let args = []
+        let argText = ''
+        let plugin = null
 
-        const [head = '', ...args] = body.split(/\s+/)
-        const command = head.toLowerCase()
-        const argText = body.slice(head.length).trim()
-        const senderJid = msg.key.participant || msg.key.remoteJid
-        const isOwner = isOwnerJid(senderJid)
-        const plugin = commandMap.get(command)
+        if (text.startsWith('=>')) {
+          command = 'exec'
+          argText = text.slice(2).trim()
+          args = argText ? argText.split(/\s+/) : []
+          plugin = commandMap.get(command)
+        } else if (text.startsWith('>')) {
+          command = 'eval'
+          argText = text.slice(1).trim()
+          args = argText ? argText.split(/\s+/) : []
+          plugin = commandMap.get(command)
+        } else if (text.startsWith(config.prefix)) {
+          const body = text.slice(config.prefix.length).trim()
+          if (!body) continue
+          const [head = '', ...restArgs] = body.split(/\s+/)
+          command = head.toLowerCase()
+          args = restArgs
+          argText = body.slice(head.length).trim()
+          plugin = commandMap.get(command)
+        } else {
+          continue
+        }
 
         if (plugin) {
           await logBotEvent(`cmd:${command}`, () => plugin.execute({
@@ -168,7 +190,8 @@ export const startBot = async () => {
             isOwner,
           }))
         } else {
-          await sock.sendMessage(jid, { text: `Unknown command: ${config.prefix}${command}` })
+          const shown = command === 'eval' ? '>' : command === 'exec' ? '=>' : `${config.prefix}${command}`
+          await sock.sendMessage(jid, { text: `Unknown command: ${shown}` })
         }
 
         await sock.sendPresenceUpdate('paused', jid)
