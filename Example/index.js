@@ -161,6 +161,18 @@ const MENU_SECTIONS = [
     },
 ]
 
+function buildMenuText() {
+    return [
+        '🤖 *Yebail Bot Menu*',
+        '',
+        ...MENU_SECTIONS.flatMap(section => [
+            `*${section.title}*`,
+            ...section.rows.map(row => `• ${row.rowId} — ${row.description}`),
+            '',
+        ]),
+    ].join('\n').trim()
+}
+
 const startSock = async () => {
     const { state, saveCreds } = await useMultiFileAuthState('yebail_auth')
 
@@ -279,11 +291,7 @@ const startSock = async () => {
 
                 if (text === '.menu') {
                     await sock.sendMessage(jid, {
-                        text: 'Pilih kategori perintah yang ingin kamu gunakan:',
-                        title: '🤖 *Yebail Bot*',
-                        footer: 'Powered by @yemo-dev/yebail',
-                        buttonText: '📋 Buka Menu',
-                        sections: MENU_SECTIONS,
+                        text: buildMenuText(),
                     })
                 } else if (text === '.ping') {
                     await sock.sendMessage(jid, { text: '🏓 Pong! Bot aktif.' })
