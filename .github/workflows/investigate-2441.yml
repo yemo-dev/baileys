@@ -3,6 +3,9 @@ name: Investigate Issue 2441
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   verify-runtime-paths:
     runs-on: ubuntu-latest
