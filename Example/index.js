@@ -279,14 +279,11 @@ const startSock = async () => {
 
                 if (text === '.menu') {
                     await sock.sendMessage(jid, {
-                        listMessage: {
-                            title: '🤖 *Yebail Bot*',
-                            text: 'Pilih kategori perintah yang ingin kamu gunakan:',
-                            footerText: 'Powered by @yemo-dev/yebail',
-                            buttonText: '📋 Buka Menu',
-                            listType: 1,
-                            sections: MENU_SECTIONS,
-                        },
+                        text: 'Pilih kategori perintah yang ingin kamu gunakan:',
+                        title: '🤖 *Yebail Bot*',
+                        footer: 'Powered by @yemo-dev/yebail',
+                        buttonText: '📋 Buka Menu',
+                        sections: MENU_SECTIONS,
                     })
                 } else if (text === '.ping') {
                     await sock.sendMessage(jid, { text: '🏓 Pong! Bot aktif.' })
@@ -542,17 +539,22 @@ const startSock = async () => {
                         try {
                             const buffer = await downloadMediaMessage(imgMsg, 'buffer', {})
                             const image = await Jimp.read(buffer)
+                            const MIME_JPEG = Jimp.MIME_JPEG || 'image/jpeg'
+                            const jimpAuto = Jimp.AUTO !== null && Jimp.AUTO !== undefined ? Jimp.AUTO : -1
+                            const getBuffer = (img) => typeof img.getBufferAsync === 'function'
+                                ? img.getBufferAsync(MIME_JPEG)
+                                : img.getBuffer(MIME_JPEG)
                             if (text === '.grayscale') {
                                 image.grayscale()
-                                const out = await image.getBufferAsync(Jimp.MIME_JPEG)
+                                const out = await getBuffer(image)
                                 await sock.sendMessage(jid, { image: out, caption: '🖤 Gambar hitam putih' })
                             } else if (text === '.resize') {
-                                image.resize(512, Jimp.AUTO)
-                                const out = await image.getBufferAsync(Jimp.MIME_JPEG)
+                                image.resize(512, jimpAuto)
+                                const out = await getBuffer(image)
                                 await sock.sendMessage(jid, { image: out, caption: '📐 Gambar di-resize ke lebar 512px' })
                             } else if (text === '.thumbnail') {
                                 image.cover(200, 200)
-                                const out = await image.getBufferAsync(Jimp.MIME_JPEG)
+                                const out = await getBuffer(image)
                                 await sock.sendMessage(jid, { image: out, caption: '🖼️ Thumbnail 200×200' })
                             }
                         } catch (err) {
