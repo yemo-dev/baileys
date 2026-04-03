@@ -2,8 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Boom } from '@hapi/boom'
 import { NodeCache } from '@cacheable/node-cache'
-import {
-  default as makeWASocket,
+import yebail, {
   DisconnectReason,
   useMultiFileAuthState,
   fetchLatestWaWebVersion,
@@ -20,6 +19,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const ROOT = path.resolve(__dirname, '..')
 const PLUGINS_DIR = path.resolve(ROOT, 'plugins')
+const makeWASocket = yebail.makeWASocket || yebail.default || yebail
 
 const store = makeInMemoryStore({ logger })
 const storePath = path.resolve(ROOT, 'yebail_store.json')
