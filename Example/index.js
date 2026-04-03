@@ -1,11 +1,10 @@
 /**
  * @yemo-dev/yebail — Contoh Bot WhatsApp
  *
- * ─── Instalasi ────────────────────────────────────────────────────────────────
- *   Salin folder ini ke proyek kamu, lalu jalankan:
- *     npm install
+ * Instalasi:
+ *   npm install
  *
- * ─── Menjalankan Bot ─────────────────────────────────────────────────────────
+ * Menjalankan:
  *   node index.js
  *
  *   Pertama kali berjalan, bot akan meminta nomor HP untuk pairing code.
@@ -13,8 +12,7 @@
  *   Lalu masukkan kode yang muncul di terminal ke WhatsApp kamu:
  *   WhatsApp → Perangkat Tertaut → Tautkan dengan nomor telepon.
  *
- * ─── Fitur ───────────────────────────────────────────────────────────────────
- *   Kirim .menu ke bot untuk melihat semua perintah yang tersedia.
+ * Kirim .menu ke bot untuk melihat semua perintah yang tersedia.
  */
 
 'use strict'
@@ -28,28 +26,21 @@ const {
     getContentType,
     downloadMediaMessage,
     getAggregateVotesInPollMessage,
-    Browsers,
 } = require('@yemo-dev/yebail')
 
 const P = require('pino')
 const { Boom } = require('@hapi/boom')
 const NodeCache = require('@cacheable/node-cache')
 const readline = require('readline')
-const path = require('path')
-const fs = require('fs')
 
-// ─── Logger (ubah ke 'debug' untuk output lengkap) ────────────────────────────
 const logger = P({ level: 'silent' })
 
-// ─── Penyimpanan pesan di memori ─────────────────────────────────────────────
 const store = makeInMemoryStore({ logger })
 store.readFromFile('./yebail_store.json')
 setInterval(() => store.writeToFile('./yebail_store.json'), 10_000)
 
-// ─── Cache metadata grup (5 menit) ───────────────────────────────────────────
 const groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false })
 
-// ─── Helper: ambil teks dari pesan masuk ─────────────────────────────────────
 function getMessageText(msg) {
     const content = msg?.message
     if (!content) return ''
@@ -63,13 +54,11 @@ function getMessageText(msg) {
     )
 }
 
-// ─── Helper: minta input dari terminal ───────────────────────────────────────
 function tanyaNomor(pertanyaan) {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
     return new Promise(resolve => rl.question(pertanyaan, ans => { rl.close(); resolve(ans.trim()) }))
 }
 
-// ─── Daftar semua perintah (digunakan oleh .menu) ─────────────────────────────
 const MENU_SECTIONS = [
     {
         title: '💬 Pesan',
@@ -80,7 +69,7 @@ const MENU_SECTIONS = [
             { title: '.mention', description: 'Mention pengirim', rowId: '.mention' },
             { title: '.reply', description: 'Balas pesan dengan kutipan', rowId: '.reply' },
             { title: '.sticker', description: 'Kirim stiker', rowId: '.sticker' },
-            { title: '.react', description: 'Kirim reaksi ❤️', rowId: '.react' },
+            { title: '.react', description: 'Kirim reaksi', rowId: '.react' },
             { title: '.unreact', description: 'Hapus reaksi', rowId: '.unreact' },
         ],
     },
@@ -168,23 +157,17 @@ const MENU_SECTIONS = [
     },
 ]
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
 const startSock = async () => {
-    // 1. Muat / buat auth state dari sistem berkas
     const { state, saveCreds } = await useMultiFileAuthState('yebail_auth')
 
-    // 2. Ambil versi WA Web terbaru agar tetap kompatibel
     const { version, isLatest } = await fetchLatestWaWebVersion()
     console.log(`[Yebail] Menggunakan WA v${version.join('.')}, terbaru: ${isLatest}`)
 
-    // 3. Buat koneksi socket — pairing mode aktif secara default
     const sock = makeWASocket({
         version,
         logger,
         auth: state,
-        // Nama browser yang ditampilkan di WhatsApp Web → Settings → Linked Devices
-        browser: Browsers('YebailBot'),
-        // QR dinonaktifkan; pairing code digunakan (lihat blok di bawah)
+        browser: ['Windows', 'Chrome', '10.0'],
         printQRInTerminal: false,
         markOnlineOnConnect: true,
         syncFullHistory: false,
@@ -198,10 +181,8 @@ const startSock = async () => {
         },
     })
 
-    // 4. Ikat store ke event socket
     store.bind(sock.ev)
 
-    // 5. Pairing code — aktif saat belum terdaftar
     if (!sock.authState.creds.registered) {
         const nomor = await tanyaNomor(
             '[Yebail] Masukkan nomor HP (format internasional, tanpa +, contoh 628123456789): '
@@ -211,10 +192,8 @@ const startSock = async () => {
         console.log('[Yebail] Buka WhatsApp → Perangkat Tertaut → Tautkan dengan nomor telepon → masukkan kode di atas.')
     }
 
-    // ─── Pemrosesan Event ─────────────────────────────────────────────────────
     sock.ev.process(async (events) => {
 
-        // ── Perubahan status koneksi ──────────────────────────────────────────
         if (events['connection.update']) {
             const { connection, lastDisconnect } = events['connection.update']
             if (connection === 'close') {
@@ -229,12 +208,10 @@ const startSock = async () => {
             }
         }
 
-        // ── Simpan kredensial jika berubah ────────────────────────────────────
         if (events['creds.update']) {
             await saveCreds()
         }
 
-        // ── Perbarui cache metadata grup ──────────────────────────────────────
         if (events['groups.update']) {
             for (const update of events['groups.update']) {
                 const meta = await sock.groupMetadata(update.id)
@@ -248,7 +225,6 @@ const startSock = async () => {
             groupCache.set(id, meta)
         }
 
-        // ── Dekripsi hasil poll ───────────────────────────────────────────────
         if (events['messages.update']) {
             for (const { key, update } of events['messages.update']) {
                 if (update.pollUpdates) {
@@ -264,14 +240,12 @@ const startSock = async () => {
             }
         }
 
-        // ── Log reaksi masuk ──────────────────────────────────────────────────
         if (events['messages.reaction']) {
             for (const reaction of events['messages.reaction']) {
                 console.log(`[Yebail] Reaksi dari ${reaction.key.remoteJid}: ${reaction.reaction?.text || '(dihapus)'}`)
             }
         }
 
-        // ── Tolak panggilan masuk secara otomatis ─────────────────────────────
         if (events['call']) {
             for (const call of events['call']) {
                 console.log(`[Yebail] Panggilan masuk dari ${call.from} — status: ${call.status}`)
@@ -281,7 +255,6 @@ const startSock = async () => {
             }
         }
 
-        // ── Proses pesan masuk ────────────────────────────────────────────────
         if (events['messages.upsert']) {
             const { messages, type } = events['messages.upsert']
             if (type !== 'notify') return
@@ -297,11 +270,9 @@ const startSock = async () => {
 
                 console.log(`[Yebail] [${jid}] ${rawText}`)
 
-                // Tandai sudah dibaca & tampilkan indikator mengetik
                 await sock.readMessages([msg.key])
                 await sock.sendPresenceUpdate('composing', jid)
 
-                // ── .menu — tampilkan daftar fitur sebagai button list ─────────
                 if (text === '.menu') {
                     await sock.sendMessage(jid, {
                         listMessage: {
@@ -313,102 +284,63 @@ const startSock = async () => {
                             sections: MENU_SECTIONS,
                         },
                     })
-                }
-
-                // ── .ping — cek bot aktif ─────────────────────────────────────
-                else if (text === '.ping') {
+                } else if (text === '.ping') {
                     await sock.sendMessage(jid, { text: '🏓 Pong! Bot aktif.' })
-                }
-
-                // ── .link — teks dengan pratinjau tautan ──────────────────────
-                else if (text === '.link') {
+                } else if (text === '.link') {
                     await sock.sendMessage(jid, {
                         text: 'Cek repositori Yebail: https://github.com/yemo-dev/baileys',
                     })
-                }
-
-                // ── .mention — sebut pengirim ─────────────────────────────────
-                else if (text === '.mention') {
+                } else if (text === '.mention') {
                     await sock.sendMessage(jid, {
                         text: `Halo @${jid.split('@')[0]}! 👋`,
                         mentions: [jid],
                     })
-                }
-
-                // ── .reply — balas pesan dengan kutipan ───────────────────────
-                else if (text === '.reply') {
+                } else if (text === '.reply') {
                     await sock.sendMessage(jid, { text: 'Ini adalah balasan terkutip! 💬' }, { quoted: msg })
-                }
-
-                // ── .image — gambar dari URL ──────────────────────────────────
-                else if (text === '.image') {
+                } else if (text === '.image') {
                     await sock.sendMessage(jid, {
                         image: { url: 'https://picsum.photos/800/600' },
                         caption: '🌄 Gambar acak dari picsum.photos',
                     })
-                }
-
-                // ── .video — video dari URL ───────────────────────────────────
-                else if (text === '.video') {
+                } else if (text === '.video') {
                     await sock.sendMessage(jid, {
                         video: { url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
                         caption: '🎬 Contoh video',
                     })
-                }
-
-                // ── .gif — GIF (gifPlayback) ──────────────────────────────────
-                else if (text === '.gif') {
+                } else if (text === '.gif') {
                     await sock.sendMessage(jid, {
                         video: { url: 'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.mp4' },
                         gifPlayback: true,
                         caption: '🎞️ GIF!',
                     })
-                }
-
-                // ── .audio — audio biasa ──────────────────────────────────────
-                else if (text === '.audio') {
+                } else if (text === '.audio') {
                     await sock.sendMessage(jid, {
                         audio: { url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
                         mimetype: 'audio/mp4',
                     })
-                }
-
-                // ── .voice — pesan suara (PTT) ────────────────────────────────
-                else if (text === '.voice') {
+                } else if (text === '.voice') {
                     await sock.sendMessage(jid, {
                         audio: { url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
                         mimetype: 'audio/ogg; codecs=opus',
                         ptt: true,
                     })
-                }
-
-                // ── .ptv — video lingkaran (PTV) ──────────────────────────────
-                else if (text === '.ptv') {
+                } else if (text === '.ptv') {
                     await sock.sendMessage(jid, {
                         video: { url: 'https://www.w3schools.com/html/mov_bbb.mp4' },
                         ptv: true,
                     })
-                }
-
-                // ── .doc — dokumen PDF ────────────────────────────────────────
-                else if (text === '.doc') {
+                } else if (text === '.doc') {
                     await sock.sendMessage(jid, {
                         document: { url: 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/sample.pdf' },
                         mimetype: 'application/pdf',
                         fileName: 'contoh.pdf',
                         caption: '📄 Contoh dokumen PDF',
                     })
-                }
-
-                // ── .sticker — stiker dari URL ────────────────────────────────
-                else if (text === '.sticker') {
+                } else if (text === '.sticker') {
                     await sock.sendMessage(jid, {
                         sticker: { url: 'https://www.gstatic.com/webp/gallery/1.webp' },
                     })
-                }
-
-                // ── .contact — kartu kontak ───────────────────────────────────
-                else if (text === '.contact') {
+                } else if (text === '.contact') {
                     await sock.sendMessage(jid, {
                         contacts: {
                             displayName: 'Yebail Bot',
@@ -417,10 +349,7 @@ const startSock = async () => {
                             }],
                         },
                     })
-                }
-
-                // ── .location — lokasi ────────────────────────────────────────
-                else if (text === '.location') {
+                } else if (text === '.location') {
                     await sock.sendMessage(jid, {
                         location: {
                             degreesLatitude: -6.2088,
@@ -429,10 +358,7 @@ const startSock = async () => {
                             address: 'DKI Jakarta, Indonesia',
                         },
                     })
-                }
-
-                // ── .poll — buat polling ──────────────────────────────────────
-                else if (text === '.poll') {
+                } else if (text === '.poll') {
                     await sock.sendMessage(jid, {
                         poll: {
                             name: '🍉 Buah favorit kamu?',
@@ -440,20 +366,11 @@ const startSock = async () => {
                             selectableCount: 1,
                         },
                     })
-                }
-
-                // ── .react — kirim reaksi ─────────────────────────────────────
-                else if (text === '.react') {
+                } else if (text === '.react') {
                     await sock.sendMessage(jid, { react: { text: '❤️', key: msg.key } })
-                }
-
-                // ── .unreact — hapus reaksi ───────────────────────────────────
-                else if (text === '.unreact') {
+                } else if (text === '.unreact') {
                     await sock.sendMessage(jid, { react: { text: '', key: msg.key } })
-                }
-
-                // ── .list — contoh pesan list ─────────────────────────────────
-                else if (text === '.list') {
+                } else if (text === '.list') {
                     await sock.sendMessage(jid, {
                         listMessage: {
                             title: '🍕 Pilih Menu Makanan',
@@ -481,10 +398,7 @@ const startSock = async () => {
                             ],
                         },
                     })
-                }
-
-                // ── .buttons — contoh pesan dengan tombol ─────────────────────
-                else if (text === '.buttons') {
+                } else if (text === '.buttons') {
                     await sock.sendMessage(jid, {
                         buttonsMessage: {
                             text: 'Pilih salah satu opsi di bawah ini:',
@@ -497,10 +411,7 @@ const startSock = async () => {
                             ],
                         },
                     })
-                }
-
-                // ── .interactive — native flow (single select) ────────────────
-                else if (text === '.interactive') {
+                } else if (text === '.interactive') {
                     await sock.sendMessage(jid, {
                         interactiveMessage: {
                             header: { title: '🎯 Pilih Paket', hasMediaAttachment: false },
@@ -525,10 +436,7 @@ const startSock = async () => {
                             },
                         },
                     })
-                }
-
-                // ── .quickreply — tombol quick reply ─────────────────────────
-                else if (text === '.quickreply') {
+                } else if (text === '.quickreply') {
                     await sock.sendMessage(jid, {
                         interactiveMessage: {
                             header: { title: '😊 Bagaimana Harimu?', hasMediaAttachment: false },
@@ -544,108 +452,66 @@ const startSock = async () => {
                             },
                         },
                     })
-                }
-
-                // ── .viewonce — gambar sekali lihat ───────────────────────────
-                else if (text === '.viewonce') {
+                } else if (text === '.viewonce') {
                     await sock.sendMessage(jid, {
                         image: { url: 'https://picsum.photos/400/400' },
                         caption: '👁️ Hanya bisa dilihat sekali!',
                         viewOnce: true,
                     })
-                }
-
-                // ── .album — album multi-foto ─────────────────────────────────
-                else if (text === '.album') {
+                } else if (text === '.album') {
                     await sock.sendAlbumMessage(jid, [
                         { image: { url: 'https://picsum.photos/800/600?random=1' }, caption: '📸 Foto 1' },
                         { image: { url: 'https://picsum.photos/800/600?random=2' }, caption: '📸 Foto 2' },
                         { image: { url: 'https://picsum.photos/800/600?random=3' }, caption: '📸 Foto 3' },
                     ])
-                }
-
-                // ── .forward — teruskan pesan ─────────────────────────────────
-                else if (text === '.forward') {
+                } else if (text === '.forward') {
                     await sock.sendMessage(jid, { forward: msg, force: true })
-                }
-
-                // ── .edit — edit pesan yang sudah terkirim ────────────────────
-                else if (text === '.edit') {
+                } else if (text === '.edit') {
                     const sent = await sock.sendMessage(jid, { text: '✏️ Pesan asli...' })
                     await new Promise(r => setTimeout(r, 2000))
                     await sock.sendMessage(jid, { text: '✅ Pesan sudah diedit!', edit: sent.key })
-                }
-
-                // ── .delete — hapus pesan untuk semua ────────────────────────
-                else if (text === '.delete') {
+                } else if (text === '.delete') {
                     const sent = await sock.sendMessage(jid, { text: '🗑️ Pesan ini akan dihapus dalam 3 detik...' })
                     await new Promise(r => setTimeout(r, 3000))
                     await sock.sendMessage(jid, { delete: sent.key })
-                }
-
-                // ── .pin — sematkan pesan ─────────────────────────────────────
-                else if (text === '.pin') {
+                } else if (text === '.pin') {
                     const sent = await sock.sendMessage(jid, { text: '📌 Pesan disematkan!' })
                     await sock.sendMessage(jid, { pin: sent.key, type: 1 })
-                }
-
-                // ── .markunread — tandai chat belum dibaca ────────────────────
-                else if (text === '.markunread') {
+                } else if (text === '.markunread') {
                     await sock.chatModify(
                         { markRead: false, lastMessages: [{ key: msg.key, messageTimestamp: msg.messageTimestamp }] },
                         jid
                     )
-                }
-
-                // ── .archive — arsipkan chat ──────────────────────────────────
-                else if (text === '.archive') {
+                } else if (text === '.archive') {
                     await sock.chatModify(
                         { archive: true, lastMessages: [{ key: msg.key, messageTimestamp: msg.messageTimestamp }] },
                         jid
                     )
                     await sock.sendMessage(jid, { text: '📦 Chat berhasil diarsipkan.' })
-                }
-
-                // ── .mute — bisukan chat 8 jam ────────────────────────────────
-                else if (text === '.mute') {
+                } else if (text === '.mute') {
                     const muteUntil = Date.now() + 8 * 60 * 60 * 1000
                     await sock.chatModify({ mute: muteUntil }, jid)
                     await sock.sendMessage(jid, { text: '🔇 Chat dibisukan selama 8 jam.' })
-                }
-
-                // ── .star — bintangi pesan ────────────────────────────────────
-                else if (text === '.star') {
+                } else if (text === '.star') {
                     await sock.star(jid, [{ id: msg.key.id, fromMe: !!msg.key.fromMe }], true)
                     await sock.sendMessage(jid, { text: '⭐ Pesan diberi bintang.' })
-                }
-
-                // ── .pfp — foto profil pengirim ───────────────────────────────
-                else if (text === '.pfp') {
+                } else if (text === '.pfp') {
                     const url = await sock.profilePictureUrl(jid, 'image').catch(() => null)
                     await sock.sendMessage(jid, {
                         text: url ? `🖼️ Foto profil: ${url}` : '❌ Tidak ada foto profil.',
                     })
-                }
-
-                // ── .exists — cek apakah nomor terdaftar di WA ────────────────
-                else if (text === '.exists') {
+                } else if (text === '.exists') {
                     const [result] = (await sock.onWhatsApp(jid)) || []
                     await sock.sendMessage(jid, {
                         text: result?.exists
                             ? `✅ ${jid} terdaftar di WhatsApp (LID: ${result.lid || 'n/a'})`
                             : `❌ Nomor tidak ditemukan di WhatsApp.`,
                     })
-                }
-
-                // ── .status — teks status pengirim ────────────────────────────
-                else if (text === '.status') {
+                } else if (text === '.status') {
                     const statuses = await sock.fetchStatus(jid).catch(() => [])
                     const s = statuses?.[0]?.status || 'Belum ada status'
                     await sock.sendMessage(jid, { text: `ℹ️ Status: ${s}` })
-                }
-
-                // ── .download — unduh media terakhir di chat ──────────────────
-                else if (text === '.download') {
+                } else if (text === '.download') {
                     const chatMsgs = store.messages[jid]?.array || []
                     const mediaMsg = [...chatMsgs].reverse().find(m => {
                         const c = m.message
@@ -659,51 +525,30 @@ const startSock = async () => {
                     } else {
                         await sock.sendMessage(jid, { text: '❌ Tidak ada media yang bisa diunduh di chat ini.' })
                     }
-                }
-
-                // ── .mystatus — posting status dengan mention ─────────────────
-                else if (text === '.mystatus') {
+                } else if (text === '.mystatus') {
                     await sock.sendStatusMentions(
                         { text: '🚀 Powered by @yemo-dev/yebail!' },
                         [jid]
                     )
                     await sock.sendMessage(jid, { text: '✅ Status berhasil diposting dengan mention kamu!' })
-                }
-
-                // ── .blocklist — lihat daftar blokir ─────────────────────────
-                else if (text === '.blocklist') {
+                } else if (text === '.blocklist') {
                     const list = await sock.fetchBlocklist()
                     await sock.sendMessage(jid, {
                         text: `🚫 Daftar blokir (${list.length} entri):\n${list.join('\n') || '(kosong)'}`,
                     })
-                }
-
-                // ── .block — blokir pengirim ──────────────────────────────────
-                else if (text === '.block') {
+                } else if (text === '.block') {
                     await sock.updateBlockStatus(jid, 'block')
                     await sock.sendMessage(jid, { text: `🚫 ${jid} telah diblokir.` })
-                }
-
-                // ── .unblock — buka blokir pengirim ──────────────────────────
-                else if (text === '.unblock') {
+                } else if (text === '.unblock') {
                     await sock.updateBlockStatus(jid, 'unblock')
                     await sock.sendMessage(jid, { text: `✅ Blokir untuk ${jid} telah dicabut.` })
-                }
-
-                // ── .setname — ubah nama profil bot ──────────────────────────
-                else if (text === '.setname') {
+                } else if (text === '.setname') {
                     await sock.updateProfileName('Yebail Bot 🤖')
                     await sock.sendMessage(jid, { text: '✅ Nama profil berhasil diperbarui!' })
-                }
-
-                // ── .setstatus — ubah teks status profil bot ──────────────────
-                else if (text === '.setstatus') {
+                } else if (text === '.setstatus') {
                     await sock.updateProfileStatus('🚀 Running on @yemo-dev/yebail')
                     await sock.sendMessage(jid, { text: '✅ Status profil berhasil diperbarui!' })
-                }
-
-                // ── .privacy — perbarui semua pengaturan privasi ──────────────
-                else if (text === '.privacy') {
+                } else if (text === '.privacy') {
                     await sock.updateLastSeenPrivacy('contacts')
                     await sock.updateOnlinePrivacy('match_last_seen')
                     await sock.updateProfilePicturePrivacy('contacts')
@@ -711,36 +556,21 @@ const startSock = async () => {
                     await sock.updateReadReceiptsPrivacy('all')
                     await sock.updateGroupsAddPrivacy('contacts')
                     await sock.sendMessage(jid, { text: '✅ Pengaturan privasi berhasil diperbarui.' })
-                }
-
-                // ── .disappear — aktifkan pesan hilang 90 hari ────────────────
-                else if (text === '.disappear') {
+                } else if (text === '.disappear') {
                     await sock.updateDefaultDisappearingMode(90 * 24 * 60 * 60)
                     await sock.sendMessage(jid, { text: '✅ Mode pesan hilang default diatur ke 90 hari.' })
-                }
-
-                // ── .creategroup — buat grup baru ────────────────────────────
-                else if (text === '.creategroup') {
+                } else if (text === '.creategroup') {
                     const group = await sock.groupCreate('Yebail Test Group', [jid])
                     await sock.sendMessage(jid, { text: `✅ Grup dibuat! JID: ${group.id}` })
-                }
-
-                // ── .invitelink <jid> — dapatkan link undangan grup ──────────
-                else if (text.startsWith('.invitelink ')) {
+                } else if (text.startsWith('.invitelink ')) {
                     const groupJid = text.replace('.invitelink ', '').trim()
                     const code = await sock.groupInviteCode(groupJid)
                     await sock.sendMessage(jid, { text: `🔗 Link undangan: https://chat.whatsapp.com/${code}` })
-                }
-
-                // ── .joingroup <kode> — bergabung ke grup dengan kode ─────────
-                else if (text.startsWith('.joingroup ')) {
+                } else if (text.startsWith('.joingroup ')) {
                     const code = text.replace('.joingroup ', '').trim()
                     const groupJid = await sock.groupAcceptInvite(code)
                     await sock.sendMessage(jid, { text: `✅ Bergabung ke grup: ${groupJid}` })
-                }
-
-                // ── .groupinfo <jid> — info detail grup ──────────────────────
-                else if (text.startsWith('.groupinfo ')) {
+                } else if (text.startsWith('.groupinfo ')) {
                     const groupJid = text.replace('.groupinfo ', '').trim()
                     const meta = await sock.groupMetadata(groupJid)
                     await sock.sendMessage(jid, {
@@ -753,50 +583,29 @@ const startSock = async () => {
                             `• Owner: ${meta.owner}`,
                         ].join('\n'),
                     })
-                }
-
-                // ── .groups — lihat semua grup yang diikuti ───────────────────
-                else if (text === '.groups') {
+                } else if (text === '.groups') {
                     const groups = await sock.groupFetchAllParticipating()
                     const names = Object.values(groups).map(g => `• ${g.subject} (${g.id})`).join('\n')
                     await sock.sendMessage(jid, { text: `👥 Grup (${Object.keys(groups).length}):\n${names || '(tidak ada)'}` })
-                }
-
-                // ── .createnewsletter — buat newsletter baru ──────────────────
-                else if (text === '.createnewsletter') {
+                } else if (text === '.createnewsletter') {
                     const nl = await sock.newsletterCreate('Yebail News', 'Update resmi Yebail')
                     await sock.sendMessage(jid, { text: `✅ Newsletter dibuat: ${nl.id}` })
-                }
-
-                // ── .community — buat komunitas ───────────────────────────────
-                else if (text === '.community') {
+                } else if (text === '.community') {
                     const community = await sock.communityCreate('Yebail Community', 'Selamat datang di komunitas Yebail!')
                     const communityId = community?.value?.id || '(cek WhatsApp kamu)'
                     await sock.sendMessage(jid, { text: `✅ Komunitas dibuat: ${communityId}` })
-                }
-
-                // ── .bots — daftar bot WhatsApp ───────────────────────────────
-                else if (text === '.bots') {
+                } else if (text === '.bots') {
                     const bots = await sock.getBotListV2()
                     await sock.sendMessage(jid, { text: `🤖 Bot tersedia:\n${JSON.stringify(bots, null, 2)}` })
-                }
-
-                // ── .calllink — buat link panggilan video ─────────────────────
-                else if (text === '.calllink') {
+                } else if (text === '.calllink') {
                     const token = await sock.createCallLink('video')
                     await sock.sendMessage(jid, { text: `📹 Token link panggilan: ${token}` })
-                }
-
-                // ── .typing — simulasikan status mengetik ─────────────────────
-                else if (text === '.typing') {
+                } else if (text === '.typing') {
                     await sock.sendPresenceUpdate('composing', jid)
                     await new Promise(r => setTimeout(r, 3000))
                     await sock.sendPresenceUpdate('paused', jid)
                     await sock.sendMessage(jid, { text: '✅ Simulasi mengetik selesai.' })
-                }
-
-                // ── .pay — kirim permintaan pembayaran ────────────────────────
-                else if (text === '.pay') {
+                } else if (text === '.pay') {
                     await sock.sendMessage(jid, {
                         requestPaymentMessage: {
                             currencyCodeIso4217: 'IDR',
@@ -811,7 +620,6 @@ const startSock = async () => {
                     })
                 }
 
-                // Hentikan indikator mengetik setelah perintah diproses
                 await sock.sendPresenceUpdate('paused', jid)
             }
         }
