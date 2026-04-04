@@ -1,5 +1,13 @@
 const isGroupJid = (jid = '') => jid.endsWith('@g.us')
 
+const normalizeUserId = (jid = '') => {
+  const raw = String(jid || '').trim().toLowerCase()
+  if (!raw) return ''
+  const noResource = raw.split('/')[0]
+  const user = noResource.split('@')[0]
+  return user.split(':')[0]
+}
+
 const ensureGroup = async ({ sock, jid }) => {
   if (isGroupJid(jid)) return true
   await sock.sendMessage(jid, { text: 'This command is only available in groups.' })
@@ -8,13 +16,20 @@ const ensureGroup = async ({ sock, jid }) => {
 
 const ensureBotAdmin = async ({ sock, jid }) => {
   const meta = await sock.groupMetadata(jid)
-  const meId = sock.authState?.creds?.me?.id
-  if (!meId) {
+  const botIds = [
+    sock.authState?.creds?.me?.id,
+    sock.user?.id,
+    sock.user?.lid,
+  ]
+    .map((id) => normalizeUserId(id))
+    .filter(Boolean)
+
+  if (!botIds.length) {
     await sock.sendMessage(jid, { text: 'Unable to verify bot identity yet. Please try again.' })
     return { ok: false, meta }
   }
-  const me = meId.split(':')[0] + '@s.whatsapp.net'
-  const meData = meta.participants.find((p) => p.id === me)
+
+  const meData = meta.participants.find((p) => botIds.includes(normalizeUserId(p.id)))
   if (meData?.admin) return { ok: true, meta }
   await sock.sendMessage(jid, { text: 'Bot must be group admin for this action.' })
   return { ok: false, meta }
