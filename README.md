@@ -462,6 +462,7 @@ await sock.sendMessage(jid, {
 ### Sticker Pack
 
 ```js
+// option 1
 await sock.sendMessage(jid, {
   stickerPack: {
     stickerPackId: 'your-pack-id',
@@ -474,7 +475,22 @@ await sock.sendMessage(jid, {
     packDescription: 'Sample sticker pack'
   }
 })
+
+// option 2 (alias)
+await sock.sendMessage(jid, {
+  stickerPackMessage: {
+    stickerPackId: 'your-pack-id',
+    name: 'My Sticker Pack',
+    publisher: 'My Brand',
+    stickers: [
+      { stickerId: 'sticker-1', fileName: 'sticker1.webp', emoticon: '🔥' }
+    ],
+    packDescription: 'Sample sticker pack'
+  }
+})
 ```
+
+> Note: `stickerPack` and `stickerPackMessage` are aliases. Use only one in a single message.
 
 ### Contact Card
 
