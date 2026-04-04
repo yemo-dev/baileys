@@ -468,7 +468,8 @@ await sock.sendMessage(jid, {
     name: 'My Sticker Pack',
     publisher: 'My Brand',
     stickers: [
-      { stickerId: 'sticker-1', fileName: 'sticker1.webp', emoticon: '🔥' }
+      { stickerId: 'sticker-1', fileName: 'sticker1.webp', emoticon: '🔥' },
+      { stickerId: 'sticker-2', fileName: 'sticker2.webp', emoticon: '✨' }
     ],
     packDescription: 'Sample sticker pack'
   }
