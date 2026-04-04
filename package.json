@@ -31,6 +31,8 @@
     "gen:protobuf": "sh WAProto/GenerateStatics.sh",
     "lint": "eslint src --ext .js,.ts,.jsx,.tsx",
     "lint:fix": "eslint src --fix --ext .js,.ts,.jsx,.tsx",
+    "maintenance:on": "node -e \"const fs=require('fs'),p='lib/Defaults/index.js',c=fs.readFileSync(p,'utf8').replace(/exports\\.MAINTENANCE_MODE\\s*=\\s*(true|false)/,'exports.MAINTENANCE_MODE = true');fs.writeFileSync(p,c);console.log('[yebail] Maintenance mode ON')\"",
+    "maintenance:off": "node -e \"const fs=require('fs'),p='lib/Defaults/index.js',c=fs.readFileSync(p,'utf8').replace(/exports\\.MAINTENANCE_MODE\\s*=\\s*(true|false)/,'exports.MAINTENANCE_MODE = false');fs.writeFileSync(p,c);console.log('[yebail] Maintenance mode OFF')\"",
     "preinstall": "node ./engine-requirements.js",
     "release": "release-it",
     "test": "jest",

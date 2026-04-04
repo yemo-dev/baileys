@@ -61,6 +61,7 @@ const {
 - [Bot Features](#bot-features)
 - [Call Link](#call-link)
 - [Custom WS Callbacks](#custom-ws-callbacks)
+- [Maintenance Mode](#maintenance-mode)
 - [Feature Comparison](#feature-comparison)
 
 ---
@@ -1699,6 +1700,35 @@ sock.ws.on('CB:edge_routing', (node) => console.log('Edge routing:', node))
 sock.ws.on('CB:iq', (node) => console.log('IQ received:', node.attrs))
 sock.ws.on('CB:call', (node) => console.log('Call node:', node))
 ```
+
+---
+
+## Maintenance Mode
+
+Yebail memiliki fitur **maintenance mode** bawaan. Saat aktif, setiap panggilan `makeWASocket()` akan langsung menampilkan pesan pemeliharaan dan menghentikan proses — berguna saat Anda perlu update atau perbaikan tanpa membuat koneksi baru ke WhatsApp.
+
+### Aktifkan / Nonaktifkan via npm scripts
+
+```bash
+# Aktifkan maintenance mode
+npm run maintenance:on
+
+# Nonaktifkan maintenance mode
+npm run maintenance:off
+```
+
+### Aktifkan via kode
+
+```js
+const { MAINTENANCE_MODE, MAINTENANCE_MESSAGE } = require('@yemo-dev/yebail')
+
+// Cek status
+console.log('Maintenance aktif?', MAINTENANCE_MODE)
+// Pesan default: '[YEBAIL] Maintenance mode is currently active. ...'
+console.log(MAINTENANCE_MESSAGE)
+```
+
+> **Catatan:** `npm run maintenance:on/off` langsung mengubah file `lib/Defaults/index.js` sehingga efeknya permanen sampai diubah kembali. Untuk penggunaan sementara (env-based), set variabel di kode Anda sendiri sebelum memanggil `makeWASocket`.
 
 ---
 
