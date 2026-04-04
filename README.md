@@ -1381,7 +1381,7 @@ await sock.sendStatusMentions(
 )
 
 await sock.sendGroupStatus(
-  { text: 'Status khusus member group' },
+  { text: 'Status for group members' },
   ['1203630xxxxxxx@g.us', '1203630yyyyyyy@g.us']
 )
 ```
