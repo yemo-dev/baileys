@@ -74,7 +74,7 @@ const {
 const { default: makeWASocket, Browsers } = require('@yemo-dev/yebail')
 
 const sock = makeWASocket({
-  browser: Browsers.ubuntu('MyBot'),
+  browser: Browsers.windows('Yebail'),
   printQRInTerminal: true
 })
 ```
@@ -94,8 +94,16 @@ if (!sock.authState.creds.registered) {
 
 ```js
 const sock = makeWASocket({
-  browser: Browsers.macOS('Desktop'),
+  browser: Browsers.windows('Desktop'),
   syncFullHistory: true
+})
+```
+
+### Auto Browser Detection
+
+```js
+const sock = makeWASocket({
+  browser: Browsers.appropriate('Yebail')
 })
 ```
 
@@ -124,7 +132,7 @@ const groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false })
 
 const sock = makeWASocket({
   auth: state,
-  browser: Browsers.ubuntu('MyBot'),
+  browser: Browsers.windows('Yebail'),
   printQRInTerminal: true,
   syncFullHistory: false,
   markOnlineOnConnect: false,
@@ -923,20 +931,6 @@ await sock.sendMessage(jid, {
     { image: { url: 'https://picsum.photos/800/600?1' } },
     { image: { url: 'https://picsum.photos/800/600?2' } }
   ]
-})
-```
-
-### View-Once
-
-```js
-await sock.sendMessage(jid, {
-  image: { url: 'https://example.com/secret.jpg' },
-  viewOnce: true
-})
-
-await sock.sendMessage(jid, {
-  video: { url: 'https://example.com/secret.mp4' },
-  viewOnce: true
 })
 ```
 
