@@ -11,6 +11,10 @@ on:
         description: 'Optional custom commit message'
         required: false
         default: ''
+      example_only:
+        description: 'Publish Example only (skip root package version/publish)'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -40,12 +44,21 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           # Increment version without creating a git tag
-          npm version ${{ github.event.inputs.increment }} --no-git-tag-version
-          npm version ${{ github.event.inputs.increment }} --no-git-tag-version --prefix Example
-          git add package.json Example/package.json scripts
+          if [ "${{ github.event.inputs.example_only }}" = "true" ]; then
+            npm version ${{ github.event.inputs.increment }} --no-git-tag-version --prefix Example
+            git add Example scripts
+          else
+            npm version ${{ github.event.inputs.increment }} --no-git-tag-version
+            npm version ${{ github.event.inputs.increment }} --no-git-tag-version --prefix Example
+            git add package.json Example scripts
+          fi
           COMMIT_MESSAGE="${{ github.event.inputs.commit_text }}"
           if [ -z "$COMMIT_MESSAGE" ]; then
-            COMMIT_MESSAGE="chore: release v$(node -p 'require("./package.json").version') & example v$(node -p 'require("./Example/package.json").version')"
+            if [ "${{ github.event.inputs.example_only }}" = "true" ]; then
+              COMMIT_MESSAGE="chore: release example v$(node -p 'require(\"./Example/package.json\").version')"
+            else
+              COMMIT_MESSAGE="chore: release v$(node -p 'require(\"./package.json\").version') and example v$(node -p 'require(\"./Example/package.json\").version')"
+            fi
           fi
           git commit -m "$COMMIT_MESSAGE"
           
@@ -53,8 +66,15 @@ jobs:
           git push origin main
           
           # Publish to npm
-          npm publish --access public
-          (
-            cd Example
+          if [ "${{ github.event.inputs.example_only }}" = "true" ]; then
+            (
+              cd Example
+              npm publish --access public
+            )
+          else
             npm publish --access public
-          )
+            (
+              cd Example
+              npm publish --access public
+            )
+          fi
