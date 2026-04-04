@@ -86,10 +86,6 @@ const sock = makeWASocket({ printQRInTerminal: false })
 if (!sock.authState.creds.registered) {
   const code = await sock.requestPairingCode('628xxxxxxxxxx')
   console.log('Pairing code:', code)
-
-  // custom pairing code (8 uppercase letters/numbers)
-  const customCode = await sock.requestPairingCode('628xxxxxxxxxx', 'STARFALL')
-  console.log('Custom pairing code:', customCode)
 }
 ```
 
@@ -1737,7 +1733,7 @@ sock.ws.on('CB:call', (node) => console.log('Call node:', node))
 | Message Deletion | yes | |
 | Disappearing Messages | yes | |
 | Status / Stories | yes | including mentions |
-| Multi-Device | yes | QR + pairing code with custom code |
+| Multi-Device | yes | QR and pairing code |
 | History Sync | yes | |
 | SQLite Auth State | yes | |
 | Custom Auth State | yes | Redis, MongoDB, etc. |
