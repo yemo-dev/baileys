@@ -17,6 +17,7 @@
     "lib/*",
     "lib/Defaults/yebail-version.json",
     "WAProto/*",
+    "scripts/*",
     "engine-requirements.js",
     "LICENSE",
     "EXAMPLES.md"

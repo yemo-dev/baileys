@@ -21,10 +21,10 @@ From npm:
 npm install @yemo-dev/yebail
 ```
 
-From GitHub:
+Using npm alias (recommended for consistency):
 
 ```bash
-npm install github:yemo-dev/baileys
+npm install npm:@yemo-dev/yebail@latest
 ```
 
 ## Import
@@ -503,6 +503,76 @@ For a complete interactive bot implementation, see:
 
 For the full feature list, see:
 👉 **[BAILEYS_FEATURES.md](./BAILEYS_FEATURES.md)**
+
+---
+
+## Collapsible Docs (Merged for npm page)
+
+<details>
+<summary><strong>BAILEYS_FEATURES.md (Feature Index)</strong></summary>
+
+- Supported message types
+- Emoji reactions
+- Sticker support
+- Group features
+- Business features
+- Newsletter/channel features
+- Community features
+- Contact management
+- Profile features
+- Connectivity & authentication
+- Advanced messaging features
+- Chat management
+- Polling & voting
+- Special & unique features (including auto-update)
+- Data & storage
+- Event system
+- Configuration options
+- Utilities & helpers
+- Message options
+- WhatsApp ID formats
+- Feature comparison summary
+- Technology stack
+- Code examples by feature category
+
+Source: [BAILEYS_FEATURES.md](./BAILEYS_FEATURES.md)
+</details>
+
+<details>
+<summary><strong>EXAMPLES.md (Examples Index)</strong></summary>
+
+- Connecting account (QR / Pairing / Full history)
+- Socket config notes (cache metadata, retry, notification behavior)
+- Save auth info
+- Event handling template
+- Poll vote decryption
+- Data store implementation
+- WhatsApp ID explanation
+- Utility functions
+- Batch contact lookup
+- Account restriction check
+- Audio transcoding
+- Sending messages (text, media, interactive, poll, status, etc.)
+- Modify messages (edit/delete/pin/star)
+- Manipulate media
+- Read receipts
+- Reject call
+- Presence state updates
+- Chat modifications
+- User queries
+- Profile/privacy updates
+- Group operations
+- Community features
+- Newsletter operations
+- Business profile
+- Broadcast lists & stories
+- Label management
+- Bot features
+- Call link
+- Custom functionality examples
+
+Source: [EXAMPLES.md](./EXAMPLES.md)
+</details>
 
 ---
 
