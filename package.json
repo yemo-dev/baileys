@@ -19,8 +19,7 @@
     "WAProto/*",
     "scripts/*",
     "engine-requirements.js",
-    "LICENSE",
-    "EXAMPLES.md"
+    "LICENSE"
   ],
   "scripts": {
     "build:all": "tsc && typedoc",
