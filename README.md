@@ -12,6 +12,13 @@
 > [!TIP]
 > Proyek ini memiliki alur **manual release** dan **auto update** untuk menjaga kompatibilitas versi secara berkelanjutan.
 
+> [!IMPORTANT]
+> **Kompatibilitas Pesan Interaktif (Buttons & List):**
+> - Format lama `buttons` (dengan `buttonId`/`buttonText`) **otomatis dikonversi** ke `interactiveMessage.nativeFlowMessage` — tidak perlu ubah kode.
+> - Format `listMessage` langsung: gunakan field **`description`** (bukan `text`) untuk isi pesan agar tampil dengan benar.
+> - Format `sections` (untuk list) dan `interactiveMessage` (untuk buttons) adalah format yang **direkomendasikan** untuk semua klien WhatsApp modern.
+> - Lihat [List Message](#list-message) dan [Buttons Message](#buttons-message) untuk contoh lengkap.
+
 ## Disclaimer
 
 Project ini tidak berafiliasi dengan WhatsApp. Gunakan secara bertanggung jawab dan jangan melanggar Terms of Service WhatsApp.
@@ -109,17 +116,19 @@ Semua konten dari `BAILEYS_FEATURES.md` dan `EXAMPLES.md` sudah digabung penuh k
 - **Live Location Messages**: Real-time location sharing with updates
 
 ### Interactive Messages
-- **Button Messages**: Standard clickable buttons with header, body, footer
-- **List Messages**: Single-select or multi-select list options
-- **Interactive Messages with Native Flow**: Advanced interactive components:
-  - Single select dropdowns
-  - Multi-select options
-  - Payment flows
-  - Catalog browsing
-  - Location sending
-  - Call permission requests
+- **Button Messages**: Otomatis dikonversi ke `interactiveMessage.nativeFlowMessage` (quick_reply) — kompatibel semua klien WhatsApp modern
+- **List Messages**: SINGLE_SELECT list dengan biz node yang benar (`type: select`) — gunakan format `sections` atau `listMessage` dengan field `description`
+- **Interactive Messages with Native Flow**: Komponen interaktif modern (direkomendasikan):
+  - Quick reply buttons (`quick_reply`)
+  - Single select dropdowns (`single_select`)
+  - CTA URL buttons (`cta_url`)
+  - CTA copy buttons (`cta_copy`)
+  - Payment flows (`review_and_pay`, `payment_info`)
+  - Catalog browsing (`cta_catalog`, `mpm`)
+  - Location sending (`send_location`)
+  - Call permission requests (`call_permission_request`)
   - Automated greeting flows
-- **Carousel Messages**: Horizontally scrollable cards with media and text
+- **Carousel Messages**: Kartu horizontal dengan media dan tombol
 
 ### Poll Messages
 - **Poll Creation (V1, V2, V3)**: Multiple choice voting
@@ -2166,11 +2175,41 @@ await sock.sendMessage(jid, {
 
 ### List Message
 
+> **Cara yang disarankan (recommended):** Gunakan key `sections` untuk list biasa (SINGLE_SELECT). Format `listMessage` langsung juga didukung, tetapi gunakan field `description` (bukan `text`) untuk isi pesan.
+
 ```javascript
+// ✅ Format yang direkomendasikan – gunakan `sections`
+await sock.sendMessage(jid, {
+    title: '🍕 Order Menu',
+    text: 'Please select from the options below:',
+    footer: 'Powered by Yebail',
+    buttonText: 'Open Menu',
+    sections: [
+        {
+            title: 'Main Course',
+            rows: [
+                { title: 'Pizza Margherita', description: 'Classic tomato & mozzarella', rowId: 'pizza' },
+                { title: 'Burger Deluxe',    description: 'Double beef patty',          rowId: 'burger' },
+                { title: 'Pasta Carbonara',  description: 'Creamy bacon pasta',         rowId: 'pasta' }
+            ]
+        },
+        {
+            title: 'Drinks',
+            rows: [
+                { title: 'Cola',         description: '500ml chilled',   rowId: 'cola' },
+                { title: 'Orange Juice', description: 'Fresh squeezed',  rowId: 'juice' }
+            ]
+        }
+    ]
+})
+```
+
+```javascript
+// ✅ Format langsung – gunakan `description` (BUKAN `text`) untuk isi pesan
 await sock.sendMessage(jid, {
     listMessage: {
         title: '🍕 Order Menu',
-        text: 'Please select from the options below:',
+        description: 'Please select from the options below:',
         footerText: 'Powered by Yebail',
         buttonText: 'Open Menu',
         listType: 1, // SINGLE_SELECT
@@ -2186,8 +2225,8 @@ await sock.sendMessage(jid, {
             {
                 title: 'Drinks',
                 rows: [
-                    { title: 'Cola',        description: '500ml chilled',   rowId: 'cola' },
-                    { title: 'Orange Juice', description: 'Fresh squeezed', rowId: 'juice' }
+                    { title: 'Cola',         description: '500ml chilled',   rowId: 'cola' },
+                    { title: 'Orange Juice', description: 'Fresh squeezed',  rowId: 'juice' }
                 ]
             }
         ]
@@ -2197,7 +2236,12 @@ await sock.sendMessage(jid, {
 
 ### Buttons Message
 
+> **Catatan penting:** Format lama `buttonsMessage` (menggunakan key `buttons` dengan `buttonId`/`buttonText`) telah dideprekasi oleh WhatsApp dan sekarang **otomatis dikonversi** ke `interactiveMessage.nativeFlowMessage` (format `quick_reply`) agar tetap tampil dengan benar di semua klien WhatsApp.
+>
+> Untuk kontrol penuh, gunakan format `interactiveMessage` secara langsung (lihat bagian [Interactive Message (Native Flow)](#interactive-message-native-flow)).
+
 ```javascript
+// ✅ Format lama – masih bisa dipakai, otomatis dikonversi ke interactiveMessage
 await sock.sendMessage(jid, {
     text: 'What would you like to do?',
     footer: 'Yebail Bot',
@@ -2209,9 +2253,29 @@ await sock.sendMessage(jid, {
 })
 ```
 
+```javascript
+// ✅ Format modern (direkomendasikan) – gunakan interactiveMessage langsung
+await sock.sendMessage(jid, {
+    interactiveMessage: {
+        header: { title: '🤔 Quick Question', hasMediaAttachment: false },
+        body:   { text: 'What would you like to do?' },
+        footer: { text: 'Yebail Bot' },
+        nativeFlowMessage: {
+            buttons: [
+                { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: '📋 View Menu',   id: 'id1' }) },
+                { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: '🛒 Place Order', id: 'id2' }) },
+                { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: '❓ Help',        id: 'id3' }) }
+            ],
+            messageParamsJson: ''
+        }
+    }
+})
+```
+
 #### Buttons with Image Header
 
 ```javascript
+// ✅ Format lama dengan media – otomatis dikonversi
 await sock.sendMessage(jid, {
     image: { url: 'https://example.com/banner.jpg' },
     caption: 'Choose an option:',
