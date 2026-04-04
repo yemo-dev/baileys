@@ -7,6 +7,10 @@ on:
         description: 'Version increment (patch, minor, major, or specific version)'
         required: true
         default: 'patch'
+      commit_text:
+        description: 'Optional custom commit message'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -37,11 +41,20 @@ jobs:
         run: |
           # Increment version without creating a git tag
           npm version ${{ github.event.inputs.increment }} --no-git-tag-version
-          git add package.json scripts
-          git commit -m "chore: release v$(node -p 'require("./package.json").version')"
+          npm version ${{ github.event.inputs.increment }} --no-git-tag-version --prefix Example
+          git add package.json Example/package.json scripts
+          COMMIT_MESSAGE="${{ github.event.inputs.commit_text }}"
+          if [ -z "$COMMIT_MESSAGE" ]; then
+            COMMIT_MESSAGE="chore: release v$(node -p 'require("./package.json").version') & example v$(node -p 'require("./Example/package.json").version')"
+          fi
+          git commit -m "$COMMIT_MESSAGE"
           
           # Push changes without tags
           git push origin main
           
           # Publish to npm
           npm publish --access public
+          (
+            cd Example
+            npm publish --access public
+          )
