@@ -1166,6 +1166,14 @@ await sock.sendMessage(jid, {
   paymentInviteServiceType: 3,
   paymentInviteExpiry: Math.floor(Date.now() / 1000) + 86400
 })
+
+// alias object form
+await sock.sendMessage(jid, {
+  paymentInvite: {
+    type: 3,
+    expiry: Math.floor(Date.now() / 1000) + 86400
+  }
+})
 ```
 
 ### Invoice
@@ -1184,6 +1192,164 @@ await sock.sendMessage(jid, {
   orderText: 'Your order is ready!',
   thumbnail: fs.readFileSync('./product.jpg')
 }, { quoted: message })
+```
+
+### Order (full)
+
+```js
+await sock.sendMessage(jid, {
+  order: {
+    id: 'ORD-1001',
+    thumbnail: fs.readFileSync('./product.jpg'),
+    itemCount: 2,
+    status: 1,
+    surface: 1,
+    title: 'Order Confirmation',
+    text: 'Thanks for your purchase!',
+    seller: '628111111111@s.whatsapp.net',
+    token: 'order-token',
+    amount: 150000 * 1000,
+    currency: 'IDR'
+  }
+})
+```
+
+### Product Message
+
+```js
+await sock.sendMessage(jid, {
+  product: {
+    productImage: { url: 'https://example.com/product.jpg' },
+    productId: 'prod-1',
+    title: 'Premium Coffee Beans',
+    description: 'Roasted arabica',
+    currencyCode: 'IDR',
+    priceAmount1000: '120000000',
+    retailerId: 'sku-001',
+    productImageCount: 1
+  },
+  businessOwnerJid: '628111111111@s.whatsapp.net'
+})
+```
+
+### Product List Message
+
+```js
+await sock.sendMessage(jid, {
+  title: 'Catalog',
+  text: 'Choose a product',
+  footer: 'Yebail Shop',
+  buttonText: 'View Products',
+  businessOwnerJid: '628111111111@s.whatsapp.net',
+  productList: [
+    {
+      title: 'Best Seller',
+      products: [
+        { productId: 'prod-1' },
+        { productId: 'prod-2' }
+      ]
+    }
+  ]
+})
+```
+
+### Shop Interactive
+
+```js
+await sock.sendMessage(jid, {
+  text: 'Open storefront',
+  footer: 'Yebail Store',
+  shop: {
+    id: '628111111111@s.whatsapp.net',
+    surface: 1
+  }
+})
+```
+
+### Template Buttons (legacy)
+
+```js
+await sock.sendMessage(jid, {
+  text: 'Choose action',
+  footer: 'Yebail',
+  templateButtons: [
+    { index: 1, quickReplyButton: { displayText: 'Ping', id: 'ping' } },
+    { index: 2, urlButton: { displayText: 'Website', url: 'https://github.com/yemo-dev/baileys' } }
+  ]
+})
+```
+
+### Interactive Buttons (native flow shorthand)
+
+```js
+await sock.sendMessage(jid, {
+  text: 'Quick options',
+  footer: 'Yebail',
+  interactiveButtons: [
+    { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: 'Option A', id: 'opt_a' }) },
+    { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: 'Option B', id: 'opt_b' }) }
+  ]
+})
+```
+
+### List Reply (send simulated response)
+
+```js
+await sock.sendMessage(jid, {
+  listReply: {
+    title: 'Order Menu',
+    description: 'Selected by bot',
+    singleSelectReply: { selectedRowId: 'pizza' },
+    listType: 1
+  }
+})
+```
+
+### Group Invite Message (send)
+
+```js
+await sock.sendMessage(jid, {
+  groupInvite: {
+    inviteCode: 'AbCdEfGhIj',
+    inviteExpiration: Math.floor(Date.now() / 1000) + 86400,
+    text: 'Join our group',
+    jid: '1203630xxxxxxxx@g.us',
+    subject: 'Yebail Community'
+  }
+})
+```
+
+### Newsletter Admin Invite (send)
+
+```js
+await sock.sendMessage(jid, {
+  inviteAdmin: {
+    inviteExpiration: Math.floor(Date.now() / 1000) + 86400,
+    text: 'Please become admin',
+    jid: '1203630xxxxxxxx@newsletter',
+    subject: 'Yebail Channel',
+    thumbnail: fs.readFileSync('./thumb.jpg')
+  }
+})
+```
+
+### Phone Number Request / Share
+
+```js
+await sock.sendMessage(jid, { requestPhoneNumber: true })
+await sock.sendMessage(jid, { sharePhoneNumber: true })
+```
+
+### Scheduled Call Message
+
+```js
+await sock.sendMessage(jid, {
+  call: {
+    title: 'Project Sync Call',
+    type: 1,
+    time: Date.now() + 10 * 60 * 1000
+  }
+})
 ```
 
 ### Status / Story
