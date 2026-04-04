@@ -1461,7 +1461,7 @@ const updates = await sock.newsletterFetchUpdates(newsletter.id, 10)
 await sock.newsletterReactMessage(newsletter.id, 'SERVER_ID', 'x')
 await sock.newsletterReactMessage(newsletter.id, 'SERVER_ID', null)
 
-const inviteMeta = await sock.newsletterId('https://whatsapp.com/channel/XXXX')
+const inviteMeta = await sock.newsletterId('https://whatsapp.com/channel/0029Va9vcYKGgYKQNc8wUd')
 console.log('Newsletter ID:', inviteMeta.id, inviteMeta.name)
 ```
 
