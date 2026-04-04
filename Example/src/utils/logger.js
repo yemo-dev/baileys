@@ -3,6 +3,8 @@ import pino from 'pino'
 
 const LOG_LEVELS = new Set([...Object.keys(pino.levels.values), 'silent'])
 const RESTRICTED_LEVELS = new Set(['debug', 'trace'])
+// WA_CONNECTION_LOG_LEVEL controls noisy WA socket/store JSON logs (default: silent).
+// INTERNAL_LOG_LEVEL and LOG_LEVEL are kept as backward-compatible fallbacks.
 const requestedLevel = (
   process.env.WA_CONNECTION_LOG_LEVEL
   || process.env.INTERNAL_LOG_LEVEL
