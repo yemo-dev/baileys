@@ -1,10 +1,17 @@
 # @yemo-dev/yebail
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/6ee11803-4261-467b-a966-692a2b34c534" alt="@yemo-dev/yebail logo" width="720" />
+</p>
+
 [![npm version](https://img.shields.io/npm/v/@yemo-dev/yebail.svg)](https://www.npmjs.com/package/@yemo-dev/yebail)
 [![npm downloads](https://img.shields.io/npm/dm/@yemo-dev/yebail.svg)](https://www.npmjs.com/package/@yemo-dev/yebail)
 [![license](https://img.shields.io/npm/l/@yemo-dev/yebail.svg)](./LICENSE)
 
 **@yemo-dev/yebail** adalah library WhatsApp Web API berbasis WebSocket yang cepat, stabil, dan fokus pada fitur interaktif modern.
+
+Primary logo/media URL (bisa dipakai untuk preview website):  
+https://github.com/user-attachments/assets/6ee11803-4261-467b-a966-692a2b34c534
 
 > Project ini tidak berafiliasi dengan WhatsApp. Gunakan secara bertanggung jawab.
 
