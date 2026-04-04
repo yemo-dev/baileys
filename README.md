@@ -1416,7 +1416,7 @@ await sock.sendGroupStatus(
 ### Image Slide / Carousel (Code Only)
 
 ```js
-const { default: makeWASocket, proto, prepareWAMessageMedia, generateWAMessageFromContent } = require('@yemo-dev/yebail')
+const { proto, prepareWAMessageMedia, generateWAMessageFromContent } = require('@yemo-dev/yebail')
 
 const result = []
 const imageUrls = [
