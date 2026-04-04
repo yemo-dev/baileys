@@ -8,12 +8,18 @@ const ownersFromEnv = (process.env.BOT_OWNER || '6283891882373')
   .map((v) => toJid(v.trim()))
   .filter(Boolean)
 
+const parseAllowOwnerTools = (value) => {
+  if (value == null || value === '') return true
+  const normalized = String(value).trim().toLowerCase()
+  return !['false', '0', 'no', 'off'].includes(normalized)
+}
+
 const config = {
   botName: process.env.BOT_NAME || 'botz',
   prefix: process.env.BOT_PREFIX || '.',
   mode: process.env.BOT_MODE === 'self' ? 'self' : 'public',
   owners: ownersFromEnv,
-  allowOwnerTools: process.env.ALLOW_OWNER_TOOLS === 'true',
+  allowOwnerTools: parseAllowOwnerTools(process.env.ALLOW_OWNER_TOOLS),
   browser: {
     platform: process.env.WA_BROWSER_PLATFORM || 'Windows',
     name: process.env.WA_BROWSER_NAME || 'Chrome',
