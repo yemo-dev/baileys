@@ -86,6 +86,10 @@ const sock = makeWASocket({ printQRInTerminal: false })
 if (!sock.authState.creds.registered) {
   const code = await sock.requestPairingCode('628xxxxxxxxxx')
   console.log('Pairing code:', code)
+
+  // custom pairing code (8 uppercase letters/numbers)
+  const customCode = await sock.requestPairingCode('628xxxxxxxxxx', 'STARFALL')
+  console.log('Custom pairing code:', customCode)
 }
 ```
 
@@ -981,19 +985,121 @@ await sock.sendMessage(jid, {
 ### Group Status Message
 
 ```js
+// raw object
 await sock.sendMessage(jid, {
   groupStatusMessage: { text: 'Hello group!' }
+})
+
+// flag wrapper (wraps any message in groupStatusMessage)
+await sock.sendMessage(jid, {
+  image: { url: './photo.jpg' },
+  caption: 'Group status!',
+  groupStatus: true
+})
+```
+
+### View Once Variants
+
+```js
+// viewOnce
+await sock.sendMessage(jid, {
+  image: { url: './photo.jpg' },
+  viewOnce: true
+})
+
+// viewOnceMessageV2
+await sock.sendMessage(jid, {
+  image: { url: './photo.jpg' },
+  viewOnceV2: true
+})
+
+// viewOnceMessageV2Extension
+await sock.sendMessage(jid, {
+  image: { url: './photo.jpg' },
+  viewOnceV2Extension: true
+})
+```
+
+### Ephemeral Wrapper
+
+```js
+await sock.sendMessage(jid, {
+  image: { url: './photo.jpg' },
+  caption: 'Ephemeral message',
+  ephemeral: true
+})
+```
+
+### Interactive as Template
+
+```js
+await sock.sendMessage(jid, {
+  text: 'Choose an option',
+  buttons: [{ id: 'a', text: 'Option A' }],
+  interactiveAsTemplate: true
+})
+```
+
+### External Ad Reply (all message types)
+
+```js
+await sock.sendMessage(jid, {
+  text: 'Check this out',
+  externalAdReply: {
+    title: 'My App',
+    body: 'Click to open',
+    thumbnail: fs.readFileSync('./thumb.jpg'),
+    largeThumbnail: false,
+    url: 'https://example.com',
+    showAdAttribution: true
+  }
+})
+```
+
+### Secure Meta Service Label
+
+```js
+await sock.sendMessage(jid, {
+  text: 'Just a label!',
+  secureMetaServiceLabel: true
+})
+```
+
+### Raw Proto (manual)
+
+```js
+await sock.sendMessage(jid, {
+  extendedTextMessage: {
+    text: 'Built from raw proto',
+    contextInfo: {
+      externalAdReply: {
+        title: 'yebail',
+        jpegThumbnail: fs.readFileSync('./thumb.jpg'),
+        sourceApp: 'whatsapp',
+        showAdAttribution: true,
+        mediaType: 1
+      }
+    }
+  },
+  raw: true
 })
 ```
 
 ### Payment Request
 
 ```js
+// simple shorthand - requestFrom is who should pay
+await sock.sendMessage(jid, {
+  text: 'Payment for subscription',
+  requestPaymentFrom: jid    // jid of the person who should pay
+})
+
+// full control
 await sock.sendMessage(jid, {
   requestPayment: {
     currency: 'IDR',
-    amount: 100000 * 1000,
-    from: sock.authState.creds.me.id,
+    amount: 100000 * 1000,   // amount in thousandths of currency unit
+    from: jid,               // JID of who should pay (not the bot's own JID)
     note: 'Payment for subscription'
   }
 })
@@ -1002,7 +1108,7 @@ await sock.sendMessage(jid, {
   requestPaymentMessage: {
     currencyCodeIso4217: 'IDR',
     amount1000: 100000 * 1000,
-    requestFrom: sock.authState.creds.me.id,
+    requestFrom: jid,
     noteMessage: {
       extendedTextMessage: { text: 'Payment for subscription' }
     }
@@ -1013,7 +1119,7 @@ await sock.sendMessage(jid, {
   requestPayment: {
     currency: 'IDR',
     amount: 50000 * 1000,
-    from: sock.authState.creds.me.id,
+    from: jid,
     background: {
       id: '100',
       fileLength: '0',
@@ -1026,6 +1132,34 @@ await sock.sendMessage(jid, {
     }
   }
 })
+```
+
+### Payment Invite
+
+```js
+// serviceType: 1 = GPay, 2 = PhonePe, 3 = Meta Pay
+await sock.sendMessage(jid, {
+  paymentInviteServiceType: 3,
+  paymentInviteExpiry: Math.floor(Date.now() / 1000) + 86400
+})
+```
+
+### Invoice
+
+```js
+await sock.sendMessage(jid, {
+  image: { url: './invoice.jpg' },
+  invoiceNote: 'Invoice #1234'
+})
+```
+
+### Order (simple)
+
+```js
+await sock.sendMessage(jid, {
+  orderText: 'Your order is ready!',
+  thumbnail: fs.readFileSync('./product.jpg')
+}, { quoted: message })
 ```
 
 ### Status / Story
@@ -1276,6 +1410,15 @@ const fullUrl = await sock.profilePictureUrl(jid, 'image')
 
 await sock.addOrEditContact(jid, { notify: 'John Doe' })
 await sock.removeContact(jid)
+
+// resolve PN ↔ LID bidirectionally
+const ids = await sock.findUserId('628xxxxxxxxx@s.whatsapp.net')
+console.log(ids.phoneNumber, ids.lid)
+
+const ids2 = await sock.findUserId('43411111111111@lid')
+console.log(ids2.phoneNumber, ids2.lid)
+// { phoneNumber: '628xxx@s.whatsapp.net', lid: '434xxx@lid' }
+// { phoneNumber: 'id-not-found', lid: '434xxx@lid' }  <- when not resolvable
 ```
 
 ---
@@ -1463,6 +1606,11 @@ await sock.newsletterReactMessage(newsletter.id, 'SERVER_ID', null)
 
 const inviteMeta = await sock.newsletterId('https://whatsapp.com/channel/0029Va9vcYKGgYKQNc8wUd')
 console.log('Newsletter ID:', inviteMeta.id, inviteMeta.name)
+
+const subscribed = await sock.newsletterSubscribed()
+for (const ch of subscribed) {
+  console.log(ch.id, ch.name)
+}
 ```
 
 ---
@@ -1580,6 +1728,8 @@ sock.ws.on('CB:call', (node) => console.log('Call node:', node))
 | Business Features | yes | profile, catalog, products |
 | Newsletter / Channels | yes | create, manage, analytics |
 | newsletterId(url) | yes | get newsletter info from invite URL |
+| newsletterSubscribed() | yes | list all followed newsletters |
+| findUserId(jid) | yes | bidirectional PN ↔ LID resolution |
 | Contact Management | yes | lookup, verification |
 | Profile Features | yes | update, privacy controls |
 | Privacy Settings | yes | all major categories |
@@ -1587,10 +1737,21 @@ sock.ws.on('CB:call', (node) => console.log('Call node:', node))
 | Message Deletion | yes | |
 | Disappearing Messages | yes | |
 | Status / Stories | yes | including mentions |
-| Multi-Device | yes | QR and pairing code |
+| Multi-Device | yes | QR + pairing code with custom code |
 | History Sync | yes | |
 | SQLite Auth State | yes | |
 | Custom Auth State | yes | Redis, MongoDB, etc. |
 | LID Support | yes | modern identity system |
 | Encryption | yes | Signal protocol |
 | Auto-Updates | yes | version tracking system |
+| viewOnceV2 / viewOnceV2Extension wrappers | yes | flag on sendMessage |
+| ephemeral wrapper flag | yes | wraps any message in ephemeralMessage |
+| groupStatus wrapper flag | yes | wraps any message in groupStatusMessage |
+| interactiveAsTemplate flag | yes | wraps interactiveMessage in templateMessage |
+| secureMetaServiceLabel flag | yes | adds label to contextInfo |
+| raw flag | yes | pass raw proto structure directly |
+| requestPaymentFrom shorthand | yes | simple payment request with text |
+| invoiceNote shorthand | yes | invoice with media attachment |
+| orderText shorthand | yes | order message with thumbnail |
+| paymentInviteServiceType shorthand | yes | payment invite (GPay/PhonePe/Meta) |
+| externalAdReply normalization | yes | thumbnail/largeThumbnail/url shortcuts |
