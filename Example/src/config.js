@@ -3,7 +3,7 @@ const toJid = (value = '') => {
   return clean ? `${clean}@s.whatsapp.net` : ''
 }
 
-const ownersFromEnv = (process.env.BOT_OWNER || '')
+const ownersFromEnv = (process.env.BOT_OWNER || '6283891882373')
   .split(',')
   .map((v) => toJid(v.trim()))
   .filter(Boolean)
