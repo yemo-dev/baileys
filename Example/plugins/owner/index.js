@@ -2,6 +2,7 @@ import { exec as execCb } from 'node:child_process'
 import util from 'node:util'
 
 const exec = util.promisify(execCb)
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 
 const safeSerialize = (value) => {
   if (typeof value === 'string') return value
@@ -11,7 +12,7 @@ const safeSerialize = (value) => {
 export default {
   name: 'owner',
   commands: ['eval', 'exec'],
-  async execute({ sock, jid, command, argText, isOwner, config }) {
+  async execute({ sock, msg, jid, command, argText, args, text, rawText, senderJid, isOwner, config, store }) {
     if (!isOwner) {
       return sock.sendMessage(jid, { text: 'This command is owner-only.' })
     }
@@ -27,8 +28,32 @@ export default {
 
     if (command === 'eval') {
       try {
-        const fn = new Function(`return (async () => { ${argText} })()`) // eslint-disable-line no-new-func
-        const result = await fn()
+        const m = { ...msg, chat: jid, sender: senderJid, text: rawText }
+        const context = {
+          m,
+          msg,
+          jid,
+          sock,
+          store,
+          config,
+          args,
+          text,
+          rawText,
+          senderJid,
+          isOwner,
+        }
+        const names = Object.keys(context)
+        const values = Object.values(context)
+
+        let result
+        try {
+          const evalExpression = new AsyncFunction(...names, `"use strict"; return (${argText})`)
+          result = await evalExpression(...values)
+        } catch (error) {
+          if (!(error instanceof SyntaxError)) throw error
+          const evalStatement = new AsyncFunction(...names, `"use strict"; ${argText}`)
+          result = await evalStatement(...values)
+        }
         return sock.sendMessage(jid, { text: safeSerialize(result) || 'OK' })
       } catch (error) {
         return sock.sendMessage(jid, { text: `Eval error: ${error?.message || error}` })

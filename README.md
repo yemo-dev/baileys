@@ -2201,16 +2201,13 @@ await sock.sendMessage(jid, {
 
 ```javascript
 await sock.sendMessage(jid, {
-    buttonsMessage: {
-        text: 'What would you like to do?',
-        footerText: 'Yebail Bot',
-        headerType: 1, // 1 = text header
-        buttons: [
-            { buttonId: 'id1', buttonText: { displayText: '📋 View Menu' },   type: 1 },
-            { buttonId: 'id2', buttonText: { displayText: '🛒 Place Order' }, type: 1 },
-            { buttonId: 'id3', buttonText: { displayText: '❓ Help' },        type: 1 }
-        ]
-    }
+    text: 'What would you like to do?',
+    footer: 'Yebail Bot',
+    buttons: [
+        { buttonId: 'id1', buttonText: { displayText: '📋 View Menu' } },
+        { buttonId: 'id2', buttonText: { displayText: '🛒 Place Order' } },
+        { buttonId: 'id3', buttonText: { displayText: '❓ Help' } }
+    ]
 })
 ```
 
@@ -2218,19 +2215,13 @@ await sock.sendMessage(jid, {
 
 ```javascript
 await sock.sendMessage(jid, {
-    buttonsMessage: {
-        contentText: 'Choose an option:',
-        footerText: 'Yebail',
-        headerType: 4, // 4 = image header
-        imageMessage: {
-            url: 'https://example.com/banner.jpg',
-            mimetype: 'image/jpeg'
-        },
-        buttons: [
-            { buttonId: 'yes', buttonText: { displayText: '✅ Yes' }, type: 1 },
-            { buttonId: 'no',  buttonText: { displayText: '❌ No' },  type: 1 }
-        ]
-    }
+    image: { url: 'https://example.com/banner.jpg' },
+    caption: 'Choose an option:',
+    footer: 'Yebail',
+    buttons: [
+        { buttonId: 'yes', buttonText: { displayText: '✅ Yes' } },
+        { buttonId: 'no',  buttonText: { displayText: '❌ No' } }
+    ]
 })
 ```
 

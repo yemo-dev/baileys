@@ -190,6 +190,7 @@ export const startBot = async () => {
             isOwner,
           }))
         } else {
+          if (!isOwner) continue
           const shown = command === 'eval' ? '>' : command === 'exec' ? '=>' : `${config.prefix}${command}`
           await sock.sendMessage(jid, { text: `Unknown command: ${shown}` })
         }
