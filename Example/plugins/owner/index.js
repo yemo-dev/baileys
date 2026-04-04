@@ -4,6 +4,23 @@ import util from 'node:util'
 const exec = util.promisify(execCb)
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 
+const summarizeResult = (value) => {
+  if (value === undefined) return 'OK'
+  if (value === null) return 'null'
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') return String(value)
+  if (typeof value === 'function') return `[Function${value.name ? `: ${value.name}` : ''}]`
+
+  const key = value?.key
+  if (key && typeof key === 'object' && typeof value === 'object') {
+    const id = key.id || '-'
+    const remoteJid = key.remoteJid || '-'
+    return `Sent ✅\nID: ${id}\nJID: ${remoteJid}`
+  }
+
+  return safeSerialize(value)
+}
+
 const safeSerialize = (value) => {
   if (typeof value === 'string') return value
   return util.inspect(value, { depth: 2 })
@@ -54,7 +71,7 @@ export default {
           const evalStatement = new AsyncFunction(...names, `"use strict"; ${argText}`)
           result = await evalStatement(...values)
         }
-        return sock.sendMessage(jid, { text: safeSerialize(result) || 'OK' })
+        return sock.sendMessage(jid, { text: summarizeResult(result) })
       } catch (error) {
         return sock.sendMessage(jid, { text: `Eval error: ${error?.message || error}` })
       }
