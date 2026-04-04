@@ -1,7 +1,7 @@
 # @yemo-dev/yebail
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/6ee11803-4261-467b-a966-692a2b34c534" alt="@yemo-dev/yebail logo" width="720" />
+  <img src="./Media/logo.png" alt="@yemo-dev/yebail logo" width="720" />
 </p>
 
 [![npm version](https://img.shields.io/npm/v/@yemo-dev/yebail.svg)](https://www.npmjs.com/package/@yemo-dev/yebail)
