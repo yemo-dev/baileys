@@ -74,7 +74,7 @@ const {
 const { default: makeWASocket, Browsers } = require('@yemo-dev/yebail')
 
 const sock = makeWASocket({
-  browser: Browsers.windows('MyBot'),
+  browser: Browsers.windows('Yebail'),
   printQRInTerminal: true
 })
 ```
@@ -103,7 +103,7 @@ const sock = makeWASocket({
 
 ```js
 const sock = makeWASocket({
-  browser: Browsers.appropriate('MyBot')
+  browser: Browsers.appropriate('Yebail')
 })
 ```
 
@@ -132,7 +132,7 @@ const groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false })
 
 const sock = makeWASocket({
   auth: state,
-  browser: Browsers.windows('MyBot'),
+  browser: Browsers.windows('Yebail'),
   printQRInTerminal: true,
   syncFullHistory: false,
   markOnlineOnConnect: false,
