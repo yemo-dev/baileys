@@ -17,6 +17,7 @@
 > - Format lama `buttons` (dengan `buttonId`/`buttonText`) **otomatis dikonversi** ke `interactiveMessage.nativeFlowMessage` — tidak perlu ubah kode.
 > - Format `listMessage` langsung: gunakan field **`description`** (bukan `text`) untuk isi pesan agar tampil dengan benar.
 > - Format `sections` (untuk list) dan `interactiveMessage` (untuk buttons) adalah format yang **direkomendasikan** untuk semua klien WhatsApp modern.
+> - **Semua tipe button kini menggunakan `engagement` node** untuk kompatibilitas maksimal dengan WhatsApp Business dan WhatsApp biasa.
 > - Lihat [List Message](#list-message) dan [Buttons Message](#buttons-message) untuk contoh lengkap.
 
 ## Disclaimer
@@ -2287,7 +2288,55 @@ await sock.sendMessage(jid, {
 })
 ```
 
+```javascript
+// ✅ Format modern dengan media di header
+await sock.sendMessage(jid, {
+    interactiveMessage: {
+        header: {
+            title: 'Pilih opsi',
+            hasMediaAttachment: true,
+            imageMessage: {
+                url: 'https://example.com/banner.jpg',
+                mimetype: 'image/jpeg'
+            }
+        },
+        body:   { text: 'Choose an option:' },
+        footer: { text: 'Yebail' },
+        nativeFlowMessage: {
+            buttons: [
+                { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: '✅ Yes', id: 'yes' }) },
+                { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: '❌ No',  id: 'no'  }) }
+            ],
+            messageParamsJson: ''
+        }
+    }
+})
+```
+
 ### Interactive Message (Native Flow)
+
+#### Simple Interactive (Copy Code Button)
+
+```javascript
+// ✅ Tombol copy code
+await sock.sendMessage(jid, {
+    interactiveMessage: {
+        header: 'Your Promo Code',
+        title: 'Use code below for 20% off',
+        footer: 'Yebail Shop',
+        buttons: [
+            {
+                name: 'cta_copy',
+                buttonParamsJson: JSON.stringify({
+                    display_text: '📋 Copy Code',
+                    id: 'promo_code',
+                    copy_code: 'YEBAIL20'
+                })
+            }
+        ]
+    }
+}, { quoted: m })
+```
 
 #### Single-Select Dropdown
 
@@ -2402,6 +2451,123 @@ await sock.sendMessage(jid, {
         }
     }
 })
+```
+
+#### Interactive dengan Document Buffer
+
+```javascript
+// ✅ Document hanya support buffer (bukan URL)
+const fs = require('fs')
+await sock.sendMessage(jid, {
+    interactiveMessage: {
+        header: 'Dokumen Penting',
+        title: 'File PDF',
+        footer: 'Yebail',
+        document: fs.readFileSync('./file.pdf'),
+        mimetype: 'application/pdf',
+        fileName: 'dokumen.pdf',
+        buttons: [
+            {
+                name: 'cta_url',
+                buttonParamsJson: JSON.stringify({
+                    display_text: 'Buka Link',
+                    url: 'https://github.com/yemo-dev/baileys',
+                    merchant_url: 'https://github.com/yemo-dev/baileys'
+                })
+            }
+        ]
+    }
+}, { quoted: m })
+```
+
+#### Interactive dengan Multiple Button Types
+
+```javascript
+// ✅ Campuran tombol copy, url, dan quick_reply dalam satu nativeFlowMessage
+await sock.sendMessage(jid, {
+    interactiveMessage: {
+        header: { title: 'Penawaran Spesial', hasMediaAttachment: false },
+        body:   { text: 'Pilih aksi yang ingin kamu lakukan:' },
+        footer: { text: 'Yebail Bot' },
+        nativeFlowMessage: {
+            buttons: [
+                {
+                    name: 'cta_url',
+                    buttonParamsJson: JSON.stringify({
+                        display_text: '🌐 Kunjungi Website',
+                        url: 'https://github.com/yemo-dev/baileys',
+                        merchant_url: 'https://github.com/yemo-dev/baileys'
+                    })
+                },
+                {
+                    name: 'cta_copy',
+                    buttonParamsJson: JSON.stringify({
+                        display_text: '📋 Copy Kode',
+                        id: 'kode_promo',
+                        copy_code: 'DISKON50'
+                    })
+                },
+                {
+                    name: 'quick_reply',
+                    buttonParamsJson: JSON.stringify({
+                        display_text: '✅ Lanjutkan',
+                        id: 'lanjut'
+                    })
+                }
+            ],
+            messageParamsJson: ''
+        }
+    }
+}, { quoted: m })
+```
+
+#### Interactive dengan Single Select dan Multiple Buttons
+
+```javascript
+// ✅ Gabungan single_select dan quick_reply dengan has_multiple_buttons
+await sock.sendMessage(jid, {
+    interactiveMessage: {
+        header: { title: 'Menu Utama', hasMediaAttachment: false },
+        body:   { text: 'Silakan pilih menu:' },
+        footer: { text: 'Yebail' },
+        nativeFlowMessage: {
+            buttons: [
+                {
+                    name: 'single_select',
+                    buttonParamsJson: JSON.stringify({
+                        title: 'Pilih Kategori',
+                        sections: [
+                            {
+                                title: 'Makanan',
+                                rows: [
+                                    { title: 'Nasi Goreng', description: 'Enak banget', id: 'nasi_goreng' },
+                                    { title: 'Mie Ayam',    description: 'Porsi besar',  id: 'mie_ayam'   }
+                                ]
+                            },
+                            {
+                                title: 'Minuman',
+                                rows: [
+                                    { title: 'Es Teh',    description: 'Segar', id: 'es_teh'    },
+                                    { title: 'Jus Jeruk', description: 'Manis', id: 'jus_jeruk' }
+                                ]
+                            }
+                        ],
+                        has_multiple_buttons: true
+                    })
+                },
+                {
+                    name: 'quick_reply',
+                    buttonParamsJson: JSON.stringify({
+                        display_text: '❌ Tutup',
+                        id: 'tutup',
+                        has_multiple_buttons: true
+                    })
+                }
+            ],
+            messageParamsJson: ''
+        }
+    }
+}, { quoted: m })
 ```
 
 ### Carousel Message
