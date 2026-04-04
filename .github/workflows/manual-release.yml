@@ -42,11 +42,7 @@ jobs:
           # Increment root package version without creating a git tag
           npm version ${{ github.event.inputs.increment }} --no-git-tag-version
 
-          # Keep Example package version aligned with root package version
-          ROOT_VERSION="$(node -p 'require("./package.json").version')"
-          npm version "$ROOT_VERSION" --no-git-tag-version --prefix Example
-
-          git add package.json Example scripts
+          git add package.json scripts
           if [ -f package-lock.json ]; then
             git add package-lock.json
           fi
@@ -62,7 +58,3 @@ jobs:
           
           # Publish to npm
           npm publish --access public
-          (
-            cd Example
-            npm publish --access public
-          )
