@@ -1,10 +1,10 @@
 import Color from './color.js'
 import pino from 'pino'
 
-const LOG_LEVELS = new Set(Object.keys(pino.levels.values))
+const LOG_LEVELS = new Set([...Object.keys(pino.levels.values), 'silent'])
 const RESTRICTED_LEVELS = new Set(['debug', 'trace'])
-const requestedLevel = (process.env.LOG_LEVEL || 'info').toLowerCase()
-const sanitizedLevel = LOG_LEVELS.has(requestedLevel) ? requestedLevel : 'info'
+const requestedLevel = (process.env.INTERNAL_LOG_LEVEL || process.env.LOG_LEVEL || 'silent').toLowerCase()
+const sanitizedLevel = LOG_LEVELS.has(requestedLevel) ? requestedLevel : 'silent'
 const internalLogLevel = RESTRICTED_LEVELS.has(sanitizedLevel) ? 'info' : sanitizedLevel
 
 export const internalLogger = pino({
