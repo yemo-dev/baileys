@@ -459,6 +459,22 @@ await sock.sendMessage(jid, {
 })
 ```
 
+### Sticker Pack
+
+```js
+await sock.sendMessage(jid, {
+  stickerPack: {
+    stickerPackId: 'your-pack-id',
+    name: 'My Sticker Pack',
+    publisher: 'My Brand',
+    stickers: [
+      { stickerId: 'sticker-1', fileName: 'sticker1.webp', emoticon: '🔥' }
+    ],
+    packDescription: 'Sample sticker pack'
+  }
+})
+```
+
 ### Contact Card
 
 ```js
