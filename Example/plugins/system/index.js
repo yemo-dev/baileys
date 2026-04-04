@@ -44,7 +44,8 @@ export default {
         return sock.sendMessage(jid, { text: 'This command is owner-only.' })
       }
 
-      const phone = `+${String(senderJid || '').split('@')[0] || FALLBACK_TEST_PHONE.slice(1)}`
+      const senderPhone = String(senderJid || '').split('@')[0] || FALLBACK_TEST_PHONE.slice(1)
+      const phone = `+${senderPhone}`
       const tests = [
         {
           name: 'Legacy Buttons',
