@@ -646,6 +646,18 @@ await sock.sendMessage(jid, {
     { buttonId: 'no',  buttonText: { displayText: 'No'  } }
   ]
 })
+
+await sock.sendMessage(jid, {
+  buttonsMessage: {
+    contentText: 'Legacy buttons message',
+    footerText: 'Yebail Legacy',
+    buttons: [
+      { buttonId: 'legacy_1', buttonText: { displayText: 'Legacy 1' }, type: 1 },
+      { buttonId: 'legacy_2', buttonText: { displayText: 'Legacy 2' }, type: 1 }
+    ],
+    headerType: 1
+  }
+})
 ```
 
 ### Interactive Message
@@ -661,6 +673,21 @@ await sock.sendMessage(jid, {
         { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: 'Yes!',    id: 'yes'   }) },
         { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: 'Not yet', id: 'no'    }) },
         { name: 'quick_reply', buttonParamsJson: JSON.stringify({ display_text: 'Maybe',   id: 'maybe' }) }
+      ],
+      messageParamsJson: ''
+    }
+  }
+})
+
+await sock.sendMessage(jid, {
+  interactiveMessage: {
+    header: { title: 'Payment Action', hasMediaAttachment: false },
+    body: { text: 'Choose PIX or PAY flow' },
+    footer: { text: 'yebail' },
+    nativeFlowMessage: {
+      buttons: [
+        { name: 'pix', buttonParamsJson: JSON.stringify({ id: 'pix_001', display_text: 'PIX' }) },
+        { name: 'pay', buttonParamsJson: JSON.stringify({ id: 'pay_001', display_text: 'PAY' }) }
       ],
       messageParamsJson: ''
     }
@@ -1996,7 +2023,7 @@ console.log(MAINTENANCE_MESSAGE)
 | Stickers | yes | regular, Lottie, Avatar |
 | Reactions | yes | on any message type |
 | Polls | yes | V1, V2, V3 with vote tracking |
-| Buttons / Interactive | yes | buttons, list, native flow, carousel |
+| Buttons / Interactive | yes | buttons, buttonsMessage (legacy), list, native flow, carousel, pix/pay |
 | Event Message | yes | |
 | Poll Result Message | yes | |
 | Group Status Message | yes | |
