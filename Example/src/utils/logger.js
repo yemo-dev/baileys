@@ -1,8 +1,13 @@
 import Color from './color.js'
 import pino from 'pino'
 
+const LOG_LEVELS = new Set(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+const requestedLevel = (process.env.LOG_LEVEL || 'info').toLowerCase()
+const safeLevel = LOG_LEVELS.has(requestedLevel) ? requestedLevel : 'info'
+const internalLogLevel = safeLevel === 'debug' || safeLevel === 'trace' ? 'info' : safeLevel
+
 export const internalLogger = pino({
-  level: process.env.LOG_LEVEL || 'info',
+  level: internalLogLevel,
 })
 
 const logger = {
