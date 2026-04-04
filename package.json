@@ -5,6 +5,13 @@
     "access": "public"
   },
   "description": "WhatsApp Web API Library",
+  "keywords": [
+    "baileys",
+    "yebail",
+    "whatsapp",
+    "whatsapp-web",
+    "bot"
+  ],
   "license": "MIT",
   "author": "yemo-dev",
   "repository": {

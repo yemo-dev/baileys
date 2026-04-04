@@ -1379,6 +1379,68 @@ await sock.sendStatusMentions(
   { image: { url: 'https://example.com/photo.jpg' }, caption: 'Photo!' },
   ['628xxx@s.whatsapp.net']
 )
+
+await sock.sendGroupStatus(
+  { text: 'Status khusus member group' },
+  ['1203630xxxxxxx@g.us', '1203630yyyyyyy@g.us']
+)
+```
+
+### Image Slide / Carousel (Code Only)
+
+```js
+const { default: makeWASocket, proto, prepareWAMessageMedia, generateWAMessageFromContent } = require('@yemo-dev/yebail')
+
+const result = []
+const imageUrls = [
+  'https://example.com/1.jpg',
+  'https://example.com/2.jpg',
+  'https://example.com/3.jpg'
+]
+
+for (let i = 0; i < imageUrls.length; i++) {
+  const imageMessage = await prepareWAMessageMedia(
+    { image: { url: imageUrls[i] } },
+    { upload: sock.waUploadToServer }
+  )
+
+  result.push({
+    body: proto.Message.InteractiveMessage.Body.fromObject({}),
+    footer: proto.Message.InteractiveMessage.Footer.fromObject({}),
+    header: proto.Message.InteractiveMessage.Header.fromObject({
+      title: `Slide ${i + 1}/${imageUrls.length}`,
+      hasMediaAttachment: true,
+      ...imageMessage
+    }),
+    nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+      buttons: []
+    })
+  })
+}
+
+const msg = generateWAMessageFromContent(jid, {
+  viewOnceMessage: {
+    message: {
+      messageContextInfo: {
+        deviceListMetadata: {},
+        deviceListMetadataVersion: 2
+      },
+      interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+        body: proto.Message.InteractiveMessage.Body.fromObject({
+          text: 'Image Slide'
+        }),
+        header: proto.Message.InteractiveMessage.Header.fromObject({
+          hasMediaAttachment: false
+        }),
+        carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
+          cards: result
+        })
+      })
+    }
+  }
+}, { quoted: m })
+
+await sock.relayMessage(msg.key.remoteJid, msg.message, { messageId: msg.key.id })
 ```
 
 ### Button Reply (send)
