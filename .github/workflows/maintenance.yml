@@ -1,0 +1,80 @@
+name: Maintenance Mode
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Aktifkan atau nonaktifkan maintenance mode'
+        required: true
+        default: 'off'
+        type: choice
+        options:
+          - 'on'
+          - 'off'
+      message:
+        description: 'Pesan maintenance (kosongkan untuk pakai pesan default)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  toggle-maintenance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Git Config
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Set Maintenance Mode
+        run: |
+          MODE="${{ github.event.inputs.mode }}"
+          CUSTOM_MSG="${{ github.event.inputs.message }}"
+          TARGET="lib/Defaults/index.js"
+
+          if [ "$MODE" = "on" ]; then
+            BOOL="true"
+            LABEL="ON"
+          else
+            BOOL="false"
+            LABEL="OFF"
+          fi
+
+          # Toggle MAINTENANCE_MODE
+          sed -i "s/exports\.MAINTENANCE_MODE\s*=\s*\(true\|false\)/exports.MAINTENANCE_MODE = $BOOL/" "$TARGET"
+
+          # Update custom message if provided
+          if [ -n "$CUSTOM_MSG" ]; then
+            # Escape special characters for sed replacement
+            ESCAPED_MSG=$(printf '%s\n' "$CUSTOM_MSG" | sed 's/[&/\]/\\&/g')
+            sed -i "s/exports\.MAINTENANCE_MESSAGE\s*=\s*'[^']*'/exports.MAINTENANCE_MESSAGE = '$ESCAPED_MSG'/" "$TARGET"
+          fi
+
+          echo "Maintenance mode set to: $LABEL"
+          grep "MAINTENANCE_MODE\|MAINTENANCE_MESSAGE" "$TARGET"
+
+      - name: Commit and Push
+        run: |
+          MODE="${{ github.event.inputs.mode }}"
+          git add lib/Defaults/index.js
+
+          if git diff --staged --quiet; then
+            echo "Maintenance mode sudah dalam keadaan $MODE, tidak ada perubahan."
+            exit 0
+          fi
+
+          git commit -m "chore: maintenance mode ${{ github.event.inputs.mode }}"
+          git pull --rebase origin main
+          git push origin main
