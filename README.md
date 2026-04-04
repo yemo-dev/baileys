@@ -1176,15 +1176,13 @@ sock.ws.on('CB:edge_routing', (node) => {
     console.log('Edge routing:', node)
 })
 
-// Payment request
+// Payment request (high-level helper)
 await sock.sendMessage(jid, {
-    requestPaymentMessage: {
-        currencyCodeIso4217: 'IDR',
-        amount1000: 100000 * 1000,
-        requestFrom: sock.authState.creds.me.id,
-        noteMessage: {
-            extendedTextMessage: { text: 'Payment for services' }
-        }
+    requestPayment: {
+        currency: 'IDR',
+        amount: 100000 * 1000,
+        from: sock.authState.creds.me.id,
+        note: 'Payment for services'
     }
 })
 
@@ -2452,14 +2450,22 @@ await sock.sendMessage(jid, { forward: msg, force: true })
 
 ```javascript
 await sock.sendMessage(jid, {
+    requestPayment: {
+        currency: 'IDR',
+        amount: 100000 * 1000, // amount × 1000
+        from: sock.authState.creds.me.id,
+        note: 'Payment for subscription – Thank you!'
+    }
+})
+
+// Also supported for compatibility:
+await sock.sendMessage(jid, {
     requestPaymentMessage: {
         currencyCodeIso4217: 'IDR',
-        amount1000: 100000 * 1000, // amount × 1000
+        amount1000: 100000 * 1000,
         requestFrom: sock.authState.creds.me.id,
         noteMessage: {
-            extendedTextMessage: {
-                text: 'Payment for subscription – Thank you!'
-            }
+            extendedTextMessage: { text: 'Payment for subscription – Thank you!' }
         }
     }
 })
