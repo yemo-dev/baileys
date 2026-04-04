@@ -1,15 +1,17 @@
 {
-  "name": "yebail-bot-example",
-  "version": "1.0.0",
-  "description": "Contoh bot WhatsApp menggunakan @yemo-dev/yebail",
+  "name": "yebail-botz",
+  "version": "2.0.0",
+  "private": true,
+  "description": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "@yemo-dev/yebail": "github:yemo-dev/baileys",
-    "@hapi/boom": "^9.1.3",
     "@cacheable/node-cache": "^1.4.0",
+    "@hapi/boom": "^9.1.3",
+    "@yemo-dev/yebail": "npm:@yemo-dev/yebail@latest",
     "jimp": "^0.22.12",
     "pino": "^9.6.0"
   },
