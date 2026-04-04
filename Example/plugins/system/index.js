@@ -1,6 +1,8 @@
 import os from 'node:os'
 import { performance } from 'node:perf_hooks'
 
+const FALLBACK_TEST_PHONE = '+6280000000000'
+
 const uptime = (seconds = 0) => {
   const s = Math.max(0, Math.floor(seconds))
   const d = Math.floor(s / 86400)
@@ -42,7 +44,7 @@ export default {
         return sock.sendMessage(jid, { text: 'This command is owner-only.' })
       }
 
-      const phone = `+${String(senderJid || '').split('@')[0] || '6280000000000'}`
+      const phone = `+${String(senderJid || '').split('@')[0] || FALLBACK_TEST_PHONE.slice(1)}`
       const tests = [
         {
           name: 'Legacy Buttons',
@@ -153,11 +155,11 @@ export default {
 
       if (failed.length) {
         return sock.sendMessage(jid, {
-          text: `Interactive test selesai dengan error:\n- ${failed.join('\n- ')}`,
+          text: `Interactive test completed with errors:\n- ${failed.join('\n- ')}`,
         })
       }
 
-      return sock.sendMessage(jid, { text: 'Interactive test selesai ✅ (6/6 terkirim).' })
+      return sock.sendMessage(jid, { text: 'Interactive test completed ✅ (6/6 sent).' })
     }
 
     if (command === 'self' || command === 'public') {
