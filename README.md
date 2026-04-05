@@ -1491,14 +1491,31 @@ await sock.sendGroupStatus(
   { text: 'Status for group members' }
 )
 
+// image
 await sock.sendGroupStatus(
   ['120363012345678@g.us'],
   {
     image: { url: 'https://example.com/photo.jpg' },
-    caption: 'Group status V2 with media'
-  },
+    caption: 'Group status with image'
+  }
+)
+
+// video
+await sock.sendGroupStatus(
+  ['120363012345678@g.us'],
   {
-    relay: { useCachedGroupMetadata: true }
+    video: { url: 'https://example.com/video.mp4' },
+    caption: 'Group status with video'
+  }
+)
+
+// audio (voice note / VN)
+await sock.sendGroupStatus(
+  ['120363012345678@g.us'],
+  {
+    audio: { url: 'https://example.com/voice.ogg' },
+    mimetype: 'audio/ogg; codecs=opus',
+    ptt: true
   }
 )
 ```
@@ -1985,6 +2002,37 @@ for (const ch of subscribed) {
   console.log(ch.id, ch.name)
 }
 
+// Send text to channel
+await sock.sendMessage('1203630xxxxxxxx@newsletter', {
+  text: 'Hello subscribers!'
+})
+
+// Send image to channel
+await sock.sendMessage('1203630xxxxxxxx@newsletter', {
+  image: { url: 'https://example.com/photo.jpg' },
+  caption: 'Check this out!'
+})
+
+// Send video to channel
+await sock.sendMessage('1203630xxxxxxxx@newsletter', {
+  video: { url: 'https://example.com/clip.mp4' },
+  caption: 'Watch this!'
+})
+
+// Send audio to channel
+await sock.sendMessage('1203630xxxxxxxx@newsletter', {
+  audio: { url: 'https://example.com/audio.ogg' },
+  mimetype: 'audio/ogg; codecs=opus'
+})
+
+// Send voice note (VN) to channel
+await sock.sendMessage('1203630xxxxxxxx@newsletter', {
+  audio: { url: 'https://example.com/voice.ogg' },
+  mimetype: 'audio/ogg; codecs=opus',
+  ptt: true
+})
+
+// Send video with music annotation
 await sock.sendMessage('1203630xxxxxxxx@newsletter', {
   video: { url: 'https://a.top4top.io/m_3706zd9k00.mp4' },
   caption: 'jawa banget',
