@@ -30,7 +30,9 @@ const {
   Browsers,
   getContentType,
   downloadMediaMessage,
-  getAggregateVotesInPollMessage
+  getAggregateVotesInPollMessage,
+  getAggregateResponsesInEventMessage,
+  updateMessageWithEventResponse
 } = require('@yemo-dev/yebail')
 ```
 
@@ -1064,17 +1066,57 @@ await sock.sendMessage(jid, { forward: msg, force: true })
 
 ### Event Message
 
+Use `startDate` / `endDate` (JavaScript `Date` objects) and they are automatically converted to unix timestamps. You can also pass raw `startTime` / `endTime` numbers if you prefer.
+
 ```js
+// Basic event
 await sock.sendMessage(jid, {
   event: {
-    isCanceled: false,
     name: 'Team Meeting',
     description: 'Weekly sync',
+    startDate: new Date(Date.now() + 3600 * 1000),   // 1 hour from now
+    endDate: new Date(Date.now() + 7200 * 1000),      // 2 hours from now
     location: { degreesLatitude: -6.2088, degreesLongitude: 106.8456, name: 'Jakarta' },
-    joinLink: 'https://call.whatsapp.com/video/xxx',
-    startTime: String(Math.floor(Date.now() / 1000) + 3600),
-    endTime: String(Math.floor(Date.now() / 1000) + 7200),
-    extraGuestsAllowed: false
+    extraGuestsAllowed: false,
+    isCancelled: false
+  }
+})
+
+// Event with scheduled video call (uses sock.createCallLink internally)
+await sock.sendMessage(jid, {
+  event: {
+    name: 'Video Standup',
+    description: 'Daily standup',
+    startDate: new Date(Date.now() + 3600 * 1000),
+    endDate: new Date(Date.now() + 5400 * 1000),
+    call: 'video',      // 'audio' | 'video' — triggers getCallLink
+    isScheduleCall: true
+  }
+})
+```
+
+### Decrypt Event Responses (RSVP)
+
+```js
+const { getAggregateResponsesInEventMessage, updateMessageWithEventResponse } = require('@yemo-dev/yebail')
+
+sock.ev.on('messages.update', async (updates) => {
+  for (const { key, update } of updates) {
+    if (update.eventResponses) {
+      const eventCreation = await store.loadMessage(key.remoteJid, key.id)
+      if (eventCreation) {
+        // merge into the stored message
+        for (const response of update.eventResponses) {
+          updateMessageWithEventResponse(eventCreation, response)
+        }
+        // aggregate: [{ response: 'GOING', responders: [...] }, ...]
+        const rsvp = getAggregateResponsesInEventMessage(
+          { eventResponses: eventCreation.eventResponses },
+          sock.user.id
+        )
+        console.log('RSVP results:', rsvp)
+      }
+    }
   }
 })
 ```
