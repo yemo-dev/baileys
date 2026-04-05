@@ -2283,6 +2283,7 @@ await sock.sendMessage('1203630xxxxxxxx@newsletter', {
   video: { url: 'https://a.top4top.io/m_3706zd9k00.mp4' },
   caption: 'jawa banget',
   streamingSidecar: 'QD4XJIMi3ARGTYV8zNWRfNX05nc//e7lxshUO2RH/NuhA7tkg5ew/vPfKOFtIrTt/+E=',
+  // use `annotations` => mapped to videoMessage.interactiveAnnotations
   annotations: [
     {
       embeddedContent: {
