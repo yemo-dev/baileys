@@ -672,34 +672,6 @@ await sock.sendMessage(jid, {
   ]
 })
 
-// Native flow button inside Buttons Message
-await sock.sendMessage(jid, {
-  text: 'Select action',
-  footer: 'Yebail',
-  buttons: [
-    {
-      buttonId: 'action',
-      buttonText: { displayText: 'Open selector' },
-      type: 4,
-      nativeFlowInfo: {
-        name: 'single_select',
-        paramsJson: JSON.stringify({
-          title: 'Choose one',
-          sections: [
-            {
-              title: 'Main',
-              rows: [
-                { header: 'H1', title: 'Option A', description: 'Desc A', id: 'opt_a' },
-                { header: 'H2', title: 'Option B', description: 'Desc B', id: 'opt_b' }
-              ]
-            }
-          ]
-        })
-      }
-    }
-  ]
-})
-
 await sock.sendMessage(jid, {
   buttonsMessage: {
     contentText: 'Legacy buttons message',
