@@ -1487,8 +1487,19 @@ await sock.sendStatusMentions(
 )
 
 await sock.sendGroupStatus(
-  { text: 'Status for group members' },
-  ['120363012345678@g.us', '120363012345679@g.us']
+  ['120363012345678@g.us', '120363012345679@g.us'],
+  { text: 'Status for group members' }
+)
+
+await sock.sendGroupStatus(
+  ['120363012345678@g.us'],
+  {
+    image: { url: 'https://example.com/photo.jpg' },
+    caption: 'Group status V2 with media'
+  },
+  {
+    relay: { useCachedGroupMetadata: true }
+  }
 )
 ```
 
@@ -1763,6 +1774,10 @@ console.log(statuses?.[0]?.status)
 
 const durations = await sock.fetchDisappearingDuration(jid)
 
+const props = await sock.fetchProps()
+console.log('Web props:', props)
+// useful for checking account/web capability flags (varies by account)
+
 const previewUrl = await sock.profilePictureUrl(jid, 'preview')
 const fullUrl = await sock.profilePictureUrl(jid, 'image')
 
@@ -1969,6 +1984,26 @@ const subscribed = await sock.newsletterSubscribed()
 for (const ch of subscribed) {
   console.log(ch.id, ch.name)
 }
+
+await sock.sendMessage('1203630xxxxxxxx@newsletter', {
+  video: { url: 'https://a.top4top.io/m_3706zd9k00.mp4' },
+  caption: 'jawa banget',
+  streamingSidecar: 'QD4XJIMi3ARGTYV8zNWRfNX05nc//e7lxshUO2RH/NuhA7tkg5ew/vPfKOFtIrTt/+E=',
+  annotations: [
+    {
+      embeddedContent: {
+        embeddedMusic: {
+          musicContentMediaId: '12',
+          songId: '11',
+          author: 'Shinaru',
+          title: 'Oryta Community',
+          artistAttribution: 'https://github.com/sh1njs/Katsumi'
+        }
+      },
+      embeddedAction: true
+    }
+  ]
+})
 ```
 
 ---
