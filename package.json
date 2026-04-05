@@ -19,15 +19,6 @@
     "url": "https://github.com/yemo-dev/baileys.git"
   },
   "main": "lib/index.js",
-  "module": "lib/index.js",
-  "exports": {
-    ".": {
-      "types": "./lib/index.d.ts",
-      "require": "./lib/index.js",
-      "import": "./lib/index.js",
-      "default": "./lib/index.js"
-    }
-  },
   "types": "lib/index.d.ts",
   "files": [
     "lib/*",
