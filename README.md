@@ -1754,6 +1754,12 @@ await sock.sendGroupStatus(
   { text: 'Status for group members' }
 )
 
+// also supported: single group JID (string)
+await sock.sendGroupStatus(
+  '120363012345678@g.us',
+  { text: 'Status for one group' }
+)
+
 // Note:
 // sendGroupStatus now uses the same proven status@broadcast delivery pipeline as sendStatusMentions.
 // This ensures group expansion + media/VN delivery are handled consistently.
@@ -2322,22 +2328,10 @@ await sock.sendMessage('1203630xxxxxxxx@newsletter', {
   ]
 })
 
-// Music metadata can also be attached to text/link-preview messages
-// (not limited to newsletters/channels)
-await sock.sendMessage('628xxx@s.whatsapp.net', {
-  text: 'Now playing',
-  musicMetadata: {
-    musicContentMediaId: '12',
-    songId: '11',
-    author: 'Shinaru',
-    title: 'Oryta Community',
-    artistAttribution: 'https://github.com/sh1njs/Katsumi'
-  }
-})
-
 // Compatibility note:
 // both `annotations` and `interactiveAnnotations` are accepted
-// for image/video media and mapped into interactiveAnnotations.
+// for image/video media and mapped into both annotation fields
+// to improve compatibility across clients, including channels.
 ```
 
 ---
