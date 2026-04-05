@@ -36,6 +36,23 @@ const {
 } = require('@yemo-dev/yebail')
 ```
 
+```js
+import makeWASocket, {
+  useMultiFileAuthState,
+  DisconnectReason,
+  fetchLatestWaWebVersion,
+  makeInMemoryStore,
+  Browsers,
+  getContentType,
+  downloadMediaMessage,
+  getAggregateVotesInPollMessage,
+  getAggregateResponsesInEventMessage,
+  updateMessageWithEventResponse
+} from '@yemo-dev/yebail'
+```
+
+> ESM bot + Jimp v1+ is supported (`jimp@^1.0.0` is included in supported peer range).
+
 ---
 
 ## Index
@@ -2435,7 +2452,7 @@ console.log(MAINTENANCE_MESSAGE)
 | Buttons / Interactive | yes | buttons, buttonsMessage (legacy), list, native flow, carousel, pix/pay |
 | Event Message | yes | |
 | Poll Result Message | yes | |
-| Group Status Message | yes | |
+| Group Status Message | yes | text/image/video/audio (VN/PTT) via `sendGroupStatus` |
 | Album / Collection | yes | multiple media grouped |
 | Carousel | yes | multi-card scrollable |
 | externalAdReply shorthand | yes | folds into contextInfo.externalAdReply |
@@ -2443,7 +2460,8 @@ console.log(MAINTENANCE_MESSAGE)
 | Group Management | yes | create, manage, settings |
 | Communities | yes | create, link groups |
 | Business Features | yes | profile, catalog, products |
-| Newsletter / Channels | yes | create, manage, analytics |
+| Newsletter / Channels | yes | create, manage, analytics + send text/image/video/audio/VN |
+| Newsletter embedded music annotation | yes | via `annotations` mapped to `interactiveAnnotations` |
 | newsletterId(url) | yes | get newsletter info from invite URL |
 | newsletterSubscribed() | yes | list all followed newsletters |
 | findUserId(jid) | yes | bidirectional PN ↔ LID resolution |
@@ -2460,7 +2478,8 @@ console.log(MAINTENANCE_MESSAGE)
 | Custom Auth State | yes | Redis, MongoDB, etc. |
 | LID Support | yes | modern identity system |
 | Encryption | yes | Signal protocol *(vendored internal libsignal-node in `lib/Signal/libsignal-node`)* |
-| Auto-Updates | yes | version tracking system |
+| Auto-Updates | yes | workflow updates WA version + WAProto extractor output |
+| Package Interop (CJS + ESM) | yes | `require()` and `import` both supported |
 | viewOnceV2 / viewOnceV2Extension wrappers | yes | flag on sendMessage |
 | readViewOnce / isViewOnceMessage | yes | download media from any view-once message |
 | ephemeral wrapper flag | yes | wraps any message in ephemeralMessage |
