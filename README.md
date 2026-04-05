@@ -1309,12 +1309,12 @@ await sock.sendMessage(jid, {
   requestPaymentFrom: jid    // jid of the person who should pay
 })
 
-// full control
+// full control — `from` is optional; defaults to the chat partner's JID
 await sock.sendMessage(jid, {
   requestPayment: {
     currency: 'IDR',
-    amount: 100000 * 1000,   // amount in thousandths of currency unit
-    from: jid,               // JID of who should pay (not the bot's own JID)
+    amount: 100000 * 1000,   // amount in thousandths of currency unit (e.g. Rp100.000 → 100000000)
+    from: jid,               // optional — JID of who should pay; defaults to the chat recipient
     note: 'Payment for subscription'
   }
 })
@@ -1323,18 +1323,18 @@ await sock.sendMessage(jid, {
   requestPaymentMessage: {
     currencyCodeIso4217: 'IDR',
     amount1000: 100000 * 1000,
-    requestFrom: jid,
+    requestFrom: jid,        // optional
     noteMessage: {
       extendedTextMessage: { text: 'Payment for subscription' }
     }
   }
 })
 
+// with payment background
 await sock.sendMessage(jid, {
   requestPayment: {
     currency: 'IDR',
     amount: 50000 * 1000,
-    from: jid,
     background: {
       id: '100',
       fileLength: '0',
