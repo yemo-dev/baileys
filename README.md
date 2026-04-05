@@ -137,6 +137,8 @@ const groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false })
 const sock = makeWASocket({
   auth: state,
   browser: Browsers.windows('Yebail'),
+  countryCode: 'US', // ISO 3166-1 alpha-2 (auto MCC fallback when mcc is not set)
+  // mcc: '310', // optional explicit MCC override
   printQRInTerminal: true,
   syncFullHistory: false,
   markOnlineOnConnect: false,
@@ -162,6 +164,9 @@ sock.ev.on('group-participants.update', async (event) => {
   groupCache.set(event.id, metadata)
 })
 ```
+
+`countryCode` now automatically resolves the user-agent MCC from the built-in phone-number MCC table when `mcc` is not explicitly provided.  
+If you need a specific carrier/region MCC, set `mcc` manually.
 
 ---
 
