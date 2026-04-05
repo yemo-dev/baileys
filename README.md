@@ -167,6 +167,7 @@ sock.ev.on('group-participants.update', async (event) => {
 
 `countryCode` now automatically resolves the user-agent MCC from the built-in phone-number MCC table when `mcc` is not explicitly provided.  
 If you need a specific carrier/region MCC, set `mcc` manually.
+If both `countryCode` and `mcc` are omitted, the fallback MCC defaults to `000` (with default country behavior using `US` internally).
 
 ---
 
