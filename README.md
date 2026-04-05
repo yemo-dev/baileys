@@ -683,6 +683,8 @@ await sock.sendMessage(jid, {
   }
 })
 
+// ⚠️ WA Web only — PIX and PAY native-flow buttons are only rendered on WhatsApp Web.
+//    They will not appear correctly on the WhatsApp mobile app.
 await sock.sendMessage(jid, {
   interactiveMessage: {
     header: { title: 'Payment Action', hasMediaAttachment: false },
@@ -1142,6 +1144,8 @@ await sock.sendMessage(jid, {
 
 ### Payment Request
 
+> ⚠️ **WA Web only** — Payment request messages are only fully functional on WhatsApp Web. Sending via the mobile app may cause unexpected behaviour or force-close.
+
 ```js
 // simple shorthand - requestFrom is who should pay
 await sock.sendMessage(jid, {
@@ -1190,6 +1194,8 @@ await sock.sendMessage(jid, {
 ```
 
 ### Payment Invite
+
+> ⚠️ **WA Web only** — Payment invite messages (GPay / PhonePe / Meta Pay) are only rendered on WhatsApp Web.
 
 ```js
 // serviceType: 1 = GPay, 2 = PhonePe, 3 = Meta Pay
@@ -2027,14 +2033,14 @@ console.log(MAINTENANCE_MESSAGE)
 | Stickers | yes | regular, Lottie, Avatar |
 | Reactions | yes | on any message type |
 | Polls | yes | V1, V2, V3 with vote tracking |
-| Buttons / Interactive | yes | buttons, buttonsMessage (legacy), list, native flow, carousel, pix/pay |
+| Buttons / Interactive | yes | buttons, buttonsMessage (legacy), list, native flow, carousel, pix/pay *(WA Web only)* |
 | Event Message | yes | |
 | Poll Result Message | yes | |
 | Group Status Message | yes | |
 | Album / Collection | yes | multiple media grouped |
 | Carousel | yes | multi-card scrollable |
 | externalAdReply shorthand | yes | folds into contextInfo.externalAdReply |
-| Payment Request | yes | with background support |
+| Payment Request | yes *(WA Web only)* | with background support |
 | Group Management | yes | create, manage, settings |
 | Communities | yes | create, link groups |
 | Business Features | yes | profile, catalog, products |
@@ -2062,8 +2068,8 @@ console.log(MAINTENANCE_MESSAGE)
 | interactiveAsTemplate flag | yes | wraps interactiveMessage in templateMessage |
 | secureMetaServiceLabel flag | yes | adds label to contextInfo |
 | raw flag | yes | pass raw proto structure directly |
-| requestPaymentFrom shorthand | yes | simple payment request with text |
+| requestPaymentFrom shorthand | yes *(WA Web only)* | simple payment request with text |
 | invoiceNote shorthand | yes | invoice with media attachment |
 | orderText shorthand | yes | order message with thumbnail |
-| paymentInviteServiceType shorthand | yes | payment invite (GPay/PhonePe/Meta) |
+| paymentInviteServiceType shorthand | yes *(WA Web only)* | payment invite (GPay/PhonePe/Meta) |
 | externalAdReply normalization | yes | thumbnail/largeThumbnail/url shortcuts |
