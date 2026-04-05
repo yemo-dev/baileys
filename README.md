@@ -1132,6 +1132,46 @@ await sock.sendMessage(jid, {
 })
 ```
 
+### Reading / Revealing View-Once Media
+
+Use `readViewOnce` to download the media from any view-once message
+(all three variants are supported). It returns the raw `Buffer` along with
+`mediaType` and `mimetype` so you can re-send or forward the content.
+
+```js
+const { readViewOnce, isViewOnceMessage } = require('@yemo-dev/yebail')
+
+sock.ev.on('messages.upsert', async ({ messages }) => {
+  for (const msg of messages) {
+    if (!isViewOnceMessage(msg)) continue
+
+    try {
+      const { buffer, mediaType, mimetype, message: inner } = await readViewOnce(msg)
+
+      // forward the media to the same chat as a regular message
+      await sock.sendMessage(msg.key.remoteJid, {
+        [mediaType]: buffer,
+        mimetype,
+        caption: inner?.imageMessage?.caption
+          || inner?.videoMessage?.caption
+          || ''
+      })
+    } catch (err) {
+      console.error('readViewOnce failed:', err)
+    }
+  }
+})
+```
+
+You can also use `isViewOnceMessage` as a quick guard:
+
+```js
+if (isViewOnceMessage(msg)) {
+  const { buffer, mediaType } = await readViewOnce(msg)
+  // buffer is the raw media bytes (Buffer)
+}
+```
+
 ### Ephemeral Wrapper
 
 ```js
@@ -2215,6 +2255,7 @@ console.log(MAINTENANCE_MESSAGE)
 | Encryption | yes | Signal protocol *(vendored internal libsignal-node in `lib/Signal/libsignal-node`)* |
 | Auto-Updates | yes | version tracking system |
 | viewOnceV2 / viewOnceV2Extension wrappers | yes | flag on sendMessage |
+| readViewOnce / isViewOnceMessage | yes | download media from any view-once message |
 | ephemeral wrapper flag | yes | wraps any message in ephemeralMessage |
 | groupStatus wrapper flag | yes | wraps any message in groupStatusMessage |
 | interactiveAsTemplate flag | yes | wraps interactiveMessage in templateMessage |
