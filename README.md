@@ -651,6 +651,16 @@ await sock.sendMessage(jid, {
   ]
 })
 
+// gifted-style shortcuts are also supported
+await sock.sendMessage(jid, {
+  text: 'Choose one',
+  buttons: [
+    { id: 'a', text: 'Option A' },
+    { id: 'b', displayText: 'Option B' },
+    { buttonId: 'c', buttonText: 'Option C' }
+  ]
+})
+
 await sock.sendMessage(jid, {
   buttonsMessage: {
     contentText: 'Legacy buttons message',
@@ -1148,6 +1158,20 @@ await sock.sendMessage(jid, {
     largeThumbnail: false,
     url: 'https://example.com',
     showAdAttribution: true
+  }
+})
+
+// snake_case compatibility aliases are supported too
+await sock.sendMessage(jid, {
+  text: 'Alias compatibility',
+  externalAdReply: {
+    title: 'My App',
+    body: 'Open now',
+    media_type: 1,
+    thumbnail_url: 'https://example.com/thumb.jpg',
+    source_url: 'https://example.com',
+    show_ad_attribution: true,
+    render_larger_thumbnail: false
   }
 })
 ```
