@@ -8,9 +8,9 @@
 [![npm downloads](https://img.shields.io/npm/dm/@yemo-dev/yebail.svg)](https://www.npmjs.com/package/@yemo-dev/yebail)
 [![license](https://img.shields.io/npm/l/@yemo-dev/yebail.svg)](./LICENSE)
 
-**@yemo-dev/yebail** adalah library WhatsApp Web API berbasis WebSocket yang cepat, stabil, dan fokus pada fitur interaktif modern.
+**@yemo-dev/yebail** is a fast, stable, and modern interactive-feature-focused WhatsApp Web API library built on WebSocket.
 
-> Project ini tidak berafiliasi dengan WhatsApp. Gunakan secara bertanggung jawab.
+> This project is not affiliated with WhatsApp. Use it responsibly.
 
 ## Install
 
@@ -137,6 +137,8 @@ const groupCache = new NodeCache({ stdTTL: 5 * 60, useClones: false })
 const sock = makeWASocket({
   auth: state,
   browser: Browsers.windows('Yebail'),
+  countryCode: 'US', // ISO 3166-1 alpha-2 (auto MCC fallback when mcc is not set)
+  // mcc: '310', // optional explicit MCC override
   printQRInTerminal: true,
   syncFullHistory: false,
   markOnlineOnConnect: false,
@@ -162,6 +164,10 @@ sock.ev.on('group-participants.update', async (event) => {
   groupCache.set(event.id, metadata)
 })
 ```
+
+`countryCode` now automatically resolves the user-agent MCC from the built-in phone-number MCC table when `mcc` is not explicitly provided.  
+If you need a specific carrier/region MCC, set `mcc` manually.
+If both `countryCode` and `mcc` are omitted, the fallback MCC defaults to `000` (with default country behavior using `US` internally).
 
 ---
 
@@ -620,7 +626,7 @@ await sock.sendMessage(jid, {
       {
         title: 'Food',
         rows: [
-          { title: 'Nasi Goreng', description: 'Enak', rowId: 'nasi_goreng' }
+          { title: 'Fried Rice', description: 'Tasty', rowId: 'fried_rice' }
         ]
       }
     ]
@@ -870,21 +876,21 @@ await sock.sendMessage(jid, {
 
 await sock.sendMessage(jid, {
   interactiveMessage: {
-    header: { title: 'Menu Utama', hasMediaAttachment: false },
-    body:   { text: 'Silakan pilih menu:' },
+    header: { title: 'Main Menu', hasMediaAttachment: false },
+    body:   { text: 'Please choose a menu:' },
     footer: { text: 'yebail' },
     nativeFlowMessage: {
       buttons: [
         {
           name: 'single_select',
           buttonParamsJson: JSON.stringify({
-            title: 'Pilih Kategori',
+            title: 'Choose Category',
             sections: [
               {
-                title: 'Makanan',
+                title: 'Food',
                 rows: [
-                  { title: 'Nasi Goreng', description: 'Enak', id: 'nasi_goreng' },
-                  { title: 'Mie Ayam',    description: 'Besar', id: 'mie_ayam'   }
+                  { title: 'Fried Rice', description: 'Tasty', id: 'fried_rice' },
+                  { title: 'Chicken Noodles', description: 'Large', id: 'chicken_noodles' }
                 ]
               }
             ],
@@ -893,7 +899,7 @@ await sock.sendMessage(jid, {
         },
         {
           name: 'quick_reply',
-          buttonParamsJson: JSON.stringify({ display_text: 'Tutup', id: 'tutup', has_multiple_buttons: true })
+          buttonParamsJson: JSON.stringify({ display_text: 'Close', id: 'close', has_multiple_buttons: true })
         }
       ],
       messageParamsJson: ''
@@ -2060,30 +2066,30 @@ sock.ws.on('CB:call', (node) => console.log('Call node:', node))
 
 ## Maintenance Mode
 
-Yebail memiliki fitur **maintenance mode** bawaan. Saat aktif, setiap panggilan `makeWASocket()` akan langsung menampilkan pesan pemeliharaan dan menghentikan proses — berguna saat Anda perlu update atau perbaikan tanpa membuat koneksi baru ke WhatsApp.
+Yebail includes a built-in **maintenance mode** feature. When enabled, each `makeWASocket()` call immediately shows a maintenance message and stops the process — useful when you need to apply updates or fixes without creating a new WhatsApp connection.
 
-### Aktifkan / Nonaktifkan via npm scripts
+### Enable / Disable via npm scripts
 
 ```bash
-# Aktifkan maintenance mode
+# Enable maintenance mode
 npm run maintenance:on
 
-# Nonaktifkan maintenance mode
+# Disable maintenance mode
 npm run maintenance:off
 ```
 
-### Aktifkan via kode
+### Enable via code
 
 ```js
 const { MAINTENANCE_MODE, MAINTENANCE_MESSAGE } = require('@yemo-dev/yebail')
 
-// Cek status
-console.log('Maintenance aktif?', MAINTENANCE_MODE)
-// Pesan default: '[YEBAIL] Maintenance mode is currently active. ...'
+// Check status
+console.log('Maintenance active?', MAINTENANCE_MODE)
+// Default message: '[YEBAIL] Maintenance mode is currently active. ...'
 console.log(MAINTENANCE_MESSAGE)
 ```
 
-> **Catatan:** `npm run maintenance:on/off` langsung mengubah file `lib/Defaults/index.js` sehingga efeknya permanen sampai diubah kembali. Untuk penggunaan sementara (env-based), set variabel di kode Anda sendiri sebelum memanggil `makeWASocket`.
+> **Note:** `npm run maintenance:on/off` directly modifies `lib/Defaults/index.js`, so the effect is persistent until changed again. For temporary usage (env-based), set variables in your own code before calling `makeWASocket`.
 
 ---
 

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Aktifkan atau nonaktifkan maintenance mode'
+        description: 'Enable or disable maintenance mode'
         required: true
         default: 'off'
         type: choice
@@ -12,7 +12,7 @@ on:
           - 'on'
           - 'off'
       message:
-        description: 'Pesan maintenance (kosongkan untuk pakai pesan default)'
+        description: 'Maintenance message (leave empty to use default message)'
         required: false
         default: ''
 
@@ -71,7 +71,7 @@ jobs:
           git add lib/Defaults/index.js
 
           if git diff --staged --quiet; then
-            echo "Maintenance mode sudah dalam keadaan $MODE, tidak ada perubahan."
+            echo "Maintenance mode is already set to $MODE, no changes detected."
             exit 0
           fi
 
