@@ -626,7 +626,7 @@ await sock.sendMessage(jid, {
       {
         title: 'Food',
         rows: [
-          { title: 'Nasi Goreng', description: 'Enak', rowId: 'nasi_goreng' }
+          { title: 'Fried Rice', description: 'Tasty', rowId: 'fried_rice' }
         ]
       }
     ]
@@ -876,21 +876,21 @@ await sock.sendMessage(jid, {
 
 await sock.sendMessage(jid, {
   interactiveMessage: {
-    header: { title: 'Menu Utama', hasMediaAttachment: false },
-    body:   { text: 'Silakan pilih menu:' },
+    header: { title: 'Main Menu', hasMediaAttachment: false },
+    body:   { text: 'Please choose a menu:' },
     footer: { text: 'yebail' },
     nativeFlowMessage: {
       buttons: [
         {
           name: 'single_select',
           buttonParamsJson: JSON.stringify({
-            title: 'Pilih Kategori',
+            title: 'Choose Category',
             sections: [
               {
-                title: 'Makanan',
+                title: 'Food',
                 rows: [
-                  { title: 'Nasi Goreng', description: 'Enak', id: 'nasi_goreng' },
-                  { title: 'Mie Ayam',    description: 'Besar', id: 'mie_ayam'   }
+                  { title: 'Fried Rice', description: 'Tasty', id: 'fried_rice' },
+                  { title: 'Chicken Noodles', description: 'Large', id: 'chicken_noodles' }
                 ]
               }
             ],
@@ -899,7 +899,7 @@ await sock.sendMessage(jid, {
         },
         {
           name: 'quick_reply',
-          buttonParamsJson: JSON.stringify({ display_text: 'Tutup', id: 'tutup', has_multiple_buttons: true })
+          buttonParamsJson: JSON.stringify({ display_text: 'Close', id: 'close', has_multiple_buttons: true })
         }
       ],
       messageParamsJson: ''
