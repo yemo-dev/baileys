@@ -672,6 +672,35 @@ await sock.sendMessage(jid, {
   ]
 })
 
+// Buttons Flow (ButtonsMessage native flow style from baileys-pro/npm behavior)
+// Use `type: 2` or `type: 4` plus `nativeFlowInfo` to emit ButtonsMessage.Button.NATIVE_FLOW.
+await sock.sendMessage(jid, {
+  text: 'Select action',
+  footer: 'Yebail',
+  buttons: [
+    {
+      buttonId: 'action',
+      buttonText: { displayText: 'Open selector' },
+      type: 4, // normalized to NATIVE_FLOW
+      nativeFlowInfo: {
+        name: 'single_select',
+        paramsJson: JSON.stringify({
+          title: 'Choose one',
+          sections: [
+            {
+              title: 'Main',
+              rows: [
+                { header: 'H1', title: 'Option A', description: 'Desc A', id: 'opt_a' },
+                { header: 'H2', title: 'Option B', description: 'Desc B', id: 'opt_b' }
+              ]
+            }
+          ]
+        })
+      }
+    }
+  ]
+})
+
 await sock.sendMessage(jid, {
   buttonsMessage: {
     contentText: 'Legacy buttons message',
