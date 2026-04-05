@@ -2123,7 +2123,7 @@ console.log(MAINTENANCE_MESSAGE)
 | SQLite Auth State | yes | |
 | Custom Auth State | yes | Redis, MongoDB, etc. |
 | LID Support | yes | modern identity system |
-| Encryption | yes | Signal protocol |
+| Encryption | yes | Signal protocol *(vendored internal libsignal-node in `lib/Signal/libsignal-node`)* |
 | Auto-Updates | yes | version tracking system |
 | viewOnceV2 / viewOnceV2Extension wrappers | yes | flag on sendMessage |
 | ephemeral wrapper flag | yes | wraps any message in ephemeralMessage |
