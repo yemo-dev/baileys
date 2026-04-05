@@ -474,7 +474,8 @@ await sock.sendMessage(jid, {
 ### Sticker Pack
 
 ```js
-// option 1
+// Short form — use the `stickerPack` alias key.
+// stickers[].emoticon is the emoji tag shown next to each sticker in the pack browser.
 await sock.sendMessage(jid, {
   stickerPack: {
     stickerPackId: 'your-pack-id',
@@ -488,7 +489,8 @@ await sock.sendMessage(jid, {
   }
 })
 
-// option 2 (alias)
+// Raw proto form — use `stickerPackMessage` for identical effect.
+// `stickerPack` and `stickerPackMessage` are interchangeable aliases; do not combine them.
 await sock.sendMessage(jid, {
   stickerPackMessage: {
     stickerPackId: 'your-pack-id',
@@ -659,7 +661,8 @@ await sock.sendMessage(jid, {
   ]
 })
 
-// gifted-style shortcuts are also supported
+// Gifted-style shorthand — `id`, `text`, `displayText`, and `display_text` are all accepted
+// for the button label; they are normalised to quick_reply `display_text` internally.
 await sock.sendMessage(jid, {
   text: 'Choose one',
   buttons: [
@@ -701,7 +704,9 @@ await sock.sendMessage(jid, {
   }
 })
 
-// PIX button — works on both WhatsApp Web and mobile
+// PIX button (Brazil) — renders a static PIX QR code inside the chat bubble.
+// Works on both WhatsApp Web and mobile clients.
+// key_type accepted values: PHONE | EMAIL | CPF | EVP
 await sock.sendMessage(jid, {
   text: '',
   interactiveButtons: [
@@ -721,7 +726,8 @@ await sock.sendMessage(jid, {
   ]
 })
 
-// PAY button — works on both WhatsApp Web and mobile
+// PAY button — opens the WhatsApp in-app payment flow for the recipient.
+// Works on both WhatsApp Web and mobile clients.
 await sock.sendMessage(jid, {
   text: '',
   interactiveButtons: [
@@ -1069,7 +1075,8 @@ await sock.sendMessage(jid, { forward: msg, force: true })
 Use `startDate` / `endDate` (JavaScript `Date` objects) and they are automatically converted to unix timestamps. You can also pass raw `startTime` / `endTime` numbers if you prefer.
 
 ```js
-// Basic event
+// Basic event — supply a name, optional description, time window, and an optional location.
+// `isCancelled` defaults to false; set to true to mark the event as cancelled.
 await sock.sendMessage(jid, {
   event: {
     name: 'Team Meeting',
@@ -1077,20 +1084,22 @@ await sock.sendMessage(jid, {
     startDate: new Date(Date.now() + 3600 * 1000),   // 1 hour from now
     endDate: new Date(Date.now() + 7200 * 1000),      // 2 hours from now
     location: { degreesLatitude: -6.2088, degreesLongitude: 106.8456, name: 'Jakarta' },
-    extraGuestsAllowed: false,
+    extraGuestsAllowed: false, // whether guests can invite others (false = only host can)
     isCancelled: false
   }
 })
 
-// Event with scheduled video call (uses sock.createCallLink internally)
+// Event with a scheduled video call.
+// Setting `call: 'audio' | 'video'` triggers `options.getCallLink` (if provided) to generate a
+// join link; `isScheduleCall: true` marks this event as a call-type scheduled event in the UI.
 await sock.sendMessage(jid, {
   event: {
     name: 'Video Standup',
     description: 'Daily standup',
     startDate: new Date(Date.now() + 3600 * 1000),
     endDate: new Date(Date.now() + 5400 * 1000),
-    call: 'video',      // 'audio' | 'video' — triggers getCallLink
-    isScheduleCall: true
+    call: 'video',       // 'audio' | 'video' — triggers getCallLink if set in options
+    isScheduleCall: true // marks this as a call-type event in the WhatsApp event card
   }
 })
 ```
@@ -1139,35 +1148,39 @@ await sock.sendMessage(jid, {
 ### Group Status Message
 
 ```js
-// raw object
+// Direct form — supply a raw `groupStatusMessage` object.
+// This wraps a plain text conversation into a group status update bubble.
 await sock.sendMessage(jid, {
   groupStatusMessage: { text: 'Hello group!' }
 })
 
-// flag wrapper (wraps any message in groupStatusMessage)
+// Auto-wrap form — add `groupStatus: true` to any media message and Yebail will
+// automatically nest it inside a FutureProofMessage.groupStatusMessage envelope.
 await sock.sendMessage(jid, {
   image: { url: './photo.jpg' },
   caption: 'Group status!',
-  groupStatus: true
+  groupStatus: true   // wraps the imageMessage in groupStatusMessage automatically
 })
 ```
 
 ### View Once Variants
 
 ```js
-// viewOnce
+// viewOnce — uses the original viewOnceMessage envelope (field 37).
 await sock.sendMessage(jid, {
   image: { url: './photo.jpg' },
   viewOnce: true
 })
 
-// viewOnceMessageV2
+// viewOnceMessageV2 — uses the V2 FutureProofMessage envelope (field 55).
+// Preferred for newer clients.
 await sock.sendMessage(jid, {
   image: { url: './photo.jpg' },
   viewOnceV2: true
 })
 
-// viewOnceMessageV2Extension
+// viewOnceMessageV2Extension — uses the V2 extension envelope (field 59).
+// Used for extended view-once content types.
 await sock.sendMessage(jid, {
   image: { url: './photo.jpg' },
   viewOnceV2Extension: true
@@ -1254,7 +1267,8 @@ await sock.sendMessage(jid, {
   }
 })
 
-// snake_case compatibility aliases are supported too
+// snake_case field name aliases are supported for `externalAdReply` — you can mix camelCase
+// and snake_case freely; both are normalised to camelCase before encoding.
 await sock.sendMessage(jid, {
   text: 'Alias compatibility',
   externalAdReply: {
@@ -1303,22 +1317,27 @@ await sock.sendMessage(jid, {
 > ⚠️ **WA Web only** — Payment request messages are only fully functional on WhatsApp Web. Sending via the mobile app may cause unexpected behaviour or force-close.
 
 ```js
-// simple shorthand - requestFrom is who should pay
+// Simple shorthand — `requestPaymentFrom` is the JID of the person you are asking money from.
+// A plain text note is supplied via the `text` field.
 await sock.sendMessage(jid, {
   text: 'Payment for subscription',
-  requestPaymentFrom: jid    // jid of the person who should pay
+  requestPaymentFrom: jid    // JID of the person who should pay
 })
 
-// full control — `from` is optional; defaults to the chat partner's JID
+// Full control form — all fields explicit.
+// `from` is optional: when omitted it defaults to the chat recipient JID (mirrors WA Web behaviour).
+// `amount` is in the smallest denomination × 1000 — for IDR Rp100.000 use 100000 * 1000.
 await sock.sendMessage(jid, {
   requestPayment: {
-    currency: 'IDR',
-    amount: 100000 * 1000,   // amount in thousandths of currency unit (e.g. Rp100.000 → 100000000)
-    from: jid,               // optional — JID of who should pay; defaults to the chat recipient
-    note: 'Payment for subscription'
+    currency: 'IDR',                 // ISO 4217 currency code, e.g. 'IDR', 'USD', 'BRL'
+    amount: 100000 * 1000,           // amount in thousandths of currency unit (Rp100.000 → 100_000_000)
+    from: jid,                       // optional — JID of who should pay; defaults to the chat recipient
+    note: 'Payment for subscription' // plain-text note shown inside the request bubble
   }
 })
 
+// Raw proto form — use when you want to set every field directly.
+// `requestFrom` is optional for the same reason as `from` above.
 await sock.sendMessage(jid, {
   requestPaymentMessage: {
     currencyCodeIso4217: 'IDR',
@@ -1330,20 +1349,20 @@ await sock.sendMessage(jid, {
   }
 })
 
-// with payment background
+// With a custom payment background (colour / image overlay shown in the request bubble).
 await sock.sendMessage(jid, {
   requestPayment: {
     currency: 'IDR',
     amount: 50000 * 1000,
     background: {
-      id: '100',
+      id: '100',                   // background identifier string
       fileLength: '0',
       width: 1000,
       height: 1000,
       mimetype: 'image/webp',
-      placeholderArgb: 0xFF00FFFF,
-      textArgb: 0xFFFFFFFF,
-      subtextArgb: 0xFFAA00FF
+      placeholderArgb: 0xFF00FFFF, // ARGB background fill colour
+      textArgb: 0xFFFFFFFF,        // ARGB primary text colour
+      subtextArgb: 0xFFAA00FF      // ARGB secondary text colour
     }
   }
 })
@@ -1355,15 +1374,16 @@ await sock.sendMessage(jid, {
 
 ```js
 // serviceType: 1 = GPay, 2 = PhonePe, 3 = Meta Pay
+// expiryTimestamp is a unix timestamp (seconds) for when the invite expires
 await sock.sendMessage(jid, {
-  paymentInviteServiceType: 3,
-  paymentInviteExpiry: Math.floor(Date.now() / 1000) + 86400
+  paymentInviteServiceType: 3,                              // 1=GPay  2=PhonePe  3=Meta Pay
+  paymentInviteExpiry: Math.floor(Date.now() / 1000) + 86400  // expires in 24 h
 })
 
-// alias object form
+// alias object form — same fields, grouped under `paymentInvite`
 await sock.sendMessage(jid, {
   paymentInvite: {
-    type: 3,
+    type: 3,                                               // 1=GPay  2=PhonePe  3=Meta Pay
     expiry: Math.floor(Date.now() / 1000) + 86400
   }
 })
@@ -1376,6 +1396,68 @@ await sock.sendMessage(jid, {
   image: { url: './invoice.jpg' },
   invoiceNote: 'Invoice #1234'
 })
+```
+
+### Send Payment (confirm a payment request)
+
+> Use this to send (confirm) a payment in response to an outstanding payment request. Pass the `MessageKey` of the original request bubble as `requestKey`.
+
+```js
+// Short form — reference the request by its MessageKey + optional note text
+await sock.sendMessage(jid, {
+  sendPayment: {
+    requestKey: {              // key of the requestPaymentMessage you are fulfilling
+      remoteJid: jid,
+      id: 'ABCDEF1234567890',
+      fromMe: false
+    },
+    note: 'Sent via Yebail'   // optional plain-text note attached to the confirmation
+  }
+})
+
+// With a payment background overlay (same structure as requestPayment.background)
+await sock.sendMessage(jid, {
+  sendPayment: {
+    requestKey: { remoteJid: jid, id: 'ABCDEF1234567890', fromMe: false },
+    transactionData: 'txn-id-from-payment-provider', // optional raw transaction identifier
+    background: {
+      id: '200',
+      placeholderArgb: 0xFF00FF00,
+      textArgb: 0xFFFFFFFF,
+      subtextArgb: 0xFF888888
+    }
+  }
+})
+
+// Raw proto form — all field names match the proto definition
+await sock.sendMessage(jid, {
+  sendPaymentMessage: {
+    requestMessageKey: { remoteJid: jid, id: 'ABCDEF1234567890', fromMe: false },
+    noteMessage: { extendedTextMessage: { text: 'Sent via Yebail' } },
+    transactionData: 'txn-id'
+  }
+})
+```
+
+### Cancel / Decline Payment Request
+
+> Both cancel and decline reference the original `requestPaymentMessage` by its `MessageKey`.
+> - **Cancel** — the *sender* of the request withdraws it.
+> - **Decline** — the *recipient* (payer) refuses to pay.
+
+```js
+const requestKey = {
+  remoteJid: jid,
+  id: 'ABCDEF1234567890',
+  fromMe: true   // true when you were the one who sent the request
+}
+
+// Cancel a payment request you previously sent
+await sock.sendMessage(jid, { cancelPaymentRequest: requestKey })
+
+// Decline a payment request that was sent to you
+await sock.sendMessage(jid, { declinePaymentRequest: requestKey })
+```
 ```
 
 ### Order (simple)
@@ -1515,13 +1597,49 @@ await sock.sendMessage(jid, {
 ### Newsletter Admin Invite (send)
 
 ```js
+// Invite a user to become an admin of your newsletter/channel.
+// inviteExpiration is a unix timestamp (seconds) for how long the invite link stays valid.
 await sock.sendMessage(jid, {
   inviteAdmin: {
-    inviteExpiration: Math.floor(Date.now() / 1000) + 86400,
-    text: 'Please become admin',
-    jid: '1203630xxxxxxxx@newsletter',
-    subject: 'Yebail Channel',
-    thumbnail: fs.readFileSync('./thumb.jpg')
+    inviteExpiration: Math.floor(Date.now() / 1000) + 86400, // invite valid for 24 h
+    text: 'Please become admin',                              // caption text in the message bubble
+    jid: '1203630xxxxxxxx@newsletter',                       // JID of the newsletter/channel
+    subject: 'Yebail Channel',                               // display name of the newsletter
+    thumbnail: fs.readFileSync('./thumb.jpg')                 // optional preview thumbnail
+  }
+})
+```
+
+### Newsletter Follower Invite (send)
+
+```js
+// Invite a user to follow (subscribe to) your newsletter/channel.
+// Same fields as inviteAdmin except there is no inviteExpiration.
+await sock.sendMessage(jid, {
+  inviteFollower: {
+    jid: '1203630xxxxxxxx@newsletter', // JID of the newsletter/channel
+    subject: 'Yebail Channel',         // display name of the newsletter
+    text: 'Subscribe to our channel!', // caption text shown inside the bubble
+    thumbnail: fs.readFileSync('./thumb.jpg') // optional preview thumbnail
+  }
+})
+```
+
+### Comment Message
+
+> Attach a comment to another message (e.g. a channel post). Pass the `MessageKey` of the target as `key`.
+
+```js
+await sock.sendMessage(jid, {
+  comment: {
+    key: {
+      remoteJid: jid,
+      id: 'ABCDEF1234567890',
+      fromMe: false
+    },
+    message: {                         // the comment content (any valid Message object)
+      extendedTextMessage: { text: 'Great post! 🔥' }
+    }
   }
 })
 ```
@@ -1536,11 +1654,23 @@ await sock.sendMessage(jid, { sharePhoneNumber: true })
 ### Scheduled Call Message
 
 ```js
+// Create a scheduled call.
+// type: 1 = Voice call, 2 = Video call (matches ScheduledCallCreationMessage.CallType)
 await sock.sendMessage(jid, {
   call: {
     title: 'Project Sync Call',
-    type: 1,
-    time: Date.now() + 10 * 60 * 1000
+    type: 1,                             // 1=VOICE  2=VIDEO
+    time: Date.now() + 10 * 60 * 1000   // unix timestamp (ms) of the scheduled call
+  }
+})
+
+// Cancel a scheduled call you previously created.
+// Pass the MessageKey of the original scheduledCallCreationMessage.
+await sock.sendMessage(jid, {
+  scheduledCallEdit: {
+    remoteJid: jid,
+    id: 'ABCDEF1234567890',   // id of the scheduled call message to cancel
+    fromMe: true
   }
 })
 ```
@@ -1578,7 +1708,7 @@ await sock.sendGroupStatus(
   { text: 'Status for group members' }
 )
 
-// image
+// Send an image as group status
 await sock.sendGroupStatus(
   ['120363012345678@g.us'],
   {
@@ -1587,7 +1717,7 @@ await sock.sendGroupStatus(
   }
 )
 
-// video
+// Send a video as group status
 await sock.sendGroupStatus(
   ['120363012345678@g.us'],
   {
@@ -1596,7 +1726,7 @@ await sock.sendGroupStatus(
   }
 )
 
-// audio (voice note / VN)
+// Send an audio voice note (ptt: true marks it as a push-to-talk voice message)
 await sock.sendGroupStatus(
   ['120363012345678@g.us'],
   {
