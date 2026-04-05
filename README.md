@@ -1148,13 +1148,18 @@ sock.ev.on('messages.upsert', async ({ messages }) => {
     try {
       const { buffer, mediaType, mimetype, message: inner } = await readViewOnce(msg)
 
+      // extract caption if present (supported by image, video, audio, document)
+      const caption = inner?.imageMessage?.caption
+        || inner?.videoMessage?.caption
+        || inner?.audioMessage?.caption
+        || inner?.documentMessage?.caption
+        || ''
+
       // forward the media to the same chat as a regular message
       await sock.sendMessage(msg.key.remoteJid, {
         [mediaType]: buffer,
         mimetype,
-        caption: inner?.imageMessage?.caption
-          || inner?.videoMessage?.caption
-          || ''
+        caption
       })
     } catch (err) {
       console.error('readViewOnce failed:', err)
