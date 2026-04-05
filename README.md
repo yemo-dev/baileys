@@ -8,9 +8,9 @@
 [![npm downloads](https://img.shields.io/npm/dm/@yemo-dev/yebail.svg)](https://www.npmjs.com/package/@yemo-dev/yebail)
 [![license](https://img.shields.io/npm/l/@yemo-dev/yebail.svg)](./LICENSE)
 
-**@yemo-dev/yebail** adalah library WhatsApp Web API berbasis WebSocket yang cepat, stabil, dan fokus pada fitur interaktif modern.
+**@yemo-dev/yebail** is a fast, stable, and modern interactive-feature-focused WhatsApp Web API library built on WebSocket.
 
-> Project ini tidak berafiliasi dengan WhatsApp. Gunakan secara bertanggung jawab.
+> This project is not affiliated with WhatsApp. Use it responsibly.
 
 ## Install
 
@@ -2060,30 +2060,30 @@ sock.ws.on('CB:call', (node) => console.log('Call node:', node))
 
 ## Maintenance Mode
 
-Yebail memiliki fitur **maintenance mode** bawaan. Saat aktif, setiap panggilan `makeWASocket()` akan langsung menampilkan pesan pemeliharaan dan menghentikan proses — berguna saat Anda perlu update atau perbaikan tanpa membuat koneksi baru ke WhatsApp.
+Yebail includes a built-in **maintenance mode** feature. When enabled, each `makeWASocket()` call immediately shows a maintenance message and stops the process — useful when you need to apply updates or fixes without creating a new WhatsApp connection.
 
-### Aktifkan / Nonaktifkan via npm scripts
+### Enable / Disable via npm scripts
 
 ```bash
-# Aktifkan maintenance mode
+# Enable maintenance mode
 npm run maintenance:on
 
-# Nonaktifkan maintenance mode
+# Disable maintenance mode
 npm run maintenance:off
 ```
 
-### Aktifkan via kode
+### Enable via code
 
 ```js
 const { MAINTENANCE_MODE, MAINTENANCE_MESSAGE } = require('@yemo-dev/yebail')
 
-// Cek status
-console.log('Maintenance aktif?', MAINTENANCE_MODE)
-// Pesan default: '[YEBAIL] Maintenance mode is currently active. ...'
+// Check status
+console.log('Maintenance active?', MAINTENANCE_MODE)
+// Default message: '[YEBAIL] Maintenance mode is currently active. ...'
 console.log(MAINTENANCE_MESSAGE)
 ```
 
-> **Catatan:** `npm run maintenance:on/off` langsung mengubah file `lib/Defaults/index.js` sehingga efeknya permanen sampai diubah kembali. Untuk penggunaan sementara (env-based), set variabel di kode Anda sendiri sebelum memanggil `makeWASocket`.
+> **Note:** `npm run maintenance:on/off` directly modifies `lib/Defaults/index.js`, so the effect is persistent until changed again. For temporary usage (env-based), set variables in your own code before calling `makeWASocket`.
 
 ---
 
