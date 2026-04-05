@@ -683,21 +683,60 @@ await sock.sendMessage(jid, {
   }
 })
 
-// ⚠️ WA Web only — PIX and PAY native-flow buttons are only rendered on WhatsApp Web.
-//    They will not appear correctly on the WhatsApp mobile app.
+// PIX button — works on both WhatsApp Web and mobile
 await sock.sendMessage(jid, {
-  interactiveMessage: {
-    header: { title: 'Payment Action', hasMediaAttachment: false },
-    body: { text: 'Choose PIX or PAY flow' },
-    footer: { text: 'yebail' },
-    nativeFlowMessage: {
-      buttons: [
-        { name: 'pix', buttonParamsJson: JSON.stringify({ id: 'pix_001', display_text: 'PIX' }) },
-        { name: 'pay', buttonParamsJson: JSON.stringify({ id: 'pay_001', display_text: 'PAY' }) }
-      ],
-      messageParamsJson: ''
+  text: '',
+  interactiveButtons: [
+    {
+      name: 'payment_info',
+      buttonParamsJson: JSON.stringify({
+        payment_settings: [{
+          type: 'pix_static_code',
+          pix_static_code: {
+            merchant_name: 'Your Name',
+            key: 'example@email.com',
+            key_type: 'EMAIL' // PHONE | EMAIL | CPF | EVP
+          }
+        }]
+      })
     }
-  }
+  ]
+})
+
+// PAY button — works on both WhatsApp Web and mobile
+await sock.sendMessage(jid, {
+  text: '',
+  interactiveButtons: [
+    {
+      name: 'review_and_pay',
+      buttonParamsJson: JSON.stringify({
+        currency: 'IDR',
+        payment_configuration: '',
+        payment_type: '',
+        total_amount: { value: '10000', offset: '100' },
+        reference_id: 'REF-001',
+        type: 'physical-goods',
+        payment_method: 'confirm',
+        payment_status: 'captured',
+        payment_timestamp: Math.floor(Date.now() / 1000),
+        order: {
+          status: 'completed',
+          description: '',
+          subtotal: { value: '0', offset: '100' },
+          order_type: 'PAYMENT_REQUEST',
+          items: [{
+            retailer_id: 'your_retailer_id',
+            name: 'Product Name',
+            amount: { value: '10000', offset: '100' },
+            quantity: '1'
+          }]
+        },
+        additional_note: 'Thank you',
+        native_payment_methods: [],
+        share_payment_status: false
+      })
+    }
+  ]
 })
 
 await sock.sendMessage(jid, {
@@ -2033,7 +2072,7 @@ console.log(MAINTENANCE_MESSAGE)
 | Stickers | yes | regular, Lottie, Avatar |
 | Reactions | yes | on any message type |
 | Polls | yes | V1, V2, V3 with vote tracking |
-| Buttons / Interactive | yes | buttons, buttonsMessage (legacy), list, native flow, carousel, pix/pay *(WA Web only)* |
+| Buttons / Interactive | yes | buttons, buttonsMessage (legacy), list, native flow, carousel, pix/pay |
 | Event Message | yes | |
 | Poll Result Message | yes | |
 | Group Status Message | yes | |
