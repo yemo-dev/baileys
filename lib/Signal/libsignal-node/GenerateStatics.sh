@@ -10,13 +10,13 @@ if [ ! -f "$PROTO_FILE" ]; then
   exit 1
 fi
 
-if [ ! -x "$ROOT_DIR/../../node_modules/.bin/pbjs" ]; then
-  echo "pbjs not found at $ROOT_DIR/../../node_modules/.bin/pbjs" >&2
+if [ ! -x "$ROOT_DIR/../../../node_modules/.bin/pbjs" ]; then
+  echo "pbjs not found at $ROOT_DIR/../../../node_modules/.bin/pbjs" >&2
   echo "Install dependencies first (yarn install)." >&2
   exit 1
 fi
 
-"$ROOT_DIR/../../node_modules/.bin/pbjs" \
+"$ROOT_DIR/../../../node_modules/.bin/pbjs" \
   -t static-module \
   -w commonjs \
   -o "$OUT_FILE" \
