@@ -661,8 +661,8 @@ await sock.sendMessage(jid, {
   ]
 })
 
-// Gifted-style shorthand — `id`, `text`, `displayText`, `display_text`,
-// and string `buttonText` are accepted for button labels.
+// Gifted-style shorthand — `id`, `text`, `displayText`, and `display_text` are all accepted
+// for the button label; they are normalised to quick_reply `display_text` internally.
 await sock.sendMessage(jid, {
   text: 'Choose one',
   buttons: [
@@ -672,7 +672,8 @@ await sock.sendMessage(jid, {
   ]
 })
 
-// Native flow button inside Buttons Message
+// Buttons Flow (ButtonsMessage native flow style from baileys-pro/npm behavior)
+// Use `type: 2` or `type: 4` plus `nativeFlowInfo` to emit ButtonsMessage.Button.NATIVE_FLOW.
 await sock.sendMessage(jid, {
   text: 'Select action',
   footer: 'Yebail',
@@ -680,7 +681,7 @@ await sock.sendMessage(jid, {
     {
       buttonId: 'action',
       buttonText: { displayText: 'Open selector' },
-      type: 4,
+      type: 4, // normalized to NATIVE_FLOW
       nativeFlowInfo: {
         name: 'single_select',
         paramsJson: JSON.stringify({
