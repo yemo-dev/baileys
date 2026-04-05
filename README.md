@@ -683,19 +683,60 @@ await sock.sendMessage(jid, {
   }
 })
 
+// PIX button — works on both WhatsApp Web and mobile
 await sock.sendMessage(jid, {
-  interactiveMessage: {
-    header: { title: 'Payment Action', hasMediaAttachment: false },
-    body: { text: 'Choose PIX or PAY flow' },
-    footer: { text: 'yebail' },
-    nativeFlowMessage: {
-      buttons: [
-        { name: 'pix', buttonParamsJson: JSON.stringify({ id: 'pix_001', display_text: 'PIX' }) },
-        { name: 'pay', buttonParamsJson: JSON.stringify({ id: 'pay_001', display_text: 'PAY' }) }
-      ],
-      messageParamsJson: ''
+  text: '',
+  interactiveButtons: [
+    {
+      name: 'payment_info',
+      buttonParamsJson: JSON.stringify({
+        payment_settings: [{
+          type: 'pix_static_code',
+          pix_static_code: {
+            merchant_name: 'Your Name',
+            key: 'example@email.com',
+            key_type: 'EMAIL' // PHONE | EMAIL | CPF | EVP
+          }
+        }]
+      })
     }
-  }
+  ]
+})
+
+// PAY button — works on both WhatsApp Web and mobile
+await sock.sendMessage(jid, {
+  text: '',
+  interactiveButtons: [
+    {
+      name: 'review_and_pay',
+      buttonParamsJson: JSON.stringify({
+        currency: 'IDR',
+        payment_configuration: '',
+        payment_type: '',
+        total_amount: { value: '10000', offset: '100' },
+        reference_id: 'REF-001',
+        type: 'physical-goods',
+        payment_method: 'confirm',
+        payment_status: 'captured',
+        payment_timestamp: Math.floor(Date.now() / 1000),
+        order: {
+          status: 'completed',
+          description: '',
+          subtotal: { value: '0', offset: '100' },
+          order_type: 'PAYMENT_REQUEST',
+          items: [{
+            retailer_id: 'your_retailer_id',
+            name: 'Product Name',
+            amount: { value: '10000', offset: '100' },
+            quantity: '1'
+          }]
+        },
+        additional_note: 'Thank you',
+        native_payment_methods: [],
+        share_payment_status: false
+      })
+    }
+  ]
 })
 
 await sock.sendMessage(jid, {
@@ -1142,6 +1183,8 @@ await sock.sendMessage(jid, {
 
 ### Payment Request
 
+> ⚠️ **WA Web only** — Payment request messages are only fully functional on WhatsApp Web. Sending via the mobile app may cause unexpected behaviour or force-close.
+
 ```js
 // simple shorthand - requestFrom is who should pay
 await sock.sendMessage(jid, {
@@ -1190,6 +1233,8 @@ await sock.sendMessage(jid, {
 ```
 
 ### Payment Invite
+
+> ⚠️ **WA Web only** — Payment invite messages (GPay / PhonePe / Meta Pay) are only rendered on WhatsApp Web.
 
 ```js
 // serviceType: 1 = GPay, 2 = PhonePe, 3 = Meta Pay
@@ -2034,7 +2079,7 @@ console.log(MAINTENANCE_MESSAGE)
 | Album / Collection | yes | multiple media grouped |
 | Carousel | yes | multi-card scrollable |
 | externalAdReply shorthand | yes | folds into contextInfo.externalAdReply |
-| Payment Request | yes | with background support |
+| Payment Request | yes *(WA Web only)* | with background support |
 | Group Management | yes | create, manage, settings |
 | Communities | yes | create, link groups |
 | Business Features | yes | profile, catalog, products |
@@ -2062,8 +2107,8 @@ console.log(MAINTENANCE_MESSAGE)
 | interactiveAsTemplate flag | yes | wraps interactiveMessage in templateMessage |
 | secureMetaServiceLabel flag | yes | adds label to contextInfo |
 | raw flag | yes | pass raw proto structure directly |
-| requestPaymentFrom shorthand | yes | simple payment request with text |
+| requestPaymentFrom shorthand | yes *(WA Web only)* | simple payment request with text |
 | invoiceNote shorthand | yes | invoice with media attachment |
 | orderText shorthand | yes | order message with thumbnail |
-| paymentInviteServiceType shorthand | yes | payment invite (GPay/PhonePe/Meta) |
+| paymentInviteServiceType shorthand | yes *(WA Web only)* | payment invite (GPay/PhonePe/Meta) |
 | externalAdReply normalization | yes | thumbnail/largeThumbnail/url shortcuts |
