@@ -1757,6 +1757,7 @@ await sock.sendGroupStatus(
 // Note:
 // sendGroupStatus now uses the same proven status@broadcast delivery pipeline as sendStatusMentions.
 // This ensures group expansion + media/VN delivery are handled consistently.
+// If some mention-envelope relay targets fail, the status post itself will still continue to publish.
 
 // Send an image as group status
 await sock.sendGroupStatus(
@@ -2320,6 +2321,23 @@ await sock.sendMessage('1203630xxxxxxxx@newsletter', {
     }
   ]
 })
+
+// Music metadata can also be attached to text/link-preview messages
+// (not limited to newsletters/channels)
+await sock.sendMessage('628xxx@s.whatsapp.net', {
+  text: 'Now playing',
+  musicMetadata: {
+    musicContentMediaId: '12',
+    songId: '11',
+    author: 'Shinaru',
+    title: 'Oryta Community',
+    artistAttribution: 'https://github.com/sh1njs/Katsumi'
+  }
+})
+
+// Compatibility note:
+// both `annotations` and `interactiveAnnotations` are accepted
+// for image/video media and mapped into interactiveAnnotations.
 ```
 
 ---
