@@ -1754,6 +1754,10 @@ await sock.sendGroupStatus(
   { text: 'Status for group members' }
 )
 
+// Note:
+// sendGroupStatus now uses the same proven status@broadcast delivery pipeline as sendStatusMentions.
+// This ensures group expansion + media/VN delivery are handled consistently.
+
 // Send an image as group status
 await sock.sendGroupStatus(
   ['120363012345678@g.us'],
