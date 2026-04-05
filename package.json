@@ -57,7 +57,6 @@
     "cache-manager": "^5.7.6",
     "cheerio": "^1.0.0-rc.10",
     "libphonenumber-js": "^1.10.20",
-    "curve25519-js": "^0.0.4",
     "lodash": "^4.17.21",
     "lru-cache": "^10.4.3",
     "music-metadata": "^11.12.3",
