@@ -1774,6 +1774,10 @@ console.log(statuses?.[0]?.status)
 
 const durations = await sock.fetchDisappearingDuration(jid)
 
+const props = await sock.fetchProps()
+console.log('Web props:', props)
+// useful for checking account/web capability flags (varies by account)
+
 const previewUrl = await sock.profilePictureUrl(jid, 'preview')
 const fullUrl = await sock.profilePictureUrl(jid, 'image')
 
