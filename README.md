@@ -1262,6 +1262,44 @@ await sock.sendMessage(jid, {
 })
 ```
 
+### Send Payment (respond to a request)
+
+> ⚠️ **WA Web only** — Send payment payload rendering depends on WhatsApp Web support.
+
+```js
+await sock.sendMessage(jid, {
+  sendPayment: {
+    requestMessageKey: reqMsg.key, // key dari pesan requestPayment yang mau dibayar
+    note: 'Paid, thank you!',
+    transactionData: 'opaque-transaction-payload'
+  }
+})
+
+// raw/proto-compatible form
+await sock.sendMessage(jid, {
+  sendPaymentMessage: {
+    requestMessageKey: reqMsg.key,
+    noteMessage: {
+      extendedTextMessage: { text: 'Paid via transfer' }
+    }
+  }
+})
+```
+
+### Decline / Cancel Payment Request
+
+```js
+// decline request from the payer side
+await sock.sendMessage(jid, {
+  declinePaymentRequest: reqMsg.key
+})
+
+// cancel request from the requester side
+await sock.sendMessage(jid, {
+  cancelPaymentRequest: reqMsg.key
+})
+```
+
 ### Payment Invite
 
 > ⚠️ **WA Web only** — Payment invite messages (GPay / PhonePe / Meta Pay) are only rendered on WhatsApp Web.
