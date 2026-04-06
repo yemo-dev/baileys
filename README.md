@@ -82,6 +82,7 @@ import makeWASocket, {
 - [Custom WS Callbacks](#custom-ws-callbacks)
 - [Maintenance Mode](#maintenance-mode)
 - [Feature Comparison](#feature-comparison)
+- [Socket Function Reference (Per Function)](#socket-function-reference-per-function)
 - [Ecosystem Benchmark](#ecosystem-benchmark)
 
 ---
@@ -2236,41 +2237,218 @@ console.log(MAINTENANCE_MESSAGE)
 
 ---
 
+## Socket Function Reference (Per Function)
+
+> Quick reference per function exposed/used in this README socket examples.  
+> If a function has compatibility caveats, keep following each section example above.
+
+### Core / Connection
+
+| Function | Penjelasan singkat |
+|---|---|
+| `requestPairingCode` | meminta pairing code untuk login tanpa QR. |
+| `ev` | event emitter utama socket (`connection.update`, `messages.upsert`, dll). |
+| `ws` | akses WebSocket internal aktif. |
+| `authState` | state kredensial login yang sedang dipakai. |
+
+### Messaging & Relay
+
+| Function | Penjelasan singkat |
+|---|---|
+| `sendMessage` | kirim pesan (text/media/interactive/poll/payment/dll) ke JID. |
+| `relayMessage` | relay protobuf message secara low-level ke JID target. |
+| `sendAlbumMessage` | kirim beberapa media sebagai album/collection. |
+| `sendStatusMentions` | kirim status/story mention ke daftar JID. |
+| `sendGroupStatus` | kirim status untuk audience group (flow `status@broadcast`). |
+| `readMessages` | tandai pesan sudah dibaca (read receipt). |
+| `star` | set/unset bintang pada pesan. |
+
+### Presence / Profile / Privacy
+
+| Function | Penjelasan singkat |
+|---|---|
+| `presenceSubscribe` | subscribe presence user/chat. |
+| `sendPresenceUpdate` | update presence bot (`composing`, `paused`, `available`, dll). |
+| `fetchStatus` | ambil bio/status teks akun. |
+| `updateProfileName` | ubah nama profil akun. |
+| `updateProfileStatus` | ubah about/bio akun. |
+| `profilePictureUrl` | ambil URL foto profil user/group. |
+| `updateProfilePicture` | ubah foto profil akun/chat yang didukung. |
+| `removeProfilePicture` | hapus foto profil. |
+| `updateProfilePicturePrivacy` | atur privasi siapa yang bisa lihat foto profil. |
+| `updateLastSeenPrivacy` | atur privasi last seen. |
+| `updateOnlinePrivacy` | atur privasi status online. |
+| `updateStatusPrivacy` | atur privasi status/story. |
+| `updateReadReceiptsPrivacy` | atur privasi read receipts. |
+| `updateGroupsAddPrivacy` | atur siapa yang boleh add ke group. |
+| `updateCallPrivacy` | atur privasi panggilan. |
+| `updateMessagesPrivacy` | atur privasi message-level tertentu. |
+| `updateDefaultDisappearingMode` | set default disappearing mode untuk chat baru. |
+| `updateDisableLinkPreviewsPrivacy` | atur preferensi/privasi preview tautan. |
+| `fetchDisappearingDuration` | ambil setelan durasi disappearing message saat ini. |
+
+### Contacts / Identity
+
+| Function | Penjelasan singkat |
+|---|---|
+| `onWhatsApp` | cek nomor/JID terdaftar di WhatsApp. |
+| `findUserId` | resolve identitas PN ↔ LID berdasarkan JID/nomor. |
+| `addOrEditContact` | tambah/ubah kontak lokal. |
+| `removeContact` | hapus kontak lokal. |
+
+### Chat & Message Management
+
+| Function | Penjelasan singkat |
+|---|---|
+| `chatModify` | ubah properti chat (archive, mute, pin, dll sesuai payload). |
+| `fetchProps` | ambil props/flag capability dari sesi/account. |
+| `fetchBlocklist` | ambil daftar akun yang diblokir. |
+| `updateBlockStatus` | blokir / unblock user. |
+
+### Groups
+
+| Function | Penjelasan singkat |
+|---|---|
+| `groupCreate` | buat grup baru. |
+| `groupLeave` | keluar dari grup. |
+| `groupMetadata` | ambil metadata grup (subject, desc, participants). |
+| `groupFetchAllParticipating` | ambil semua grup yang diikuti akun. |
+| `groupParticipantsUpdate` | add/remove/promote/demote participant grup. |
+| `groupRequestParticipantsList` | ambil daftar join request grup. |
+| `groupRequestParticipantsUpdate` | approve/reject join request grup. |
+| `groupInviteCode` | ambil invite code grup. |
+| `groupRevokeInvite` | revoke invite code grup. |
+| `groupGetInviteInfo` | lihat info grup dari invite code. |
+| `groupAcceptInvite` | join grup via invite code. |
+| `groupAcceptInviteV4` | join grup via invite V4 payload. |
+| `groupRevokeInviteV4` | revoke invite V4 grup. |
+| `groupUpdateSubject` | ubah nama/subjek grup. |
+| `groupUpdateDescription` | ubah deskripsi grup. |
+| `groupToggleEphemeral` | aktif/nonaktif disappearing message di grup. |
+| `groupSettingUpdate` | ubah setting grup (announcement, locked, dll). |
+| `groupJoinApprovalMode` | atur mode persetujuan join grup. |
+| `groupMemberAddMode` | atur mode penambahan member grup. |
+
+### Community
+
+| Function | Penjelasan singkat |
+|---|---|
+| `communityCreate` | buat community baru. |
+| `communityMetadata` | ambil metadata community. |
+| `communityUpdateSubject` | ubah subject community. |
+| `communityUpdateDescription` | ubah deskripsi community. |
+| `communityInviteCode` | ambil invite code community. |
+| `communityRevokeInvite` | revoke invite code community. |
+| `communityCreateGroup` | buat grup baru ter-link ke community. |
+| `communityLinkGroup` | link grup existing ke community. |
+| `communityUnlinkGroup` | unlink grup dari community. |
+| `communityFetchLinkedGroups` | ambil daftar grup ter-link dalam community. |
+| `communityParticipantsUpdate` | update participant/role di community. |
+| `communityRequestParticipantsList` | ambil join request community. |
+| `communityRequestParticipantsUpdate` | approve/reject join request community. |
+| `communityLeave` | keluar dari community. |
+
+### Newsletter / Channel
+
+| Function | Penjelasan singkat |
+|---|---|
+| `newsletterCreate` | buat channel/newsletter baru. |
+| `newsletterDelete` | hapus channel/newsletter. |
+| `newsletterUpdateName` | ubah nama channel. |
+| `newsletterUpdateDescription` | ubah deskripsi channel. |
+| `newsletterUpdatePicture` | ubah foto channel. |
+| `newsletterRemovePicture` | hapus foto channel. |
+| `newsletterFollow` | follow channel. |
+| `newsletterUnfollow` | unfollow channel. |
+| `newsletterMute` | mute channel. |
+| `newsletterUnmute` | unmute channel. |
+| `subscribeNewsletterUpdates` | subscribe update realtime channel. |
+| `newsletterMetadata` | ambil metadata channel. |
+| `newsletterAdminCount` | ambil jumlah admin channel. |
+| `newsletterChangeOwner` | ganti owner channel. |
+| `newsletterDemote` | demote admin channel. |
+| `newsletterReactionMode` | ubah mode reaction channel (`all/basic/none`). |
+| `newsletterFetchMessages` | ambil pesan channel. |
+| `newsletterFetchUpdates` | ambil update terbaru channel. |
+| `newsletterReactMessage` | reaction/unreaction ke pesan channel. |
+| `newsletterId` | resolve metadata channel dari invite URL. |
+| `newsletterSubscribed` | daftar channel yang sedang diikuti akun. |
+
+### Business / Labels / Quick Reply / Bot / Calls
+
+| Function | Penjelasan singkat |
+|---|---|
+| `getBusinessProfile` | ambil profil bisnis dari JID. |
+| `updateBusinessProfile` | update profil bisnis (canonical API). |
+| `updateBussinesProfile` | alias legacy untuk kompatibilitas ke `updateBusinessProfile`. |
+| `updateCoverPhoto` | update foto cover bisnis. |
+| `removeCoverPhoto` | hapus foto cover bisnis. |
+| `addChatLabel` | pasang label ke chat. |
+| `removeChatLabel` | lepas label dari chat. |
+| `addMessageLabel` | pasang label ke pesan. |
+| `removeMessageLabel` | lepas label dari pesan. |
+| `updateMemberLabel` | update label anggota (fitur label lanjutan). |
+| `addOrEditQuickReply` | tambah/ubah quick reply bisnis. |
+| `removeQuickReply` | hapus quick reply bisnis. |
+| `getBotListV2` | ambil daftar bot/entitas bot yang tersedia. |
+| `createCallLink` | buat link panggilan WhatsApp. |
+| `rejectCall` | tolak panggilan masuk. |
+
+### Upload / Infra Helpers
+
+| Function | Penjelasan singkat |
+|---|---|
+| `waUploadToServer` | helper upload media ke server WA (dipakai jalur send media). |
+
+---
+
 ## Ecosystem Benchmark
 
-> Source model: this table uses **public metadata** (npm registry/package docs that are accessible in this environment) plus **verified yebail code/WAProto coverage** in this repository.
+> Source model: tabel ini memakai **public npm metadata** (registry/package docs yang bisa diakses di environment ini) + **verifikasi kode yebail/WAProto** pada repo ini.  
+> Snapshot metadata: 2026-04-06.
 
 ### A) Package scope & efficiency snapshot (public metadata)
 
-| Package | Scope | Runtime | Module Type | Direct Deps | Unpacked Size (MB) | Status Signal |
-|---|---|---|---|---:|---:|---|
-| `@yemo-dev/yebail` | Full Baileys fork | Node >=20 | CJS (+ export map) | *(repo local)* | *(repo local)* | Active in this repo |
-| `@fizzxydev/baileys-pro` | Full fork | Node >=20 | CJS | 19 | 13.86 | **Deprecated** on npm |
-| `shamika-wa-baileys` | Full fork | Node >=20 | CJS | 18 | 9.32 | Active |
-| `@kelvdra/baileys` | Full fork | Node >=20 | ESM | 12 | 10.69 | RC release line |
-| `@itsliaaa/baileys` | Full fork | Node >=20 | ESM | 13 | 6.05 | Active |
-| `@rexxhayanasi/elaina-baileys` | Full fork | Node >=20 | CJS | 18 | 9.46 | Active |
-| `kyuu-baileys` | Full fork | Node >=20 | CJS | 19 | 9.33 | Active |
-| `@zenzxz/baileys` | Full fork | Node >=20 | CJS | 17 | 14.17 | Active |
-| `@baileys-md/baileys` | Full fork | Node >=20 | ESM | 14 | 5.35 | Active |
-| `gifted-btns` | Button helper plugin | n/a | CJS | 0 | 0.14 | Extension only (not full fork) |
-| `@rodrigogs/baileys-store` | Store helper plugin | Node >=20 | CJS | 2 | 0.05 | Extension only (store layer) |
-| `chat-adapter-baileys` | Adapter plugin | n/a | ESM | 3 | 0.09 | Extension only (Chat SDK adapter) |
+| Package | Latest | Scope | Runtime | Module Type | Direct Deps | Unpacked Size (MB) | Status Signal |
+|---|---:|---|---|---|---:|---:|---|
+| `@yemo-dev/yebail` | `4.2.2` | Full Baileys fork | Node >=20 | CJS (+ export map require/import) | 17 | 12.98 | Active |
+| `@fizzxydev/baileys-pro` | `8.7.2` | Full fork | Node >=20 | CJS | 19 | 13.86 | **Deprecated** on npm |
+| `shamika-wa-baileys` | `1.2.8` | Full fork | Node >=20 | CJS | 18 | 9.32 | Active |
+| `@kelvdra/baileys` | `1.0.4-rc.5` | Full fork | Node >=20 | ESM | 12 | 10.69 | RC line |
+| `@itsliaaa/baileys` | `0.1.16` | Full fork | Node >=20 | ESM | 13 | 6.05 | Active |
+| `@rexxhayanasi/elaina-baileys` | `1.2.9` | Full fork | Node >=20 | CJS | 18 | 9.46 | Active |
+| `kyuu-baileys` | `1.0.27` | Full fork | Node >=20 | CJS | 19 | 9.33 | Active |
+| `@zenzxz/baileys` | `3.0.2` | Full fork | Node >=20 | CJS | 17 | 14.17 | Active |
+| `@baileys-md/baileys` | `12.3.2` | Full fork | Node >=20 | ESM | 14 | 5.35 | Active |
+| `gifted-btns` | `1.0.2` | Button helper plugin | n/a | CJS | 0 | 0.14 | Extension only |
+| `@rodrigogs/baileys-store` | `2.0.0` | Store helper plugin | Node >=20 | CJS | 2 | 0.05 | Extension only |
+| `chat-adapter-baileys` | `1.1.0` | Adapter plugin | n/a | ESM | 3 | 0.09 | Extension only |
 
-### B) Feature posture vs yebail (non-duplicate, high-signal only)
+### B) Fitur menarik dari ecosystem (high-signal, non-duplicate direction)
 
-| Capability Area | yebail | Competing full forks (general signal) | Plugin packages |
+| Sinyal menarik | Contoh package | Relevansi untuk yebail | Arah implementasi tanpa duplikasi |
 |---|---|---|---|
-| Core WA socket API | yes | yes | no |
-| WAProto message coverage focus | yes (actively expanded in repo) | varies by fork | no |
-| Payment request/send/decline/cancel messaging | yes *(WA Web constraints apply)* | varies | no |
-| Interactive/button layering | yes (native flow + legacy wrappers) | usually yes | `gifted-btns` specializes here |
-| Store abstraction addon | yes (custom auth/store patterns) | varies | `@rodrigogs/baileys-store` specializes here |
-| External framework adapter | not a primary goal | varies | `chat-adapter-baileys` specializes here |
+| Plugin khusus tombol/interaktif | `gifted-btns` | Ada demand UX message interaktif yang cepat dipakai | Pertahankan core `sendMessage` sebagai canonical path; jika perlu publish helper plugin tipis, jangan copy mapper message |
+| Store sebagai paket terpisah | `@rodrigogs/baileys-store` | Pemisahan concern mempermudah maintenance | Jadikan adapter store optional; reuse event/message model yang sama |
+| Adapter ke framework eksternal | `chat-adapter-baileys` | Integrasi SDK/framework makin umum | Tambah layer adapter eksternal, bukan menggandakan logika socket inti |
+| Footprint package lebih kecil pada beberapa fork | `@itsliaaa/baileys`, `@baileys-md/baileys` | Snapshot efisiensi bisa jadi pertimbangan deploy | Fokus pruning artefak/opsional deps, bukan fork ulang fitur yang sama |
 
-### C) WAProto payment coverage check (verified in this repo)
+### C) WAProto yang sudah ada di repo tapi belum jadi shorthand level README
 
-WAProto payment-related message types include: `RequestPaymentMessage`, `SendPaymentMessage`, `DeclinePaymentRequestMessage`, `CancelPaymentRequestMessage`, `PaymentInviteMessage`, `InvoiceMessage` (+ metadata/link subtypes).
+> Fokus bagian ini: tipe WAProto yang **sudah tersedia di `WAProto/*.d.ts`** namun **belum terdokumentasi sebagai shorthand kirim khusus** pada README `sendMessage`.
+
+| WAProto area (tersedia di repo) | Status di yebail saat ini | Prioritas | Catatan non-duplicate |
+|---|---|---|---|
+| `QuarantinedMessage` | belum ada shorthand README khusus | Medium | jika dibuka, mapping lewat satu jalur `generateWAMessageContent` |
+| `MessageSecretMessage` | belum ada shorthand README khusus | Medium | hindari jalur paralel; validasi di canonical mapper |
+| `InThreadSurveyMetadata` | belum ada shorthand README khusus | Medium | expose sebagai opsi payload terstruktur, bukan API terpisah ganda |
+| `AIRichResponse*` family | belum ada shorthand README khusus | Medium | satukan di blok AI/message metadata yang sudah ada |
+| `BotFeedbackMessage` | belum ada shorthand README khusus | Low-Medium | tambahkan hanya jika ada use-case stabil |
+| `PrivacySystemMessage` | belum ada shorthand README khusus | Low | lebih aman lewat raw proto sampai behavior stabil |
+
+### D) WAProto/payment coverage yang sudah didukung (verified in repo)
+
+WAProto payment-related message types yang sudah dipetakan: `RequestPaymentMessage`, `SendPaymentMessage`, `DeclinePaymentRequestMessage`, `CancelPaymentRequestMessage`, `PaymentInviteMessage`, `InvoiceMessage`.
 
 | WAProto Payment Type | yebail send path |
 |---|---|
@@ -2281,21 +2459,11 @@ WAProto payment-related message types include: `RequestPaymentMessage`, `SendPay
 | `PaymentInviteMessage` | supported |
 | `InvoiceMessage` | supported |
 
-### D) Gap table (current priorities for yebail)
+### E) Prioritas upgrade README & kode (anti-duplikasi)
 
 | Area | Current Position | Priority |
 |---|---|---|
-| Keep WAProto parity (new/changed message types) | Ongoing | High |
-| Keep docs comparison factual and source-backed | Ongoing | High |
-| Avoid duplicate implementation across aliases | Enforced in recent payment updates | High |
-| External package feature deep-diff | Limited to public metadata unless source is audited | Medium |
-
-### E) Code-level opportunities for yebail (without duplicate logic)
-
-| Opportunity | Why it matters vs ecosystem | Non-duplicate direction |
-|---|---|---|
-| Extract optional helper packages (buttons/store/adapter style) | Other ecosystem projects separate concerns into plugins | Keep yebail core minimal; publish optional wrappers as separate modules |
-| Add machine-readable feature matrix generation | Fork ecosystem changes quickly and docs can drift | Generate table from tested capability flags, not manual repeated docs |
-| Add WAProto conformance check in CI | WAProto drift is the highest break-risk area | One canonical mapper/validator path reused by all send shorthands |
-| Add performance benchmark script (startup/send/serialize) | “Efisiensi” claims are easier to compare with repeatable data | Single benchmark harness; reuse same socket config profiles |
-| Add compatibility profile layer (CJS/ESM/runtime) | Competing forks differ in module/runtime posture | One compatibility abstraction, avoid duplicate branching in message code |
+| WAProto parity (tipe baru/berubah) | Ongoing | High |
+| Benchmark metadata harus source-backed | Ongoing | High |
+| Satu canonical mapper untuk alias pesan | Sudah diterapkan di area payment & status/newsletter | High |
+| Dokumentasi per fungsi selalu sinkron dengan API nyata | Ongoing | High |
