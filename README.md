@@ -1544,6 +1544,10 @@ await sock.sendGroupStatus(
     relay: { useCachedGroupMetadata: true }
   }
 )
+
+// Backward-compatible: if your code relays `groupStatusMessageV2` or `groupStatusMessage` directly to a group JID,
+// Baileys will auto-route it via `status@broadcast` and resolve group members as audience.
+// Recommended API is still `sendGroupStatus(...)`.
 ```
 
 ### Image Slide / Carousel (Code Only)
