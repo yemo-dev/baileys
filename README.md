@@ -1544,6 +1544,10 @@ await sock.sendGroupStatus(
     relay: { useCachedGroupMetadata: true }
   }
 )
+
+// Backward-compatible: if your code relays `groupStatusMessageV2` directly to a group JID,
+// yebail will auto-route it via `status@broadcast` and resolve group members as audience.
+// Recommended API is still `sendGroupStatus(...)`.
 ```
 
 ### Image Slide / Carousel (Code Only)
