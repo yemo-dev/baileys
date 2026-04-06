@@ -2014,7 +2014,7 @@ await sock.sendMessage('1203630xxxxxxxx@newsletter', {
 const profile = await sock.getBusinessProfile('628xxx@s.whatsapp.net')
 console.log(profile?.address, profile?.email, profile?.description)
 
-await sock.updateBussinesProfile({
+await sock.updateBusinessProfile({
   address: '123 Main Street, Jakarta',
   email: 'contact@mybusiness.com',
   description: 'Official WhatsApp Business account.',
@@ -2032,6 +2032,8 @@ await sock.updateBussinesProfile({
 await sock.updateCoverPhoto(fs.readFileSync('./cover.jpg'))
 await sock.removeCoverPhoto()
 ```
+
+> Compatibility: `sock.updateBussinesProfile(...)` tetap tersedia sebagai alias lama.
 
 ---
 
