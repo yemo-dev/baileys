@@ -8,15 +8,17 @@
     "skipLibCheck": true,
     "strict": false,
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "CommonJS",
-    "outDir": "./lib"
+    "rootDir": ".",
+    "outDir": "."
   },
   "include": [
-    "lib/**/*.js",
-    "WAProto/**/*.js"
+    "lib/**/*.js"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "lib/Signal/libsignal-node/src/**/*.js"
   ]
 }
