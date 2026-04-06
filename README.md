@@ -2274,3 +2274,13 @@ WAProto payment-related message types include: `RequestPaymentMessage`, `SendPay
 | Keep docs comparison factual and source-backed | Ongoing | High |
 | Avoid duplicate implementation across aliases | Enforced in recent payment updates | High |
 | External package feature deep-diff | Limited to public metadata unless source is audited | Medium |
+
+### E) Code-level opportunities for yebail (without duplicate logic)
+
+| Opportunity | Why it matters vs ecosystem | Non-duplicate direction |
+|---|---|---|
+| Extract optional helper packages (buttons/store/adapter style) | Other ecosystem projects separate concerns into plugins | Keep yebail core minimal; publish optional wrappers as separate modules |
+| Add machine-readable feature matrix generation | Fork ecosystem changes quickly and docs can drift | Generate table from tested capability flags, not manual repeated docs |
+| Add WAProto conformance check in CI | WAProto drift is the highest break-risk area | One canonical mapper/validator path reused by all send shorthands |
+| Add performance benchmark script (startup/send/serialize) | “Efisiensi” claims are easier to compare with repeatable data | Single benchmark harness; reuse same socket config profiles |
+| Add compatibility profile layer (CJS/ESM/runtime) | Competing forks differ in module/runtime posture | One compatibility abstraction, avoid duplicate branching in message code |
