@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime:
+          - node
+          - bun
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: matrix.runtime == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Setup Bun
+        if: matrix.runtime == 'bun'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 'latest'
+
+      - name: Install dependencies (Node)
+        if: matrix.runtime == 'node'
+        run: yarn install --frozen-lockfile
+
+      - name: Install dependencies (Bun)
+        if: matrix.runtime == 'bun'
+        run: bun install --frozen-lockfile
+
+      - name: Build declaration files
+        run: yarn build:types
+
+      - name: Run tests (best effort)
+        run: yarn test
+        continue-on-error: true

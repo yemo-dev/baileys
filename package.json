@@ -18,8 +18,19 @@
     "type": "git",
     "url": "https://github.com/yemo-dev/baileys.git"
   },
+  "type": "commonjs",
   "main": "lib/index.js",
+  "module": "lib/index.js",
   "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "require": "./lib/index.js",
+      "import": "./lib/index.js",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "lib/*",
     "lib/Defaults/yebail-version.json",
@@ -30,9 +41,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "build:all": "tsc && typedoc",
+    "build:all": "yarn build:types && typedoc",
     "build:docs": "typedoc",
-    "build:tsc": "tsc",
+    "build:tsc": "yarn build:types",
+    "build:types": "tsc -p tsconfig.types.json",
     "changelog:last": "conventional-changelog -p angular -r 2",
     "changelog:preview": "conventional-changelog -p angular -u",
     "changelog:update": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
@@ -75,7 +87,7 @@
     "conventional-changelog-cli": "^2.2.2",
     "eslint": "^8.0.0",
     "jest": "^27.0.6",
-    "jimp": "^0.16.1 || ^0.22.0",
+    "jimp": "^0.16.1 || ^0.22.0 || ^1.0.0",
     "json": "^11.0.0",
     "link-preview-js": "^3.0.0",
     "open": "^8.4.2",
@@ -90,7 +102,7 @@
   "peerDependencies": {
     "better-sqlite3": "^11.0.0",
     "audio-decode": "^2.1.3",
-    "jimp": "^0.16.1 || ^0.22.0",
+    "jimp": "^0.16.1 || ^0.22.0 || ^1.0.0",
     "link-preview-js": "^3.0.0",
     "qrcode-terminal": "^0.12.0",
     "sharp": "^0.34.1"
