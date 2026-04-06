@@ -2033,7 +2033,7 @@ await sock.updateCoverPhoto(fs.readFileSync('./cover.jpg'))
 await sock.removeCoverPhoto()
 ```
 
-> Compatibility: `sock.updateBussinesProfile(...)` tetap tersedia sebagai alias lama.
+> Compatibility: `sock.updateBussinesProfile(...)` remains available as a legacy alias.
 
 ---
 
