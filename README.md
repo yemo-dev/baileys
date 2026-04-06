@@ -67,6 +67,7 @@ const {
 - [Custom WS Callbacks](#custom-ws-callbacks)
 - [Maintenance Mode](#maintenance-mode)
 - [Feature Comparison](#feature-comparison)
+- [Ecosystem Benchmark](#ecosystem-benchmark)
 
 ---
 
@@ -2217,3 +2218,59 @@ console.log(MAINTENANCE_MESSAGE)
 | orderText shorthand | yes | order message with thumbnail |
 | paymentInviteServiceType shorthand | yes *(WA Web only)* | payment invite (GPay/PhonePe/Meta) |
 | externalAdReply normalization | yes | thumbnail/largeThumbnail/url shortcuts |
+
+---
+
+## Ecosystem Benchmark
+
+> Source model: this table uses **public metadata** (npm registry/package docs that are accessible in this environment) plus **verified yebail code/WAProto coverage** in this repository.
+
+### A) Package scope & efficiency snapshot (public metadata)
+
+| Package | Scope | Runtime | Module Type | Direct Deps | Unpacked Size (MB) | Status Signal |
+|---|---|---|---|---:|---:|---|
+| `@yemo-dev/yebail` | Full Baileys fork | Node >=20 | CJS (+ export map) | *(repo local)* | *(repo local)* | Active in this repo |
+| `@fizzxydev/baileys-pro` | Full fork | Node >=20 | CJS | 19 | 13.86 | **Deprecated** on npm |
+| `shamika-wa-baileys` | Full fork | Node >=20 | CJS | 18 | 9.32 | Active |
+| `@kelvdra/baileys` | Full fork | Node >=20 | ESM | 12 | 10.69 | RC release line |
+| `@itsliaaa/baileys` | Full fork | Node >=20 | ESM | 13 | 6.05 | Active |
+| `@rexxhayanasi/elaina-baileys` | Full fork | Node >=20 | CJS | 18 | 9.46 | Active |
+| `kyuu-baileys` | Full fork | Node >=20 | CJS | 19 | 9.33 | Active |
+| `@zenzxz/baileys` | Full fork | Node >=20 | CJS | 17 | 14.17 | Active |
+| `@baileys-md/baileys` | Full fork | Node >=20 | ESM | 14 | 5.35 | Active |
+| `gifted-btns` | Button helper plugin | n/a | CJS | 0 | 0.14 | Extension only (not full fork) |
+| `@rodrigogs/baileys-store` | Store helper plugin | Node >=20 | CJS | 2 | 0.05 | Extension only (store layer) |
+| `chat-adapter-baileys` | Adapter plugin | n/a | ESM | 3 | 0.09 | Extension only (Chat SDK adapter) |
+
+### B) Feature posture vs yebail (non-duplicate, high-signal only)
+
+| Capability Area | yebail | Competing full forks (general signal) | Plugin packages |
+|---|---|---|---|
+| Core WA socket API | yes | yes | no |
+| WAProto message coverage focus | yes (actively expanded in repo) | varies by fork | no |
+| Payment request/send/decline/cancel messaging | yes *(WA Web constraints apply)* | varies | no |
+| Interactive/button layering | yes (native flow + legacy wrappers) | usually yes | `gifted-btns` specializes here |
+| Store abstraction addon | yes (custom auth/store patterns) | varies | `@rodrigogs/baileys-store` specializes here |
+| External framework adapter | not a primary goal | varies | `chat-adapter-baileys` specializes here |
+
+### C) WAProto payment coverage check (verified in this repo)
+
+WAProto payment-related message types include: `RequestPaymentMessage`, `SendPaymentMessage`, `DeclinePaymentRequestMessage`, `CancelPaymentRequestMessage`, `PaymentInviteMessage`, `InvoiceMessage` (+ metadata/link subtypes).
+
+| WAProto Payment Type | yebail send path |
+|---|---|
+| `RequestPaymentMessage` | supported |
+| `SendPaymentMessage` | supported |
+| `DeclinePaymentRequestMessage` | supported |
+| `CancelPaymentRequestMessage` | supported |
+| `PaymentInviteMessage` | supported |
+| `InvoiceMessage` | supported |
+
+### D) Gap table (current priorities for yebail)
+
+| Area | Current Position | Priority |
+|---|---|---|
+| Keep WAProto parity (new/changed message types) | Ongoing | High |
+| Keep docs comparison factual and source-backed | Ongoing | High |
+| Avoid duplicate implementation across aliases | Enforced in recent payment updates | High |
+| External package feature deep-diff | Limited to public metadata unless source is audited | Medium |
