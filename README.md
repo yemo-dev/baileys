@@ -1546,7 +1546,7 @@ await sock.sendGroupStatus(
 )
 
 // Backward-compatible: if your code relays `groupStatusMessageV2` directly to a group JID,
-// yebail will auto-route it via `status@broadcast` and resolve group members as audience.
+// Baileys will auto-route it via `status@broadcast` and resolve group members as audience.
 // Recommended API is still `sendGroupStatus(...)`.
 ```
 
