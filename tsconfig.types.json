@@ -15,10 +15,11 @@
     "outDir": "."
   },
   "include": [
-    "lib/**/*.js"
+    "lib/index.js"
   ],
   "exclude": [
     "node_modules",
-    "lib/Signal/libsignal-node/src/**/*.js"
+    "lib/Signal/libsignal-node/src/**/*.js",
+    "**/*.d.ts"
   ]
 }
