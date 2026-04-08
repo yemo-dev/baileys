@@ -31,8 +31,6 @@ const BUNDLE_PATH         = join(WA_PROTO_DIR, 'index.js');
 const YEBAIL_VERSION_PATH = join(ROOT_DIR, 'lib', 'Defaults', 'yebail-version.json');
 const LIB_DEFAULTS_PATH   = join(ROOT_DIR, 'lib', 'Defaults', 'index.js');
 
-const STUB_DTS = 'export = $root;\ndeclare var $root: any;\n';
-
 const WA_HEADERS = {
     'User-Agent':      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     'Sec-Fetch-Dest':  'script',
@@ -531,12 +529,10 @@ function syncPerModuleFiles(bundleContent, waVersion) {
         if (!existsSync(typeDir)) mkdirSync(typeDir, { recursive: true });
 
         const jsPath    = join(typeDir, `${typeName}.js`);
-        const dtsPath   = join(typeDir, `${typeName}.d.ts`);
         const protoPath = join(typeDir, `${typeName}.proto`);
         const isNew     = !existsSync(jsPath);
 
         writeFileSync(jsPath, `"use strict";\n\nconst { proto } = require("../index");\n\nmodule.exports = {\n    ${typeName}: proto.${typeName}\n};\n`, 'utf8');
-        if (!existsSync(dtsPath)) writeFileSync(dtsPath, STUB_DTS, 'utf8');
 
         const def      = extractProtoDefinition(bundleContent, typeName, waVersion);
         const existing = existsSync(protoPath) ? readFileSync(protoPath, 'utf8') : '';
