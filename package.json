@@ -20,11 +20,11 @@
   },
   "type": "commonjs",
   "main": "lib/index.js",
-  "module": "lib/index.js",
+  "module": "lib/index.mjs",
   "exports": {
     ".": {
+      "import": "./lib/index.mjs",
       "require": "./lib/index.js",
-      "import": "./lib/index.js",
       "default": "./lib/index.js"
     },
     "./package.json": "./package.json"
