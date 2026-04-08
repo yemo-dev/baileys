@@ -18,6 +18,31 @@
 npm install @yemo-dev/yebail
 ```
 
+## Optional Dependencies
+
+Install only what you need:
+
+```bash
+# Image processing (one of):
+npm install jimp        # ^0.16 || ^0.22 || ^1.x
+npm install sharp       # ^0.34 (recommended, faster)
+
+# Audio metadata (ESM-only, loaded via dynamic import)
+npm install music-metadata  # ^11
+
+# Audio waveform (ESM-only, loaded via dynamic import)
+npm install audio-decode    # ^2 || ^3
+
+# Link preview
+npm install link-preview-js # ^3 || ^4
+
+# QR code in terminal
+npm install qrcode-terminal # ^0.12
+
+# SQLite auth store
+npm install better-sqlite3  # ^11 || ^12
+```
+
 ## Import
 
 ```js
@@ -32,13 +57,6 @@ const {
   downloadMediaMessage,
   getAggregateVotesInPollMessage
 } = require('@yemo-dev/yebail')
-```
-
-```js
-import makeWASocket, {
-  useMultiFileAuthState,
-  DisconnectReason
-} from '@yemo-dev/yebail'
 ```
 
 ## Index

@@ -20,13 +20,9 @@
   },
   "type": "commonjs",
   "main": "lib/index.js",
-  "module": "lib/index.js",
-  "types": "lib/index.d.ts",
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
       "require": "./lib/index.js",
-      "import": "./lib/index.js",
       "default": "./lib/index.js"
     },
     "./package.json": "./package.json"
@@ -41,21 +37,15 @@
     "LICENSE"
   ],
   "scripts": {
-    "build:all": "yarn build:types && typedoc",
-    "build:docs": "typedoc",
-    "build:tsc": "yarn build:types",
-    "build:types": "tsc -p tsconfig.types.json",
-    "build:watch": "tsc -p tsconfig.types.json --watch",
     "changelog:last": "conventional-changelog -p angular -r 2",
     "changelog:preview": "conventional-changelog -p angular -u",
     "changelog:update": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "gen:protobuf": "sh WAProto/GenerateStatics.sh",
-    "lint": "eslint src --ext .js,.ts,.jsx,.tsx",
-    "lint:fix": "eslint src --fix --ext .js,.ts,.jsx,.tsx",
+    "lint": "eslint lib --ext .js",
+    "lint:fix": "eslint lib --fix --ext .js",
     "maintenance:on": "node -e \"const fs=require('fs'),p='lib/Defaults/index.js',c=fs.readFileSync(p,'utf8').replace(/exports\\.MAINTENANCE_MODE\\s*=\\s*(true|false)/,'exports.MAINTENANCE_MODE = true');fs.writeFileSync(p,c);console.log('[yebail] Maintenance mode ON')\"",
     "maintenance:off": "node -e \"const fs=require('fs'),p='lib/Defaults/index.js',c=fs.readFileSync(p,'utf8').replace(/exports\\.MAINTENANCE_MODE\\s*=\\s*(true|false)/,'exports.MAINTENANCE_MODE = false');fs.writeFileSync(p,c);console.log('[yebail] Maintenance mode OFF')\"",
     "preinstall": "node ./engine-requirements.js",
-    "prepare": "yarn build:types",
     "release": "release-it",
     "sync:proto": "node scripts/sync-wa-proto-modules.js",
     "test": "jest --passWithNoTests",
@@ -98,17 +88,13 @@
     "open": "^8.4.2",
     "qrcode-terminal": "^0.12.0",
     "release-it": "^15.10.3",
-    "sharp": "^0.34.1",
-    "ts-jest": "^27.0.3",
-    "ts-node": "^10.8.1",
-    "typedoc": "^0.27.9",
-    "typescript": "^6.0.0"
+    "sharp": "^0.34.1"
   },
   "peerDependencies": {
-    "better-sqlite3": "^11.0.0",
-    "audio-decode": "^2.1.3",
+    "better-sqlite3": "^11.0.0 || ^12.0.0",
+    "audio-decode": "^2.1.3 || ^3.0.0",
     "jimp": "^0.16.1 || ^0.22.0 || ^1.0.0",
-    "link-preview-js": "^3.0.0",
+    "link-preview-js": "^3.0.0 || ^4.0.0",
     "qrcode-terminal": "^0.12.0",
     "sharp": "^0.34.1"
   },
