@@ -2287,7 +2287,7 @@ await sock.sendMessage(jid, {
 
 ## WAProto Sync & Auto-Update
 
-WAProto is the bundled protobuf module (`WAProto/index.js`) auto-generated from WhatsApp Web. Every top-level proto type has its own per-module directory with `.js`, `.d.ts`, and `.proto` files.
+WAProto is the bundled protobuf module (`WAProto/index.js`) auto-generated from WhatsApp Web. Every top-level proto type has its own per-module directory with `.js` and `.proto` files.
 
 ### Available Scripts
 
@@ -2321,7 +2321,7 @@ Format: `{"version":[2,3000,XXXXXXXXX]}`. Updated automatically by `yarn update:
 The GitHub Actions **Auto Update** workflow runs every Sunday (`0 0 * * 0`) and:
 
 1. Runs `yarn update:version` — fetches the latest WA Web version, updates `lib/Defaults/yebail-version.json` and `lib/Defaults/index.js`
-2. Runs `yarn update:proto` — re-extracts the proto schema from WA Web, regenerates `WAProto/index.js`, syncs all per-module `.js`/`.d.ts`/`.proto` files
+2. Runs `yarn update:proto` — re-extracts the proto schema from WA Web, regenerates `WAProto/index.js`, syncs all per-module `.js`/`.proto` files
 3. If proto extraction fails, runs `yarn sync:proto` as fallback to regenerate per-module wrappers from the existing bundle
 4. Bumps the npm patch version, commits all changes, creates a git tag, pushes to `main`, and publishes to npm
 
