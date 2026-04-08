@@ -69,7 +69,7 @@ async function extractProtoSchema(acorn, walk) {
     // Fetch service-worker to find version + bootstrap URL
     const sw = await fetchText(`${baseURL}/sw.js`);
 
-    const versions = [...sw.matchAll(/client_revision\\":([\d.]+),/g)].map(r => r[1]);
+    const versions = [...sw.matchAll(/client_revision\\":(\d+),/g)].map(r => r[1]);
     const waVersion = `2.3000.${versions[0]}`;
     console.log(`[proto] WA version: ${waVersion}`);
 
@@ -333,7 +333,7 @@ async function extractProtoSchema(acorn, walk) {
                 ];
             }
             if (info.flags.includes('packed')) {
-                info.flags.splice(info.flags.indexOf('packed'));
+                info.flags.splice(info.flags.indexOf('packed'), 1);
                 info.packed = ' [packed=true]';
             }
             if (completeFlags && info.flags.length === 0 && !info.type.includes('map')) {
