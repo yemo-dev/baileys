@@ -16,7 +16,6 @@
 
 const { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } = require('fs');
 const { join } = require('path');
-const { execFileSync } = require('child_process');
 
 const ROOT_DIR = join(__dirname, '..');
 const WA_PROTO_DIR = join(ROOT_DIR, 'WAProto');
@@ -241,12 +240,3 @@ for (const entry of entries) {
 }
 
 console.log(`[sync] Done: ${created} created, ${updated} updated`);
-
-// Regenerate TypeScript declarations
-console.log('[build] Regenerating TypeScript declarations (yarn build:types)...');
-try {
-    execFileSync('yarn', ['build:types'], { cwd: ROOT_DIR, stdio: 'inherit' });
-    console.log('[build] Type declarations updated.');
-} catch (e) {
-    console.warn('[build] yarn build:types failed (may need devDependencies installed):', e.message);
-}
