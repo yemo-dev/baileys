@@ -529,12 +529,10 @@ function syncPerModuleFiles(bundleContent, waVersion) {
         if (!existsSync(typeDir)) mkdirSync(typeDir, { recursive: true });
 
         const jsPath    = join(typeDir, `${typeName}.js`);
-        const dtsPath   = join(typeDir, `${typeName}.d.ts`);
         const protoPath = join(typeDir, `${typeName}.proto`);
         const isNew     = !existsSync(jsPath);
 
         writeFileSync(jsPath, `"use strict";\n\nconst { proto } = require("../index");\n\nmodule.exports = {\n    ${typeName}: proto.${typeName}\n};\n`, 'utf8');
-        writeFileSync(dtsPath, `export declare const ${typeName}: any;\n`, 'utf8');
 
         const def      = extractProtoDefinition(bundleContent, typeName, waVersion);
         const existing = existsSync(protoPath) ? readFileSync(protoPath, 'utf8') : '';
