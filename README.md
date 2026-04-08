@@ -2292,43 +2292,38 @@ WAProto is the bundled protobuf module (`WAProto/index.js`) auto-generated from 
 ### Available Scripts
 
 ```bash
-# Extract latest proto from WA Web, regenerate bundle + per-module files + typings
+# Fetch latest proto from WA Web + regenerate bundle + sync per-module files + update version
+yarn update:all
+
+# Same as above but proto only (no version update)
 yarn update:proto
 
 # Update WA Web version tracking only (no proto extraction)
 yarn update:version
 
-# Run both update:proto and update:version
-yarn update:all
-
-# Sync per-module wrapper files from existing WAProto/index.js (no WA Web fetch)
+# Re-sync per-module wrapper files from existing WAProto/index.js (no network)
 # Useful after a git pull that updated WAProto/index.js
 yarn sync:proto
-
-# Watch TypeScript declarations during development
-yarn build:watch
-
-# Regenerate TypeScript declaration files (.d.ts) only
-yarn build:types
 ```
 
 ### Version Tracking
 
-The current WhatsApp Web version is stored alongside the connection defaults in:
+The current WhatsApp Web version is stored in:
 
 ```
 lib/Defaults/yebail-version.json
 ```
 
-Format: `{"version":[2,3000,XXXXXXXXX]}`. Updated automatically by `yarn update:version` and `yarn update:proto` (which writes the version extracted from WA Web back into this file). The version array is also exported from the library as `version` and embedded as a `/// WhatsApp Version:` comment in each `.proto` file.
+Format: `{"version":[2,3000,XXXXXXXXX]}`. Updated automatically by `yarn update:version` and `yarn update:all`. The version array is also exported from the library as `version` and embedded as a `/// WhatsApp Version:` comment in each `.proto` file.
 
 ### Auto-Update CI
 
 The GitHub Actions **Auto Update** workflow runs every Sunday (`0 0 * * 0`) and:
 
 1. Runs `yarn update:version` — fetches the latest WA Web version, updates `lib/Defaults/yebail-version.json` and `lib/Defaults/index.js`
-2. Runs `yarn update:proto` — re-extracts the proto schema from WA Web, regenerates `WAProto/index.js`, syncs all per-module `.js`/`.d.ts`/`.proto` files, runs `yarn build:types`
-3. Bumps the npm patch version, commits all changes, pushes to `main`, and publishes to npm
+2. Runs `yarn update:proto` — re-extracts the proto schema from WA Web, regenerates `WAProto/index.js`, syncs all per-module `.js`/`.d.ts`/`.proto` files
+3. If proto extraction fails, runs `yarn sync:proto` as fallback to regenerate per-module wrappers from the existing bundle
+4. Bumps the npm patch version, commits all changes, creates a git tag, pushes to `main`, and publishes to npm
 
 You can also trigger it manually from the **Actions** tab → **Auto Update** → **Run workflow**.
 
