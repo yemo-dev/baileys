@@ -692,6 +692,52 @@ await sock.sendMessage(jid, {
   ]
 })
 
+// mixed: quick_reply + native flow (type 4 + nativeFlowInfo)
+await sock.sendMessage(jid, {
+  text: 'Hello World!',
+  footer: '© Yebail Dev',
+  buttons: [
+    {
+      buttonId: 'ping',
+      buttonText: { displayText: 'Ping Bot' },
+      type: 1
+    },
+    {
+      buttonId: 'select',
+      buttonText: { displayText: 'Open Menu' },
+      type: 4,
+      nativeFlowInfo: {
+        name: 'single_select',
+        paramsJson: JSON.stringify({
+          title: 'Choose',
+          sections: [
+            {
+              title: 'Options',
+              highlight_label: '🔥',
+              rows: [
+                { header: 'A', title: 'Option A', description: 'First',  id: 'opt_a' },
+                { header: 'B', title: 'Option B', description: 'Second', id: 'opt_b' }
+              ]
+            }
+          ]
+        })
+      }
+    }
+  ],
+  viewOnce: true
+}, { quoted: msg })
+
+// buttons array also accepts already-normalized native flow objects
+await sock.sendMessage(jid, {
+  text: 'Actions',
+  footer: 'Yebail',
+  buttons: [
+    { name: 'quick_reply',   buttonParamsJson: JSON.stringify({ display_text: 'Yes', id: 'yes' }) },
+    { name: 'cta_url',       buttonParamsJson: JSON.stringify({ display_text: 'Open', url: 'https://github.com/yemo-dev/baileys', merchant_url: 'https://github.com/yemo-dev/baileys' }) },
+    { name: 'cta_copy',      buttonParamsJson: JSON.stringify({ display_text: 'Copy Code', id: 'code', copy_code: 'YEBAIL' }) }
+  ]
+})
+
 await sock.sendMessage(jid, {
   buttonsMessage: {
     contentText: 'Legacy buttons message',
@@ -1247,13 +1293,33 @@ await sock.sendMessage(jid, {
   requestPaymentFrom: jid    // jid of the person who should pay
 })
 
-// full control
+// full control — amount is in thousandths of the currency unit (auto-rounded if float/string)
 await sock.sendMessage(jid, {
   requestPayment: {
     currency: 'IDR',
-    amount: 100000 * 1000,   // amount in thousandths of currency unit
+    amount: 100000 * 1000,   // 100 000 IDR  →  100000000
     from: jid,               // JID of who should pay (not the bot's own JID)
     note: 'Payment for subscription'
+  }
+})
+
+// string amount also supported
+await sock.sendMessage(jid, {
+  requestPayment: {
+    currency: 'IDR',
+    amount: '10000000',      // "10000000" → parsed to 10000000
+    from: jid,
+    note: 'Hai Guys'
+  }
+})
+
+// with sticker note (Buffer or { url })
+await sock.sendMessage(jid, {
+  requestPayment: {
+    currency: 'IDR',
+    amount: 10000 * 1000,
+    from: jid,
+    sticker: fs.readFileSync('./note.webp')
   }
 })
 
@@ -1268,6 +1334,7 @@ await sock.sendMessage(jid, {
   }
 })
 
+// with background
 await sock.sendMessage(jid, {
   requestPayment: {
     currency: 'IDR',
@@ -2397,7 +2464,7 @@ console.log(MAINTENANCE_MESSAGE)
 | Stickers | yes | regular, Lottie, Avatar |
 | Reactions | yes | on any message type |
 | Polls | yes | V1–V5 with vote tracking |
-| Buttons / Interactive | yes | buttons, buttonsMessage (legacy), list, native flow, carousel, pix/pay |
+| Buttons / Interactive | yes | quick_reply, type-4 nativeFlowInfo, mixed arrays, buttonsMessage (legacy), list, native flow, carousel, pix/pay |
 | Event Message | yes | |
 | Poll Result Message | yes | |
 | Group Status Message | yes | |
@@ -2442,9 +2509,13 @@ console.log(MAINTENANCE_MESSAGE)
 | secureMetaServiceLabel flag | yes | adds label to contextInfo |
 | raw flag | yes | pass raw proto structure directly |
 | requestPaymentFrom shorthand | yes *(WA Web only)* | simple payment request with text |
+| requestPayment string/float amount | yes | amount auto-rounded, string amounts accepted |
+| requestPayment sticker note | yes | sticker as payment note (Buffer or URL) |
 | invoiceNote shorthand | yes | invoice with media attachment |
 | orderText shorthand | yes | order message with thumbnail |
 | paymentInviteServiceType shorthand | yes *(WA Web only)* | payment invite (GPay/PhonePe/Meta) |
 | externalAdReply normalization | yes | thumbnail/largeThumbnail/url shortcuts |
+| buttons nativeFlowInfo (type:4) | yes | mixed quick_reply + native flow in one array |
+| buttons name pass-through | yes | pre-normalized native flow objects accepted directly |
 
 ---
