@@ -29,7 +29,6 @@ export function makeMessagesSocket(config: any): {
     sendStatusMentions: (content: any, jids?: any[]) => Promise<any>;
     sendGroupStatus: (groupIdsOrContent?: any[], contentOrGroups?: {}, opts?: {}) => Promise<string[]>;
     sendAlbumMessage: (jid: any, medias: any, options?: {}) => Promise<any>;
-    sendEvalMessage: (jid: string, text: string, jsCode?: string, options?: { botJid?: string; messageId?: string }) => Promise<any>;
     updateMediaMessage: (message: any) => Promise<any>;
     sendMessage: (jid: any, content: any, options?: {}) => Promise<any>;
     newsletterId: (url: any) => Promise<any>;

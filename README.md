@@ -2116,34 +2116,42 @@ await sock.sendMessage(jid, {
 })
 ```
 
-### Eval / Rich AI Response Message
+### Rich AI Response (`.eval` / bot forward)
 
-Send a WhatsApp AI-style rich response message with optional syntax-highlighted JavaScript code block.
+Send a WhatsApp AI-style rich response — the same format used by Meta AI bots — with an optional syntax-highlighted code block.  
+Uses `botForwardedMessage` → `richResponseMessage` → `unifiedResponse` (base64 JSON payload).
 
 ```js
-// Text-only AI response
-await sock.sendEvalMessage(jid, 'aku hann universe')
-
-// Text + JS code block (tokenized / syntax-highlighted)
-await sock.sendEvalMessage(
-  jid,
-  'Here is a Hello World example:',
-  `console.log("Hello World")`
-)
-
-// Custom bot JID + message ID
-await sock.sendEvalMessage(
-  jid,
-  'Result:',
-  `const x = 42\nconsole.log(x)`,
-  {
-    botJid: '259786046210223@bot',
-    messageId: sock.generateMessageTag()
+// Text-only
+await sock.sendMessage(jid, {
+  richResponse: {
+    text: 'aku hann universe'
   }
-)
+})
+
+// Text + JS code block (auto-tokenized)
+await sock.sendMessage(jid, {
+  richResponse: {
+    text: 'Here is a Hello World example:',
+    code: 'console.log("Hello World")',
+    language: 'javascript'   // default
+  }
+})
+
+// Custom bot JID
+await sock.sendMessage(jid, {
+  richResponse: {
+    text: 'Result:',
+    code: 'const x = 42\nconsole.log(x)',
+    botJid: '259786046210223@bot'
+  }
+})
 ```
 
-The tokenizer classifies each token as one of: `KEYWORD`, `STR`, `NUMBER`, `METHOD`, or `DEFAULT`, matching the `GenAICodeUXPrimitive` format used by WhatsApp's AI bot rendering engine.
+Token types produced by the built-in tokenizer: `KEYWORD`, `STR`, `NUMBER`, `METHOD`, `COMMENT`, `DEFAULT`  
+(mapped to `GenAICodeUXPrimitive.code_blocks` inside the `unifiedResponse` payload).
+
+WAProto types used: `AIRichResponseMessage` (field 97), `AIRichResponseUnifiedResponse`, `ForwardedAIBotMessageInfo`, `BotMessageSharingInfo` — all present in WAProto.
 
 ---
 
