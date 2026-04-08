@@ -68,6 +68,8 @@ import makeWASocket, {
 - [Business Profile](#business-profile)
 - [Labels](#labels)
 - [Bot Features](#bot-features)
+- [New Message Types (WA 2.3000+)](#new-message-types-wa-23000)
+- [WAProto Sync & Auto-Update](#waproto-sync--auto-update)
 - [Call Link](#call-link)
 - [Custom WS Callbacks](#custom-ws-callbacks)
 - [Maintenance Mode](#maintenance-mode)
@@ -2155,6 +2157,165 @@ WAProto types used: `AIRichResponseMessage` (field 97), `AIRichResponseUnifiedRe
 
 ---
 
+## New Message Types (WA 2.3000+)
+
+These message types were added in WhatsApp Web 2.3000.x. All support both a short-key alias and the full proto field name.
+
+### Status Notification
+
+Sent when a status add-yours / reshare / question-answer-reshare event fires.
+
+```js
+await sock.sendMessage(jid, {
+  statusNotification: {
+    responseMessageKey: { remoteJid: jid, id: 'MSG_ID' },
+    originalMessageKey:  { remoteJid: jid, id: 'ORIG_ID' },
+    type: 1  // 1=STATUS_ADD_YOURS, 2=STATUS_RESHARE, 3=STATUS_QUESTION_ANSWER_RESHARE
+  }
+})
+// full proto key also accepted:
+// statusNotificationMessage: { ... }
+```
+
+### Status Question Answer
+
+User answered a status question.
+
+```js
+await sock.sendMessage(jid, {
+  statusQuestionAnswer: {
+    key:  { remoteJid: jid, id: 'MSG_ID' },
+    text: 'My answer'
+  }
+})
+// full proto key: statusQuestionAnswerMessage
+```
+
+### Question Response
+
+Direct response to a question message.
+
+```js
+await sock.sendMessage(jid, {
+  questionResponse: {
+    key:  { remoteJid: jid, id: 'QUESTION_MSG_ID' },
+    text: 'My response'
+  }
+})
+// full proto key: questionResponseMessage
+```
+
+### Status Quoted Message
+
+Quote a status with a custom type.
+
+```js
+await sock.sendMessage(jid, {
+  statusQuoted: {
+    type: 1,           // 1 = QUESTION_ANSWER
+    text: 'Quoted text',
+    thumbnail: Buffer, // optional
+    originalStatusId: { remoteJid: jid, id: 'STATUS_MSG_ID' }
+  }
+})
+// full proto key: statusQuotedMessage
+```
+
+### Status Sticker Interaction
+
+React to a status with a sticker.
+
+```js
+await sock.sendMessage(jid, {
+  statusStickerInteraction: {
+    key:       { remoteJid: jid, id: 'STATUS_MSG_ID' },
+    stickerKey: 'sticker-hash-key',
+    type: 1    // 1 = REACTION
+  }
+})
+// full proto key: statusStickerInteractionMessage
+```
+
+### Newsletter Follower Invite
+
+Invite a user to follow a newsletter.
+
+```js
+await sock.sendMessage(jid, {
+  newsletterFollowerInvite: {
+    newsletterJid:  '120363xxxxxx@newsletter',
+    newsletterName: 'My Channel',
+    jpegThumbnail:  Buffer, // optional
+    caption: 'Join my channel!'
+  }
+})
+// full proto key: newsletterFollowerInviteMessageV2
+```
+
+### Message History Notice
+
+Notify about message history metadata.
+
+```js
+await sock.sendMessage(jid, {
+  messageHistoryNotice: {
+    contextInfo: { ... }
+    // messageHistoryMetadata is optional
+  }
+})
+```
+
+---
+
+## WAProto Sync & Auto-Update
+
+WAProto is the bundled protobuf module (`WAProto/index.js`) auto-generated from WhatsApp Web. Every top-level proto type has its own per-module directory with `.js`, `.d.ts`, and `.proto` files.
+
+### Available Scripts
+
+```bash
+# Extract latest proto from WA Web, regenerate bundle + per-module files + typings
+yarn update:proto
+
+# Update WA Web version tracking only (no proto extraction)
+yarn update:version
+
+# Run both update:proto and update:version
+yarn update:all
+
+# Sync per-module wrapper files from existing WAProto/index.js (no WA Web fetch)
+# Useful after a git pull that updated WAProto/index.js
+yarn sync:proto
+
+# Watch TypeScript declarations during development
+yarn build:watch
+
+# Regenerate TypeScript declaration files (.d.ts) only
+yarn build:types
+```
+
+### Version Tracking
+
+The current WhatsApp Web version extracted by the last proto update is stored in:
+
+```
+WAProto/wa-version.txt
+```
+
+This is used by `update-wa-proto.js` and `sync-wa-proto-modules.js` to stamp `.proto` files with the correct version comment.
+
+### Auto-Update CI
+
+The GitHub Actions **Auto Update** workflow runs every Sunday (`0 0 * * 0`) and:
+
+1. Runs `yarn update:version` — fetches the latest WA Web version
+2. Runs `yarn update:proto` — re-extracts the proto schema, regenerates `WAProto/index.js`, syncs all per-module files, and runs `yarn build:types`
+3. Commits all changes and publishes a patch release to npm
+
+You can also trigger it manually from the **Actions** tab → **Auto Update** → **Run workflow**.
+
+---
+
 ## Call Link
 
 ```js
@@ -2222,7 +2383,7 @@ console.log(MAINTENANCE_MESSAGE)
 | Media (Image, Video, Audio, Document) | yes | with compression and thumbnails |
 | Stickers | yes | regular, Lottie, Avatar |
 | Reactions | yes | on any message type |
-| Polls | yes | V1, V2, V3 with vote tracking |
+| Polls | yes | V1–V5 with vote tracking |
 | Buttons / Interactive | yes | buttons, buttonsMessage (legacy), list, native flow, carousel, pix/pay |
 | Event Message | yes | |
 | Poll Result Message | yes | |
@@ -2251,7 +2412,16 @@ console.log(MAINTENANCE_MESSAGE)
 | Custom Auth State | yes | Redis, MongoDB, etc. |
 | LID Support | yes | modern identity system |
 | Encryption | yes | Signal protocol *(vendored internal libsignal-node in `lib/Signal/libsignal-node`)* |
-| Auto-Updates | yes | version tracking system |
+| Auto-Updates | yes | `yarn update:all` / weekly CI schedule |
+| WAProto per-module sync | yes | `yarn sync:proto` re-generates all per-module wrappers from bundle |
+| WAProto version tracking | yes | `WAProto/wa-version.txt` stores current WA Web version |
+| statusNotificationMessage | yes | status add-yours / reshare notification |
+| statusQuestionAnswerMessage | yes | answer to a status question |
+| questionResponseMessage | yes | response to a question message |
+| statusQuotedMessage | yes | quote a status with type annotation |
+| statusStickerInteractionMessage | yes | sticker reaction to a status |
+| newsletterFollowerInviteMessageV2 | yes | newsletter follow invite |
+| messageHistoryNotice | yes | history metadata notice |
 | viewOnceV2 / viewOnceV2Extension wrappers | yes | flag on sendMessage |
 | ephemeral wrapper flag | yes | wraps any message in ephemeralMessage |
 | groupStatus wrapper flag | yes | wraps any message in groupStatusMessage |

@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  update-version:
+  update:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,24 +26,25 @@ jobs:
       - name: Install dependencies
         run: yarn install --no-lockfile
 
-      - name: Update WhatsApp Web Version
-        run: node scripts/update-wa-version.js
+      - name: Update WhatsApp Web version
+        run: yarn update:version
 
-      - name: Update WAProto Files
-        run: node scripts/update-wa-proto.js
+      - name: Update WAProto (extract + sync modules + build types)
+        run: yarn update:proto
         continue-on-error: true
 
-      - name: Commit and Push changes
+      - name: Commit and push changes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add lib/Defaults/yebail-version.json lib/Defaults/index.js WAProto scripts package.json
+          git add lib/Defaults/yebail-version.json lib/Defaults/index.js \
+                  WAProto/ scripts/ package.json lib/index.d.ts
 
           if git diff --staged --quiet; then
-            echo "No changes detected, skipping update."
+            echo "No changes detected, skipping release."
             exit 0
           fi
 
