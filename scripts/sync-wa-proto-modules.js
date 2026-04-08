@@ -10,6 +10,8 @@
  * This is useful when:
  *  - The bundled WAProto/index.js was already updated (e.g. via git pull)
  *  - You want to regenerate the individual <Type>.js / <Type>.d.ts / <Type>.proto files
+ *
+ * Can also be required as a module: exports.syncPerModuleFiles(bundleContent, waVersion)
  */
 
 'use strict';
@@ -23,13 +25,10 @@ const BUNDLE_PATH = join(WA_PROTO_DIR, 'index.js');
 const YEBAIL_VERSION_PATH = join(ROOT_DIR, 'lib', 'Defaults', 'yebail-version.json');
 const STUB_DTS = 'export = $root;\ndeclare var $root: any;\n';
 
-if (!existsSync(BUNDLE_PATH)) {
-    console.error(`[sync] WAProto/index.js not found at: ${BUNDLE_PATH}`);
-    process.exit(1);
-}
-
-const bundleContent = readFileSync(BUNDLE_PATH, 'utf8');
-
+/**
+ * Extract all top-level proto type names from the bundled index.js by scanning
+ * for `proto.TypeName = (function()` patterns.
+ */
 function extractTopLevelTypes(content) {
     const types = [];
     const pattern = /proto\.([A-Z][a-zA-Z]+) = \(function\(\)/g;
@@ -40,6 +39,10 @@ function extractTopLevelTypes(content) {
     return [...new Set(types)];
 }
 
+/**
+ * Extract the proto definition for a top-level type from the bundled index.js
+ * by parsing the decode function's switch/case to determine field IDs and types.
+ */
 function extractProtoDefinition(content, typeName, waVersion) {
     const ifacePattern = new RegExp(
         `@interface I${typeName}[\\s\\S]{0,3000}?\\*\\/`,
@@ -189,54 +192,95 @@ function extractProtoDefinition(content, typeName, waVersion) {
     return lines.join('\n') + '\n';
 }
 
-const waVersionMatch = bundleContent.match(/WhatsApp Version: ([\d.]+)/);
-const waVersionFromJson = existsSync(YEBAIL_VERSION_PATH)
-    ? JSON.parse(readFileSync(YEBAIL_VERSION_PATH, 'utf8')).version.join('.')
-    : null;
-const waVersion = waVersionMatch ? waVersionMatch[1] : (waVersionFromJson || 'unknown');
-const types = extractTopLevelTypes(bundleContent);
-
-console.log(`[sync] WAProto version: ${waVersion}`);
-console.log(`[sync] Found ${types.length} top-level proto types in index.js`);
-
-let created = 0;
-let updated = 0;
-
-for (const typeName of types) {
-    const typeDir = join(WA_PROTO_DIR, typeName);
-    if (!existsSync(typeDir)) {
-        mkdirSync(typeDir, { recursive: true });
-    }
-
-    const jsPath = join(typeDir, `${typeName}.js`);
-    const dtsPath = join(typeDir, `${typeName}.d.ts`);
-    const protoPath = join(typeDir, `${typeName}.proto`);
-
-    const jsContent = `"use strict";\n\nconst { proto } = require("../index");\n\nmodule.exports = {\n    ${typeName}: proto.${typeName}\n};\n`;
-
-    const isNew = !existsSync(jsPath);
-    writeFileSync(jsPath, jsContent, 'utf8');
-    if (!existsSync(dtsPath)) writeFileSync(dtsPath, STUB_DTS, 'utf8');
-
-    const protoDef = extractProtoDefinition(bundleContent, typeName, waVersion);
-    if (protoDef) {
-        const existing = existsSync(protoPath) ? readFileSync(protoPath, 'utf8') : '';
-        if (existing !== protoDef) {
-            writeFileSync(protoPath, protoDef, 'utf8');
-            if (isNew) created++; else updated++;
+/**
+ * Regenerate all per-module wrapper files in WAProto/ after the bundled index.js
+ * has been updated.  For each top-level proto type in index.js:
+ *   • Creates the sub-directory if missing
+ *   • Writes/updates <Type>.js  (re-export wrapper)
+ *   • Writes/updates <Type>.d.ts (lightweight stub)
+ *   • Writes/updates <Type>.proto (extracted definition, skip if already identical)
+ */
+function syncPerModuleFiles(bundleContent, waVersion) {
+    if (!waVersion) {
+        const waVersionMatch = bundleContent.match(/WhatsApp Version: ([\d.]+)/);
+        if (waVersionMatch) {
+            waVersion = waVersionMatch[1];
+        } else if (existsSync(YEBAIL_VERSION_PATH)) {
+            const v = JSON.parse(readFileSync(YEBAIL_VERSION_PATH, 'utf8')).version;
+            waVersion = v.join('.');
+        } else {
+            waVersion = 'unknown';
         }
     }
-}
 
-// Remove directories for types that no longer exist in index.js
-const typeSet = new Set(types);
-const entries = readdirSync(WA_PROTO_DIR, { withFileTypes: true });
-for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    if (!typeSet.has(entry.name)) {
-        console.log(`[sync] Removing obsolete directory: ${entry.name}`);
-        rmSync(join(WA_PROTO_DIR, entry.name), { recursive: true, force: true });
+    // Persist the version into yebail-version.json
+    const vParts = waVersion.split('.').map(Number);
+    writeFileSync(YEBAIL_VERSION_PATH, JSON.stringify({ version: vParts }) + '\n', 'utf8');
+
+    const types = extractTopLevelTypes(bundleContent);
+    console.log(`[proto-sync] Found ${types.length} top-level proto types in index.js`);
+    console.log(`[proto-sync] WhatsApp version: ${waVersion}`);
+
+    let created = 0;
+    let updated = 0;
+
+    for (const typeName of types) {
+        const typeDir = join(WA_PROTO_DIR, typeName);
+        if (!existsSync(typeDir)) {
+            mkdirSync(typeDir, { recursive: true });
+        }
+
+        const jsPath = join(typeDir, `${typeName}.js`);
+        const dtsPath = join(typeDir, `${typeName}.d.ts`);
+        const protoPath = join(typeDir, `${typeName}.proto`);
+
+        const jsContent = `"use strict";\n\nconst { proto } = require("../index");\n\nmodule.exports = {\n    ${typeName}: proto.${typeName}\n};\n`;
+
+        const isNew = !existsSync(jsPath);
+        writeFileSync(jsPath, jsContent, 'utf8');
+        if (!existsSync(dtsPath)) {
+            writeFileSync(dtsPath, STUB_DTS, 'utf8');
+        }
+
+        const protoDef = extractProtoDefinition(bundleContent, typeName, waVersion);
+        if (protoDef) {
+            const existing = existsSync(protoPath) ? readFileSync(protoPath, 'utf8') : '';
+            if (existing !== protoDef) {
+                writeFileSync(protoPath, protoDef, 'utf8');
+                if (isNew) created++; else updated++;
+            }
+        }
     }
+
+    // Remove directories for types that no longer exist in index.js
+    const typeSet = new Set(types);
+    const entries = readdirSync(WA_PROTO_DIR, { withFileTypes: true });
+    for (const entry of entries) {
+        if (!entry.isDirectory()) continue;
+        if (!typeSet.has(entry.name)) {
+            console.log(`[proto-sync] Removing obsolete directory: ${entry.name}`);
+            rmSync(join(WA_PROTO_DIR, entry.name), { recursive: true, force: true });
+        }
+    }
+
+    console.log(`[proto-sync] Per-module sync complete: ${created} created, ${updated} updated`);
 }
 
-console.log(`[sync] Done: ${created} created, ${updated} updated`);
+module.exports = { extractTopLevelTypes, extractProtoDefinition, syncPerModuleFiles };
+
+// Run standalone when invoked directly
+if (require.main === module) {
+    if (!existsSync(BUNDLE_PATH)) {
+        console.error(`[sync] WAProto/index.js not found at: ${BUNDLE_PATH}`);
+        process.exit(1);
+    }
+
+    const bundleContent = readFileSync(BUNDLE_PATH, 'utf8');
+    const waVersionMatch = bundleContent.match(/WhatsApp Version: ([\d.]+)/);
+    const waVersionFromJson = existsSync(YEBAIL_VERSION_PATH)
+        ? JSON.parse(readFileSync(YEBAIL_VERSION_PATH, 'utf8')).version.join('.')
+        : null;
+    const waVersion = waVersionMatch ? waVersionMatch[1] : (waVersionFromJson || 'unknown');
+
+    syncPerModuleFiles(bundleContent, waVersion);
+}
