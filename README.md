@@ -2116,6 +2116,35 @@ await sock.sendMessage(jid, {
 })
 ```
 
+### Eval / Rich AI Response Message
+
+Send a WhatsApp AI-style rich response message with optional syntax-highlighted JavaScript code block.
+
+```js
+// Text-only AI response
+await sock.sendEvalMessage(jid, 'aku hann universe')
+
+// Text + JS code block (tokenized / syntax-highlighted)
+await sock.sendEvalMessage(
+  jid,
+  'Here is a Hello World example:',
+  `console.log("Hello World")`
+)
+
+// Custom bot JID + message ID
+await sock.sendEvalMessage(
+  jid,
+  'Result:',
+  `const x = 42\nconsole.log(x)`,
+  {
+    botJid: '259786046210223@bot',
+    messageId: sock.generateMessageTag()
+  }
+)
+```
+
+The tokenizer classifies each token as one of: `KEYWORD`, `STR`, `NUMBER`, `METHOD`, or `DEFAULT`, matching the `GenAICodeUXPrimitive` format used by WhatsApp's AI bot rendering engine.
+
 ---
 
 ## Call Link
