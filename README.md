@@ -24,14 +24,14 @@ Install only what you need:
 
 ```bash
 # Image processing (one of):
-npm install jimp        # ^0.16 || ^0.22 || ^1.x (ESM/CJS)
+npm install jimp        # ^0.16 || ^0.22 || ^1.x
 npm install sharp       # ^0.34 (recommended, faster)
 
-# Audio metadata
-npm install music-metadata  # ^11 (ESM-only, auto dynamic-imported)
+# Audio metadata (ESM-only, loaded via dynamic import)
+npm install music-metadata  # ^11
 
-# Audio waveform
-npm install audio-decode    # ^2 || ^3 (ESM-only, auto dynamic-imported)
+# Audio waveform (ESM-only, loaded via dynamic import)
+npm install audio-decode    # ^2 || ^3
 
 # Link preview
 npm install link-preview-js # ^3 || ^4
@@ -46,7 +46,6 @@ npm install better-sqlite3  # ^11 || ^12
 ## Import
 
 ```js
-// CJS
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -58,14 +57,6 @@ const {
   downloadMediaMessage,
   getAggregateVotesInPollMessage
 } = require('@yemo-dev/yebail')
-```
-
-```js
-// ESM
-import makeWASocket, {
-  useMultiFileAuthState,
-  DisconnectReason
-} from '@yemo-dev/yebail'
 ```
 
 ## Index
