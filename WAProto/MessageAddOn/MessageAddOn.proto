@@ -4,14 +4,14 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message MessageAddOn {
-    optional MessageAddOnType messageAddOnType = 1;
-    optional Message messageAddOn = 2;
+    optional MessageAddOn.MessageAddOnType messageAddOnType = 1;
+    optional uint32 messageAddOn = 2;
     optional int64 senderTimestampMs = 3;
     optional int64 serverTimestampMs = 4;
-    optional WebMessageInfo.Status status = 5;
-    optional MessageAddOnContextInfo addOnContextInfo = 6;
-    optional MessageKey messageAddOnKey = 7;
-    optional LegacyMessage legacyMessage = 8;
+    optional int32 status = 5;
+    optional uint32 addOnContextInfo = 6;
+    optional uint32 messageAddOnKey = 7;
+    optional uint32 legacyMessage = 8;
     enum MessageAddOnType {
         UNDEFINED = 0;
         REACTION = 1;

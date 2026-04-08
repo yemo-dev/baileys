@@ -6,6 +6,6 @@ package proto;
 message BotSuggestedPromptMetadata {
     repeated string suggestedPrompts = 1;
     optional uint32 selectedPromptIndex = 2;
-    optional BotPromptSuggestions promptSuggestions = 3;
+    optional uint32 promptSuggestions = 3;
     optional string selectedPromptId = 4;
 }

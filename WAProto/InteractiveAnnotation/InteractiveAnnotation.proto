@@ -4,16 +4,14 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message InteractiveAnnotation {
-    repeated Point polygonVertices = 1;
+    repeated uint32 polygonVertices = 1;
     optional bool shouldSkipConfirmation = 4;
-    optional EmbeddedContent embeddedContent = 5;
-    optional StatusLinkType statusLinkType = 8;
-    oneof action {
-        Location location = 2;
-        ContextInfo.ForwardedNewsletterMessageInfo newsletter = 3;
-        bool embeddedAction = 6;
-        TapLinkAction tapAction = 7;
-    }
+    optional uint32 embeddedContent = 5;
+    optional InteractiveAnnotation.StatusLinkType statusLinkType = 8;
+    optional uint32 location = 2;
+    optional uint32 newsletter = 3;
+    optional bool embeddedAction = 6;
+    optional uint32 tapAction = 7;
     enum StatusLinkType {
         RASTERIZED_LINK_PREVIEW = 1;
         RASTERIZED_LINK_TRUNCATED = 2;

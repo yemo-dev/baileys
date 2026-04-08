@@ -1,0 +1,14 @@
+syntax = "proto3";
+package proto;
+
+/// WhatsApp Version: 2.3000.1029496320
+
+message BotInfrastructureDiagnostics {
+    optional BotInfrastructureDiagnostics.BotBackend botBackend = 1;
+    repeated string toolsUsed = 2;
+    optional bool isThinking = 3;
+    enum BotBackend {
+        AAPI = 0;
+        CLIPPY = 1;
+    }
+}

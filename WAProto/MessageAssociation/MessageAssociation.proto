@@ -4,8 +4,8 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message MessageAssociation {
-    optional AssociationType associationType = 1;
-    optional MessageKey parentMessageKey = 2;
+    optional MessageAssociation.AssociationType associationType = 1;
+    optional uint32 parentMessageKey = 2;
     optional int32 messageIndex = 3;
     enum AssociationType {
         UNKNOWN = 0;
@@ -28,5 +28,6 @@ message MessageAssociation {
         STATUS_ADD_YOURS_DIWALI = 17;
         STATUS_REACTION = 18;
         HEVC_VIDEO_DUAL_UPLOAD = 19;
+        POLL_ADD_OPTION = 20;
     }
 }

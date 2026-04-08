@@ -5,31 +5,7 @@ package proto;
 
 message HydratedTemplateButton {
     optional uint32 index = 4;
-    oneof hydratedButton {
-        HydratedTemplateButton.HydratedQuickReplyButton quickReplyButton = 1;
-        HydratedTemplateButton.HydratedURLButton urlButton = 2;
-        HydratedTemplateButton.HydratedCallButton callButton = 3;
-    }
-    message HydratedCallButton {
-        optional string displayText = 1;
-        optional string phoneNumber = 2;
-    }
-
-    message HydratedQuickReplyButton {
-        optional string displayText = 1;
-        optional string id = 2;
-    }
-
-    message HydratedURLButton {
-        optional string displayText = 1;
-        optional string url = 2;
-        optional string consentedUsersUrl = 3;
-        optional WebviewPresentationType webviewPresentation = 4;
-        enum WebviewPresentationType {
-            FULL = 1;
-            TALL = 2;
-            COMPACT = 3;
-        }
-    }
-
+    optional HydratedTemplateButton.IHydratedQuickReplyButton quickReplyButton = 1;
+    optional HydratedTemplateButton.IHydratedURLButton urlButton = 2;
+    optional HydratedTemplateButton.IHydratedCallButton callButton = 3;
 }

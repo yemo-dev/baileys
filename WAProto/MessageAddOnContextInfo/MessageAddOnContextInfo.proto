@@ -5,5 +5,5 @@ package proto;
 
 message MessageAddOnContextInfo {
     optional uint32 messageAddOnDurationInSecs = 1;
-    optional MessageContextInfo.MessageAddonExpiryType messageAddOnExpiryType = 2;
+    optional int32 messageAddOnExpiryType = 2;
 }

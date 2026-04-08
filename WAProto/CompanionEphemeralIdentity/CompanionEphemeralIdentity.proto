@@ -5,6 +5,6 @@ package proto;
 
 message CompanionEphemeralIdentity {
     optional bytes publicKey = 1;
-    optional DeviceProps.PlatformType deviceType = 2;
+    optional int32 deviceType = 2;
     optional string ref = 3;
 }

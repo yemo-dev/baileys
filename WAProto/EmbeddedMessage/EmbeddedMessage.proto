@@ -5,5 +5,5 @@ package proto;
 
 message EmbeddedMessage {
     optional string stanzaId = 1;
-    optional Message message = 2;
+    optional uint32 message = 2;
 }

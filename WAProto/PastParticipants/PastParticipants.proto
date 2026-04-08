@@ -5,5 +5,5 @@ package proto;
 
 message PastParticipants {
     optional string groupJid = 1;
-    repeated PastParticipant pastParticipants = 2;
+    repeated uint32 pastParticipants = 2;
 }

@@ -1,0 +1,10 @@
+syntax = "proto3";
+package proto;
+
+/// WhatsApp Version: 2.3000.1029496320
+
+enum MediaKeyDomain {
+    MEDIA_KEY_DOMAIN_UNKNOWN = 0;
+    MEDIA_KEY_DOMAIN_E2EE = 1;
+    MEDIA_KEY_DOMAIN_NON_E2EE = 2;
+}

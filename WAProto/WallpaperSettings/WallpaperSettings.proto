@@ -6,4 +6,5 @@ package proto;
 message WallpaperSettings {
     optional string filename = 1;
     optional uint32 opacity = 2;
+    optional bool isGenAi = 3;
 }

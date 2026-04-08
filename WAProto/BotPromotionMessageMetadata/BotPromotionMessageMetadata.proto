@@ -4,7 +4,7 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message BotPromotionMessageMetadata {
-    optional BotPromotionType promotionType = 1;
+    optional BotPromotionMessageMetadata.BotPromotionType promotionType = 1;
     optional string buttonTitle = 2;
     enum BotPromotionType {
         UNKNOWN_TYPE = 0;

@@ -3,5 +3,5 @@
 const { proto } = require("../index");
 
 module.exports = {
-    BotAvatarMetadata: proto.BotAvatarMetadata
+    GroupRootKeyShare: proto.GroupRootKeyShare
 };

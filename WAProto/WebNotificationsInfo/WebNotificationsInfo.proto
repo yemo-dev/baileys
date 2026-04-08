@@ -7,5 +7,5 @@ message WebNotificationsInfo {
     optional uint64 timestamp = 2;
     optional uint32 unreadChats = 3;
     optional uint32 notifyMessageCount = 4;
-    repeated WebMessageInfo notifyMessages = 5;
+    repeated uint32 notifyMessages = 5;
 }

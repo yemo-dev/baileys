@@ -45,6 +45,7 @@
     "build:docs": "typedoc",
     "build:tsc": "yarn build:types",
     "build:types": "tsc -p tsconfig.types.json",
+    "build:watch": "tsc -p tsconfig.types.json --watch",
     "changelog:last": "conventional-changelog -p angular -r 2",
     "changelog:preview": "conventional-changelog -p angular -u",
     "changelog:update": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
@@ -54,8 +55,12 @@
     "maintenance:on": "node -e \"const fs=require('fs'),p='lib/Defaults/index.js',c=fs.readFileSync(p,'utf8').replace(/exports\\.MAINTENANCE_MODE\\s*=\\s*(true|false)/,'exports.MAINTENANCE_MODE = true');fs.writeFileSync(p,c);console.log('[yebail] Maintenance mode ON')\"",
     "maintenance:off": "node -e \"const fs=require('fs'),p='lib/Defaults/index.js',c=fs.readFileSync(p,'utf8').replace(/exports\\.MAINTENANCE_MODE\\s*=\\s*(true|false)/,'exports.MAINTENANCE_MODE = false');fs.writeFileSync(p,c);console.log('[yebail] Maintenance mode OFF')\"",
     "preinstall": "node ./engine-requirements.js",
+    "prepare": "yarn build:types",
     "release": "release-it",
+    "sync:proto": "node scripts/sync-wa-proto-modules.js",
     "test": "jest --passWithNoTests",
+    "update:all": "yarn update:proto && yarn update:version",
+    "update:proto": "node scripts/update-wa-proto.js",
     "update:version": "node scripts/update-wa-version.js"
   },
   "dependencies": {

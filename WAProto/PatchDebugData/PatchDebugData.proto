@@ -13,7 +13,7 @@ message PatchDebugData {
     optional int32 numberAdd = 7;
     optional int32 numberRemove = 8;
     optional int32 numberOverride = 9;
-    optional Platform senderPlatform = 10;
+    optional PatchDebugData.Platform senderPlatform = 10;
     optional bool isSenderPrimary = 11;
     enum Platform {
         ANDROID = 0;

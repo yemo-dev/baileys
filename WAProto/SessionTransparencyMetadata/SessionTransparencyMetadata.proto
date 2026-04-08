@@ -6,5 +6,5 @@ package proto;
 message SessionTransparencyMetadata {
     optional string disclaimerText = 1;
     optional string hcaId = 2;
-    optional SessionTransparencyType sessionTransparencyType = 3;
+    optional int32 sessionTransparencyType = 3;
 }

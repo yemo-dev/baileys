@@ -1,0 +1,12 @@
+syntax = "proto3";
+package proto;
+
+/// WhatsApp Version: 2.3000.1029496320
+
+message InlineContact {
+    optional string pnJid = 1;
+    optional string lidJid = 2;
+    optional string fullName = 3;
+    optional string firstName = 4;
+    optional string username = 5;
+}

@@ -5,18 +5,5 @@ package proto;
 
 message AIRichResponseCodeMetadata {
     optional string codeLanguage = 1;
-    repeated AIRichResponseCodeBlock codeBlocks = 2;
-    message AIRichResponseCodeBlock {
-        optional AIRichResponseCodeMetadata.AIRichResponseCodeHighlightType highlightType = 1;
-        optional string codeContent = 2;
-    }
-
-    enum AIRichResponseCodeHighlightType {
-        AI_RICH_RESPONSE_CODE_HIGHLIGHT_DEFAULT = 0;
-        AI_RICH_RESPONSE_CODE_HIGHLIGHT_KEYWORD = 1;
-        AI_RICH_RESPONSE_CODE_HIGHLIGHT_METHOD = 2;
-        AI_RICH_RESPONSE_CODE_HIGHLIGHT_STRING = 3;
-        AI_RICH_RESPONSE_CODE_HIGHLIGHT_NUMBER = 4;
-        AI_RICH_RESPONSE_CODE_HIGHLIGHT_COMMENT = 5;
-    }
+    repeated AIRichResponseCodeMetadata.IAIRichResponseCodeBlock codeBlocks = 2;
 }

@@ -5,5 +5,5 @@ package proto;
 
 message ChatLockSettings {
     optional bool hideLockedChats = 1;
-    optional UserPassword secretCode = 2;
+    optional uint32 secretCode = 2;
 }

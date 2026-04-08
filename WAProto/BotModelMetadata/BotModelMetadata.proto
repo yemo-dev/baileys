@@ -4,8 +4,8 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message BotModelMetadata {
-    optional ModelType modelType = 1;
-    optional PremiumModelStatus premiumModelStatus = 2;
+    optional BotModelMetadata.ModelType modelType = 1;
+    optional BotModelMetadata.PremiumModelStatus premiumModelStatus = 2;
     optional string modelNameOverride = 3;
     enum ModelType {
         UNKNOWN_TYPE = 0;

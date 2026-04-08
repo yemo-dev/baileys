@@ -6,7 +6,7 @@ package proto;
 message BotAgeCollectionMetadata {
     optional bool ageCollectionEligible = 1;
     optional bool shouldTriggerAgeCollectionOnClient = 2;
-    optional AgeCollectionType ageCollectionType = 3;
+    optional BotAgeCollectionMetadata.AgeCollectionType ageCollectionType = 3;
     enum AgeCollectionType {
         O18_BINARY = 0;
         WAFFLE = 1;

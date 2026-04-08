@@ -1,0 +1,12 @@
+syntax = "proto3";
+package proto;
+
+/// WhatsApp Version: 2.3000.1029496320
+
+message BotDocumentMessageMetadata {
+    optional BotDocumentMessageMetadata.DocumentPluginType pluginType = 1;
+    enum DocumentPluginType {
+        TEXT_EXTRACTION = 0;
+        OCR_AND_IMAGES = 1;
+    }
+}

@@ -8,7 +8,7 @@
     "skipLibCheck": true,
     "strict": false,
     "moduleResolution": "node",
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "CommonJS",
     "rootDir": ".",

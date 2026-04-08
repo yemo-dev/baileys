@@ -4,8 +4,8 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message DisappearingMode {
-    optional Initiator initiator = 1;
-    optional Trigger trigger = 2;
+    optional DisappearingMode.Initiator initiator = 1;
+    optional DisappearingMode.Trigger trigger = 2;
     optional string initiatorDeviceJid = 3;
     optional bool initiatedByMe = 4;
     enum Initiator {

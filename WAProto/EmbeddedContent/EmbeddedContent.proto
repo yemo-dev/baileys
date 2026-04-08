@@ -4,8 +4,6 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message EmbeddedContent {
-    oneof content {
-        EmbeddedMessage embeddedMessage = 1;
-        EmbeddedMusic embeddedMusic = 2;
-    }
+    optional uint32 embeddedMessage = 1;
+    optional uint32 embeddedMusic = 2;
 }

@@ -8,14 +8,6 @@ message AIRichResponseMapMetadata {
     optional double centerLongitude = 2;
     optional double latitudeDelta = 3;
     optional double longitudeDelta = 4;
-    repeated AIRichResponseMapAnnotation annotations = 5;
+    repeated AIRichResponseMapMetadata.IAIRichResponseMapAnnotation annotations = 5;
     optional bool showInfoList = 6;
-    message AIRichResponseMapAnnotation {
-        optional uint32 annotationNumber = 1;
-        optional double latitude = 2;
-        optional double longitude = 3;
-        optional string title = 4;
-        optional string body = 5;
-    }
-
 }

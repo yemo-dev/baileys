@@ -1,0 +1,10 @@
+syntax = "proto3";
+package proto;
+
+/// WhatsApp Version: 2.3000.1029496320
+
+message BotCommandMetadata {
+    optional string commandName = 1;
+    optional string commandDescription = 2;
+    optional string commandPrompt = 3;
+}
