@@ -2206,7 +2206,7 @@ await sock.sendMessage(jid, {
 ### Rich AI Response (Bot Forward)
 
 Send a WhatsApp AI-style rich response — the same format used by Meta AI bots — with an optional syntax-highlighted code block.  
-Uses `botForwardedMessage` → `richResponseMessage` → `unifiedResponse` (base64 JSON payload).
+Uses `botForwardedMessage` → `richResponseMessage` → `unifiedResponse` (raw JSON bytes in the `data` field).
 
 ```js
 // Text-only
@@ -2225,7 +2225,7 @@ await sock.sendMessage(jid, {
   }
 })
 
-// Custom bot JID
+// Text + code + custom bot JID
 await sock.sendMessage(jid, {
   richResponse: {
     text: 'Result:',
