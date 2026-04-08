@@ -4,14 +4,14 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message AIRichResponseSubMessage {
-    optional AIRichResponseSubMessageType messageType = 1;
-    optional AIRichResponseGridImageMetadata gridImageMetadata = 2;
+    optional int32 messageType = 1;
+    optional uint32 gridImageMetadata = 2;
     optional string messageText = 3;
-    optional AIRichResponseInlineImageMetadata imageMetadata = 4;
-    optional AIRichResponseCodeMetadata codeMetadata = 5;
-    optional AIRichResponseTableMetadata tableMetadata = 6;
-    optional AIRichResponseDynamicMetadata dynamicMetadata = 7;
-    optional AIRichResponseLatexMetadata latexMetadata = 8;
-    optional AIRichResponseMapMetadata mapMetadata = 9;
-    optional AIRichResponseContentItemsMetadata contentItemsMetadata = 10;
+    optional uint32 imageMetadata = 4;
+    optional uint32 codeMetadata = 5;
+    optional uint32 tableMetadata = 6;
+    optional uint32 dynamicMetadata = 7;
+    optional uint32 latexMetadata = 8;
+    optional uint32 mapMetadata = 9;
+    optional uint32 contentItemsMetadata = 10;
 }

@@ -4,9 +4,10 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message BotModeSelectionMetadata {
-    repeated BotUserSelectionMode mode = 1;
+    repeated BotModeSelectionMetadata.BotUserSelectionMode mode = 1;
+    repeated uint32 overrideMode = 2;
     enum BotUserSelectionMode {
-        UNKNOWN_MODE = 0;
-        REASONING_MODE = 1;
+        DEFAULT_MODE = 0;
+        THINK_HARD_MODE = 1;
     }
 }

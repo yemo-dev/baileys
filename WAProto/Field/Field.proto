@@ -8,5 +8,5 @@ message Field {
     optional uint32 maxVersion = 2;
     optional uint32 notReportableMinVersion = 3;
     optional bool isMessage = 4;
-    map<uint32, Field> subfield = 5;
+    optional string subfield = 5;
 }

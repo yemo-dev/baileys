@@ -4,7 +4,7 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message UserReceipt {
-    string userJid = 1;
+    optional string userJid = 1;
     optional int64 receiptTimestamp = 2;
     optional int64 readTimestamp = 3;
     optional int64 playedTimestamp = 4;

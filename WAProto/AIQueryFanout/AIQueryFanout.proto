@@ -4,7 +4,7 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message AIQueryFanout {
-    optional MessageKey messageKey = 1;
-    optional Message message = 2;
+    optional uint32 messageKey = 1;
+    optional uint32 message = 2;
     optional int64 timestamp = 3;
 }

@@ -5,5 +5,5 @@ package proto;
 
 message BotSessionMetadata {
     optional string sessionId = 1;
-    optional BotSessionSource sessionSource = 2;
+    optional int32 sessionSource = 2;
 }

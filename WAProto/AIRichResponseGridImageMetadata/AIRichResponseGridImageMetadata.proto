@@ -4,6 +4,6 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message AIRichResponseGridImageMetadata {
-    optional AIRichResponseImageURL gridImageUrl = 1;
-    repeated AIRichResponseImageURL imageUrls = 2;
+    optional uint32 gridImageUrl = 1;
+    repeated uint32 imageUrls = 2;
 }

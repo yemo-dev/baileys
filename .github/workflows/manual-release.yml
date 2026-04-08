@@ -35,12 +35,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Release to npm
+      - name: Bump version, push, and publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          # Increment root package version without creating a git tag
           npm version ${{ github.event.inputs.increment }} --no-git-tag-version
+
+          VERSION=$(node -p 'require("./package.json").version')
 
           git add package.json scripts
           if [ -f package-lock.json ]; then
@@ -49,12 +50,11 @@ jobs:
 
           COMMIT_MESSAGE="${{ github.event.inputs.commit_text }}"
           if [ -z "$COMMIT_MESSAGE" ]; then
-            COMMIT_MESSAGE="chore: release v$(node -p 'require("./package.json").version')"
+            COMMIT_MESSAGE="chore: release v${VERSION}"
           fi
           git commit -m "$COMMIT_MESSAGE"
-          
-          # Push changes without tags
           git push origin main
-          
-          # Publish to npm
+
+          echo "Publishing v${VERSION} to npm..."
           npm publish --access public
+          echo "✓ Published @yemo-dev/yebail@${VERSION} to https://www.npmjs.com/package/@yemo-dev/yebail"

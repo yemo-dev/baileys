@@ -4,7 +4,7 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message LIDMigrationMapping {
-    uint64 pn = 1;
-    uint64 assignedLid = 2;
+    optional uint64 pn = 1;
+    optional uint64 assignedLid = 2;
     optional uint64 latestLid = 3;
 }

@@ -6,7 +6,7 @@ package proto;
 message MediaRetryNotification {
     optional string stanzaId = 1;
     optional string directPath = 2;
-    optional ResultType result = 3;
+    optional MediaRetryNotification.ResultType result = 3;
     optional bytes messageSecret = 4;
     enum ResultType {
         GENERAL_ERROR = 0;

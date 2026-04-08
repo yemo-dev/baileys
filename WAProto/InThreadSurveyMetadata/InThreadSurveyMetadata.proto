@@ -15,27 +15,11 @@ message InThreadSurveyMetadata {
     optional string invitationCtaText = 9;
     optional string invitationCtaUrl = 10;
     optional string surveyTitle = 11;
-    repeated InThreadSurveyQuestion questions = 12;
+    repeated InThreadSurveyMetadata.IInThreadSurveyQuestion questions = 12;
     optional string surveyContinueButtonText = 13;
     optional string surveySubmitButtonText = 14;
     optional string privacyStatementFull = 15;
-    repeated InThreadSurveyPrivacyStatementPart privacyStatementParts = 16;
+    repeated InThreadSurveyMetadata.IInThreadSurveyPrivacyStatementPart privacyStatementParts = 16;
     optional string feedbackToastText = 17;
-    message InThreadSurveyOption {
-        optional string stringValue = 1;
-        optional uint32 numericValue = 2;
-        optional string textTranslated = 3;
-    }
-
-    message InThreadSurveyPrivacyStatementPart {
-        optional string text = 1;
-        optional string url = 2;
-    }
-
-    message InThreadSurveyQuestion {
-        optional string questionText = 1;
-        optional string questionId = 2;
-        repeated InThreadSurveyMetadata.InThreadSurveyOption questionOptions = 3;
-    }
-
+    optional int32 startQuestionIndex = 18;
 }

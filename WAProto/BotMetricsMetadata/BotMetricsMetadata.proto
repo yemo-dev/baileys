@@ -5,6 +5,6 @@ package proto;
 
 message BotMetricsMetadata {
     optional string destinationId = 1;
-    optional BotMetricsEntryPoint destinationEntryPoint = 2;
-    optional BotMetricsThreadEntryPoint threadOrigin = 3;
+    optional int32 destinationEntryPoint = 2;
+    optional int32 threadOrigin = 3;
 }

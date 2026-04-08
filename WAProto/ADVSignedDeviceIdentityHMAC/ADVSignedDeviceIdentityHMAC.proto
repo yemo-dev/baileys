@@ -6,5 +6,5 @@ package proto;
 message ADVSignedDeviceIdentityHMAC {
     optional bytes details = 1;
     optional bytes hmac = 2;
-    optional ADVEncryptionType accountType = 3;
+    optional int32 accountType = 3;
 }

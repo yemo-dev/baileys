@@ -18,5 +18,6 @@ coverage
 output.txt
 clean_comments.js
 package-lock.json
+yarn.lock
 wa-research
 wa-research/

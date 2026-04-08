@@ -4,8 +4,8 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message AIRichResponseMessage {
-    optional AIRichResponseMessageType messageType = 1;
-    repeated AIRichResponseSubMessage submessages = 2;
-    optional AIRichResponseUnifiedResponse unifiedResponse = 3;
-    optional ContextInfo contextInfo = 4;
+    optional int32 messageType = 1;
+    repeated uint32 submessages = 2;
+    optional uint32 unifiedResponse = 3;
+    optional uint32 contextInfo = 4;
 }

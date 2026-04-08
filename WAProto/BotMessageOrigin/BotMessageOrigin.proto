@@ -4,7 +4,7 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message BotMessageOrigin {
-    optional BotMessageOriginType type = 1;
+    optional BotMessageOrigin.BotMessageOriginType type = 1;
     enum BotMessageOriginType {
         BOT_MESSAGE_ORIGIN_TYPE_AI_INITIATED = 0;
     }

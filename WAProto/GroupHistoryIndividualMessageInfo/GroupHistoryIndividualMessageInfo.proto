@@ -4,6 +4,6 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message GroupHistoryIndividualMessageInfo {
-    optional MessageKey bundleMessageKey = 1;
+    optional uint32 bundleMessageKey = 1;
     optional bool editedAfterReceivedAsHistory = 2;
 }

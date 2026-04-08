@@ -4,8 +4,8 @@ package proto;
 /// WhatsApp Version: 2.3000.1029496320
 
 message SyncdSnapshot {
-    optional SyncdVersion version = 1;
-    repeated SyncdRecord records = 2;
+    optional uint32 version = 1;
+    repeated uint32 records = 2;
     optional bytes mac = 3;
-    optional KeyId keyId = 4;
+    optional uint32 keyId = 4;
 }
