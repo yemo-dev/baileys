@@ -536,7 +536,7 @@ function syncPerModuleFiles(bundleContent, waVersion) {
         const isNew     = !existsSync(jsPath);
 
         writeFileSync(jsPath, `"use strict";\n\nconst { proto } = require("../index");\n\nmodule.exports = {\n    ${typeName}: proto.${typeName}\n};\n`, 'utf8');
-        if (!existsSync(dtsPath)) writeFileSync(dtsPath, STUB_DTS, 'utf8');
+        writeFileSync(dtsPath, STUB_DTS, 'utf8');
 
         const def      = extractProtoDefinition(bundleContent, typeName, waVersion);
         const existing = existsSync(protoPath) ? readFileSync(protoPath, 'utf8') : '';
