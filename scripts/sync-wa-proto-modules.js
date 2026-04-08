@@ -21,7 +21,7 @@ const { execFileSync } = require('child_process');
 const ROOT_DIR = join(__dirname, '..');
 const WA_PROTO_DIR = join(ROOT_DIR, 'WAProto');
 const BUNDLE_PATH = join(WA_PROTO_DIR, 'index.js');
-const WA_VERSION_PATH = join(WA_PROTO_DIR, 'wa-version.txt');
+const YEBAIL_VERSION_PATH = join(ROOT_DIR, 'lib', 'Defaults', 'yebail-version.json');
 const STUB_DTS = 'export = $root;\ndeclare var $root: any;\n';
 
 if (!existsSync(BUNDLE_PATH)) {
@@ -191,8 +191,10 @@ function extractProtoDefinition(content, typeName, waVersion) {
 }
 
 const waVersionMatch = bundleContent.match(/WhatsApp Version: ([\d.]+)/);
-const waVersionFile = existsSync(WA_VERSION_PATH) ? readFileSync(WA_VERSION_PATH, 'utf8').trim() : null;
-const waVersion = waVersionMatch ? waVersionMatch[1] : (waVersionFile || 'unknown');
+const waVersionFromJson = existsSync(YEBAIL_VERSION_PATH)
+    ? JSON.parse(readFileSync(YEBAIL_VERSION_PATH, 'utf8')).version.join('.')
+    : null;
+const waVersion = waVersionMatch ? waVersionMatch[1] : (waVersionFromJson || 'unknown');
 const types = extractTopLevelTypes(bundleContent);
 
 console.log(`[sync] WAProto version: ${waVersion}`);

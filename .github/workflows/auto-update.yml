@@ -33,7 +33,7 @@ jobs:
         run: yarn update:proto
         continue-on-error: true
 
-      - name: Commit and push changes
+      - name: Commit, push, and publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
@@ -51,8 +51,11 @@ jobs:
           npm version patch --no-git-tag-version
           git add package.json
 
-          git commit -m "chore: update WhatsApp Web version and release"
+          VERSION=$(node -p 'require("./package.json").version')
+          git commit -m "chore: release v${VERSION} — WA update $(date -u +%Y-%m-%d)"
           git pull --rebase origin main
           git push origin main
 
+          echo "Publishing v${VERSION} to npm..."
           npm publish --access public
+          echo "✓ Published @yemo-dev/yebail@${VERSION} to https://www.npmjs.com/package/@yemo-dev/yebail"

@@ -8,7 +8,7 @@ const SCRIPTS_DIR = join(ROOT_DIR, 'scripts');
 const WA_PROTO_DIR = join(ROOT_DIR, 'WAProto');
 const SOURCE_PROTO_PATH = join(WA_PROTO_DIR, 'WAProto.proto');
 const BUNDLE_PATH = join(WA_PROTO_DIR, 'index.js');
-const WA_VERSION_PATH = join(WA_PROTO_DIR, 'wa-version.txt');
+const YEBAIL_VERSION_PATH = join(ROOT_DIR, 'lib', 'Defaults', 'yebail-version.json');
 const LOCAL_PROTO_EXTRACT_PATH = join(SCRIPTS_DIR, 'proto-extract.js');
 const STUB_DTS = 'export = $root;\ndeclare var $root: any;\n';
 
@@ -239,12 +239,19 @@ function extractProtoDefinition(bundleContent, typeName, waVersion) {
 function syncPerModuleFiles(bundleContent, waVersion) {
     if (!waVersion) {
         const waVersionMatch = bundleContent.match(/WhatsApp Version: ([\d.]+)/);
-        waVersion = waVersionMatch ? waVersionMatch[1]
-            : (existsSync(WA_VERSION_PATH) ? readFileSync(WA_VERSION_PATH, 'utf8').trim() : 'unknown');
+        if (waVersionMatch) {
+            waVersion = waVersionMatch[1];
+        } else if (existsSync(YEBAIL_VERSION_PATH)) {
+            const v = JSON.parse(readFileSync(YEBAIL_VERSION_PATH, 'utf8')).version;
+            waVersion = v.join('.');
+        } else {
+            waVersion = 'unknown';
+        }
     }
 
-    // Persist the version for future use
-    writeFileSync(WA_VERSION_PATH, waVersion + '\n', 'utf8');
+    // Persist the version into yebail-version.json
+    const vParts = waVersion.split('.').map(Number);
+    writeFileSync(YEBAIL_VERSION_PATH, JSON.stringify({ version: vParts }) + '\n', 'utf8');
 
     const types = extractTopLevelTypes(bundleContent);
     console.log(`[proto-sync] Found ${types.length} top-level proto types in index.js`);

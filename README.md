@@ -2118,7 +2118,7 @@ await sock.sendMessage(jid, {
 })
 ```
 
-### Rich AI Response (`.eval` / bot forward)
+### Rich AI Response (Bot Forward)
 
 Send a WhatsApp AI-style rich response — the same format used by Meta AI bots — with an optional syntax-highlighted code block.  
 Uses `botForwardedMessage` → `richResponseMessage` → `unifiedResponse` (base64 JSON payload).
@@ -2296,21 +2296,21 @@ yarn build:types
 
 ### Version Tracking
 
-The current WhatsApp Web version extracted by the last proto update is stored in:
+The current WhatsApp Web version is stored alongside the connection defaults in:
 
 ```
-WAProto/wa-version.txt
+lib/Defaults/yebail-version.json
 ```
 
-This is used by `update-wa-proto.js` and `sync-wa-proto-modules.js` to stamp `.proto` files with the correct version comment.
+Format: `{"version":[2,3000,XXXXXXXXX]}`. Updated automatically by `yarn update:version` and `yarn update:proto` (which writes the version extracted from WA Web back into this file). The version array is also exported from the library as `version` and embedded as a `/// WhatsApp Version:` comment in each `.proto` file.
 
 ### Auto-Update CI
 
 The GitHub Actions **Auto Update** workflow runs every Sunday (`0 0 * * 0`) and:
 
-1. Runs `yarn update:version` — fetches the latest WA Web version
-2. Runs `yarn update:proto` — re-extracts the proto schema, regenerates `WAProto/index.js`, syncs all per-module files, and runs `yarn build:types`
-3. Commits all changes and publishes a patch release to npm
+1. Runs `yarn update:version` — fetches the latest WA Web version, updates `lib/Defaults/yebail-version.json` and `lib/Defaults/index.js`
+2. Runs `yarn update:proto` — re-extracts the proto schema from WA Web, regenerates `WAProto/index.js`, syncs all per-module `.js`/`.d.ts`/`.proto` files, runs `yarn build:types`
+3. Bumps the npm patch version, commits all changes, pushes to `main`, and publishes to npm
 
 You can also trigger it manually from the **Actions** tab → **Auto Update** → **Run workflow**.
 
@@ -2412,9 +2412,9 @@ console.log(MAINTENANCE_MESSAGE)
 | Custom Auth State | yes | Redis, MongoDB, etc. |
 | LID Support | yes | modern identity system |
 | Encryption | yes | Signal protocol *(vendored internal libsignal-node in `lib/Signal/libsignal-node`)* |
-| Auto-Updates | yes | `yarn update:all` / weekly CI schedule |
+| Auto-Updates | yes | `yarn update:all` / weekly CI schedule → auto-publishes to npm |
 | WAProto per-module sync | yes | `yarn sync:proto` re-generates all per-module wrappers from bundle |
-| WAProto version tracking | yes | `WAProto/wa-version.txt` stores current WA Web version |
+| WAProto version tracking | yes | `lib/Defaults/yebail-version.json` stores current WA Web version |
 | statusNotificationMessage | yes | status add-yours / reshare notification |
 | statusQuestionAnswerMessage | yes | answer to a status question |
 | questionResponseMessage | yes | response to a question message |
