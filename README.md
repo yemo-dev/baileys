@@ -2116,6 +2116,43 @@ await sock.sendMessage(jid, {
 })
 ```
 
+### Rich AI Response (`.eval` / bot forward)
+
+Send a WhatsApp AI-style rich response — the same format used by Meta AI bots — with an optional syntax-highlighted code block.  
+Uses `botForwardedMessage` → `richResponseMessage` → `unifiedResponse` (base64 JSON payload).
+
+```js
+// Text-only
+await sock.sendMessage(jid, {
+  richResponse: {
+    text: 'aku hann universe'
+  }
+})
+
+// Text + JS code block (auto-tokenized)
+await sock.sendMessage(jid, {
+  richResponse: {
+    text: 'Here is a Hello World example:',
+    code: 'console.log("Hello World")',
+    language: 'javascript'   // default
+  }
+})
+
+// Custom bot JID
+await sock.sendMessage(jid, {
+  richResponse: {
+    text: 'Result:',
+    code: 'const x = 42\nconsole.log(x)',
+    botJid: '259786046210223@bot'
+  }
+})
+```
+
+Token types produced by the built-in tokenizer: `KEYWORD`, `STR`, `NUMBER`, `METHOD`, `COMMENT`, `DEFAULT`  
+(mapped to `GenAICodeUXPrimitive.code_blocks` inside the `unifiedResponse` payload).
+
+WAProto types used: `AIRichResponseMessage` (field 97), `AIRichResponseUnifiedResponse`, `ForwardedAIBotMessageInfo`, `BotMessageSharingInfo` — all present in WAProto.
+
 ---
 
 ## Call Link
