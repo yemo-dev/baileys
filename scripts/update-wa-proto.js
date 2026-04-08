@@ -305,19 +305,6 @@ function syncPerModuleFiles(bundleContent, waVersion) {
     console.log(`[proto-sync] Per-module sync complete: ${created} created, ${updated} updated`);
 }
 
-/**
- * Run TypeScript declaration generation (yarn build:types) so .d.ts files
- * in lib/ are regenerated after WAProto/index.js changes.
- */
-function rebuildTypes() {
-    console.log('[build] Regenerating TypeScript declarations (yarn build:types)...');
-    execFileSync('yarn', ['build:types'], {
-        cwd: ROOT_DIR,
-        stdio: 'inherit'
-    });
-    console.log('[build] Type declarations updated.');
-}
-
 async function main() {
     const depsRoot = installExtractorDependencies();
     const nodeModulesPath = join(depsRoot, 'node_modules');
@@ -348,9 +335,6 @@ async function main() {
         const waVersion = waVersionMatch ? waVersionMatch[1] : undefined;
         const bundleContent = readFileSync(BUNDLE_PATH, 'utf8');
         syncPerModuleFiles(bundleContent, waVersion);
-
-        // Regenerate TypeScript declarations
-        rebuildTypes();
     }
     finally {
         rmSync(depsRoot, { recursive: true, force: true });
